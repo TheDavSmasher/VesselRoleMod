@@ -67,14 +67,19 @@ public class VesselAdorciseButton : TownOfUsRoleButton<VesselRole>
 	{
 		if (EffectActive)
 		{
+			// TODO: Rpc Method
 			return;
 		}
-
-		throw new NotImplementedException();
+		
+		// TODO: RpcMethod
+		OverrideName(TouLocale.Get("VesselRoleExorcise", "Exorcise"));
 	}
 
 	public override void OnEffectEnd()
 	{
 		base.OnEffectEnd();
+
+		// TODO: Rpc Method
+		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 	}
 }
