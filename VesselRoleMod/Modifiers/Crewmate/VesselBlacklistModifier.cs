@@ -25,8 +25,8 @@ public sealed class VesselBlacklistModifier : BaseModifier
 				Player.Data.Role,
 				SetBlacklist,
 				MeetingAbilityType.Toggle,
-				VesselAssets.VesselBlockedSprite,
-				VesselAssets.VesselUnblockedSprite,
+				VesselModAssets.VesselBlockedSprite,
+				VesselModAssets.VesselUnblockedSprite,
 				IsExempt)
 			{
 				Position = new Vector3(-0.40f, 0f, -3f)
