@@ -13,4 +13,20 @@ public static class VesselEvents
 	{
 		ModifierUtils.GetActiveModifiers<VesselBlacklistModifier>().Do(x => x.OnVotingComplete());
 	}
+
+	[RegisterEvent]
+	public static void VesselAdorcismHandler(CustomAbilityEvent<VesselAbilityType> @event)
+	{
+		if (@event.AbilityType != VesselAbilityType.Adorcise)
+		{
+			return;
+		}
+
+
+	}
+}
+
+public enum VesselAbilityType
+{
+	Adorcise
 }
