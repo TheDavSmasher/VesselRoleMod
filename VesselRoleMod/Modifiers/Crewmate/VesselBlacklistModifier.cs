@@ -3,6 +3,7 @@ using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Assets;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
@@ -24,8 +25,8 @@ public sealed class VesselBlacklistModifier : BaseModifier
 				Player.Data.Role,
 				SetBlacklist,
 				MeetingAbilityType.Toggle,
-				null, // Active
-				null, // Inactive
+				VesselAssets.VesselBlockedSprite,
+				VesselAssets.VesselUnblockedSprite,
 				IsExempt)
 			{
 				Position = new Vector3(-0.40f, 0f, -3f)

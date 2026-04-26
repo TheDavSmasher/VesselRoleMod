@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\" />
     <Folder Include="Modifiers\" />
     <Folder Include="Resources\" />
   </ItemGroup>
