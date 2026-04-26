@@ -8,6 +8,7 @@ using TownOfUs.Modifiers;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
 using UnityEngine;
+using VesselRoleMod.Assets;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -20,7 +21,7 @@ public class VesselAdorciseButton : TownOfUsRoleButton<VesselRole>
 	public override Color TextOutlineColor => TownOfUsColors.Impostor;
 	public override float Cooldown => Math.Clamp(OptionGroupSingleton<VesselOptions>.Instance.AdorciseCooldown + MapCooldown, 5f, 120f);
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
-	public override LoadableAsset<Sprite> Sprite => throw new NotImplementedException();
+	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.AdorciseSprite;
 
 	public override void ClickHandler()
 	{
@@ -73,6 +74,7 @@ public class VesselAdorciseButton : TownOfUsRoleButton<VesselRole>
 		
 		// TODO: RpcMethod
 		OverrideName(TouLocale.Get("VesselRoleExorcise", "Exorcise"));
+		OverrideSprite(VesselCrewAssets.ExorciseSprite.LoadAsset());
 	}
 
 	public override void OnEffectEnd()
@@ -81,5 +83,6 @@ public class VesselAdorciseButton : TownOfUsRoleButton<VesselRole>
 
 		// TODO: Rpc Method
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
+		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
 	}
 }
