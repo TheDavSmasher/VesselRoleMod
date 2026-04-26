@@ -1,4 +1,6 @@
-﻿using MiraAPI.Patches.Stubs;
+﻿using MiraAPI.GameOptions;
+using MiraAPI.Modifiers;
+using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
@@ -7,6 +9,8 @@ using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Roles.Crewmate;
 
@@ -36,6 +40,19 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		Icon = null,
 		IntroSound = TouAudio.MediumIntroSound
 	};
+
+	public override void Initialize(PlayerControl player)
+	{
+		RoleBehaviourStubs.Initialize(this, player);
+
+		if (OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.None && 
+			!player.HasModifier<VesselBlacklistModifier>())
+		{
+			player.AddModifier<VesselBlacklistModifier>();
+		}
+
+		// TODO
+	}
 
 	public override void Deinitialize(PlayerControl targetPlayer)
 	{
