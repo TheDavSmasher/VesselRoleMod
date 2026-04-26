@@ -1,11 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HarmonyLib;
+using MiraAPI.Events;
+using MiraAPI.Events.Vanilla.Meeting.Voting;
+using MiraAPI.Modifiers;
+using VesselRoleMod.Modifiers.Crewmate;
 
 namespace VesselRoleMod.Events.Crewmate;
 
 public static class VesselEvents
 {
+	[RegisterEvent]
+	public static void VotingCompleteHandler(VotingCompleteEvent @event)
+	{
+		ModifierUtils.GetActiveModifiers<VesselBlacklistModifier>().Do(x => x.OnVotingComplete());
+	}
 }
