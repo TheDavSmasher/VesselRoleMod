@@ -13,4 +13,12 @@
 
   <Import Project="../AmongUs.props" />
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\David Higueros\Documents\.Personal Projects\AmongDiscord\VesselRoleMod\VesselRoleMod\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\David Higueros\Documents\.Personal Projects\AmongDiscord\VesselRoleMod\VesselRoleMod\.editorconfig" />
+  </ItemGroup>
+
 </Project>
