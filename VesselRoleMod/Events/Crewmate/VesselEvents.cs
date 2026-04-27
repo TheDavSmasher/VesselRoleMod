@@ -3,10 +3,13 @@ using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
+using System.Linq;
 using TownOfUs.Assets;
 using TownOfUs.Utilities;
+using TownOfUs.Utilities.Appearances;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Events.Crewmate;
 
@@ -21,15 +24,26 @@ public static class VesselEvents
 	[RegisterEvent]
 	public static void VesselStartAdorcismHandler(CustomAbilityEvent<VesselAbilityType> @event)
 	{
-		if (@event.AbilityType != VesselAbilityType.AdorciseStart)
+		PlayerControl Player = @event.Player;
+		if (@event.AbilityType != VesselAbilityType.AdorciseStart ||
+			Player.Data.Role is not VesselRole vessel)
 		{
 			return;
 		}
 
-		var notif1 = Helpers.CreateAndShowNotification(
-			"Adorcism Started",
-			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
-		notif1.AdjustNotification();
+		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
+			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != Player.PlayerId).ToList();
+
+		if (Player.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
+		{
+			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId)).ToList();
+		}
+
+		var color = Palette.PlayerColors[Player.GetDefaultAppearance().ColorId];
+		foreach (var ghost in deadPlayers)
+		{
+			ghost.AddModifier<AdorcismArrowModifier>(Player, color);
+		}
 	}
 
 	[RegisterEvent]
@@ -40,10 +54,18 @@ public static class VesselEvents
 			return;
 		}
 
-		var notif1 = Helpers.CreateAndShowNotification(
-			"Adorcism Window Ended without Possession",
-			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
-		notif1.AdjustNotification();
+		foreach (var ghostArrow in ModifierUtils.GetActiveModifiers<AdorcismArrowModifier>())
+		{
+			if (ghostArrow == null)
+			{
+				continue;
+			}
+
+			if (ghostArrow.Owner.PlayerId == @event.Player.PlayerId)
+			{
+				ghostArrow.Player.RemoveModifier(ghostArrow);
+			}
+		}
 	}
 
 	[RegisterEvent]
