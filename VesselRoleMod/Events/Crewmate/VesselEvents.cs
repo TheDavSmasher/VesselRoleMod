@@ -2,6 +2,10 @@
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Modifiers;
+using MiraAPI.Utilities;
+using TownOfUs.Assets;
+using TownOfUs.Utilities;
+using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
 
 namespace VesselRoleMod.Events.Crewmate;
@@ -22,7 +26,10 @@ public static class VesselEvents
 			return;
 		}
 
-
+		var notif1 = Helpers.CreateAndShowNotification(
+			"Adorcism Started",
+			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
+		notif1.AdjustNotification();
 	}
 
 	[RegisterEvent]
@@ -33,7 +40,10 @@ public static class VesselEvents
 			return;
 		}
 
-
+		var notif1 = Helpers.CreateAndShowNotification(
+			"Adorcism Window Ended without Possession",
+			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
+		notif1.AdjustNotification();
 	}
 
 	[RegisterEvent]
@@ -44,7 +54,10 @@ public static class VesselEvents
 			return;
 		}
 
-
+		var notif1 = Helpers.CreateAndShowNotification(
+			"Adorcism Succeeded with Possession",
+			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
+		notif1.AdjustNotification();
 	}
 }
 
