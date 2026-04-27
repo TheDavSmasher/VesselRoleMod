@@ -1,5 +1,4 @@
 ﻿using MiraAPI.GameOptions;
-using TownOfUs.Modifiers;
 using TownOfUs.Modules.RainbowMod;
 using UnityEngine;
 using VesselRoleMod.Options.Roles.Crewmate;
@@ -7,11 +6,11 @@ using VesselRoleMod.Options.Roles.Crewmate;
 namespace VesselRoleMod.Modifiers.Crewmate;
 
 /// <summary>
-/// Modifier added to the Vessel when performing an Adorcism, which gives an arrow to all ghosts that can possess.
+/// Modifier added to ghosts when a Vessel is performing an Adorcism, which gives an arrow to them to possess.
 /// </summary>
-/// <param name="owner">The ghost player that can see the arrow</param>
+/// <param name="owner">The Vessel player that the arrow points to</param>
 public sealed class AdorcismArrowModifier(PlayerControl owner, Color color)
-	: ArrowTargetModifier(owner, color, 0)
+	: ArrowSourceModifier(owner, color, 0)
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 

@@ -1,0 +1,71 @@
+﻿using MiraAPI.Modifiers.Types;
+using MiraAPI.PluginLoading;
+using Reactor.Utilities.Extensions;
+using TownOfUs.Utilities;
+using UnityEngine;
+
+namespace VesselRoleMod.Modifiers;
+
+[MiraIgnore]
+public abstract class ArrowSourceModifier(PlayerControl owner, Color color, float updateInterval) : TimedModifier
+{
+	private readonly float _updateInterval = updateInterval;
+	public override float Duration => 1f;
+	public override bool AutoStart => false;
+
+	private ArrowBehaviour? _arrow;
+	private DateTime _time = DateTime.UnixEpoch;
+	public ArrowBehaviour? Arrow => _arrow;
+	public override string ModifierName => "Arrow Target";
+	public override bool Unique => false;
+	public override bool HideOnUi => true;
+
+	public PlayerControl Owner { get; set; } = owner;
+
+	//public override string GetHudString()
+	//{
+	//    return ModifierName + $"\nOwner: {Owner.Data.PlayerName}\nTarget: {Player.Data.PlayerName}</color>";
+	//}
+
+	public override void OnActivate()
+	{
+		_arrow = MiscUtils.CreateArrow(Player.transform, color);
+	}
+
+	public override void OnDeath(DeathReason reason)
+	{
+		ModifierComponent!.RemoveModifier(this);
+	}
+
+	public override void OnDeactivate()
+	{
+		base.OnDeactivate();
+
+		if (!_arrow.IsDestroyedOrNull())
+		{
+			_arrow?.gameObject.Destroy();
+			_arrow?.Destroy();
+		}
+	}
+
+	public override void FixedUpdate()
+	{
+		base.FixedUpdate();
+		if (Owner == null)
+		{
+			ModifierComponent!.RemoveModifier(this);
+			return;
+		}
+
+		if (_updateInterval <= 0 || _time <= DateTime.UtcNow.AddSeconds(-_updateInterval))
+		{
+			if (_arrow != null)
+			{
+				_arrow.target = Owner.transform.position;
+				_arrow.Update();
+			}
+
+			_time = DateTime.UtcNow;
+		}
+	}
+}
