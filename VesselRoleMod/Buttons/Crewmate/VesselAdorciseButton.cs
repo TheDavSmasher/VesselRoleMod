@@ -82,7 +82,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			return;
 		}
 
-		// TODO: Rpc Start Adorcise Method
+		PlayerControl.LocalPlayer.RpcAddModifier<VesselAdorcismModifier>();
 	}
 
 	public override void OnTriggerActivate()
