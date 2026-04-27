@@ -28,6 +28,6 @@ public sealed class AdorcismArrowModifier(PlayerControl owner, Color color)
 		var spr = Arrow.gameObject.GetComponent<SpriteRenderer>();
 		var r = Arrow.gameObject.AddComponent<BasicRainbowBehaviour>();
 
-		r.AddRend(spr, Player.cosmetics.ColorId);
+		r.AddRend(spr, Owner.cosmetics.ColorId);
 	}
 }
