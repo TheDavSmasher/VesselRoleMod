@@ -1,4 +1,5 @@
 ﻿using MiraAPI.Modifiers;
+using System.Collections.Generic;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;

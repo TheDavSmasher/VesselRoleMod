@@ -1,25 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AllOfUs.MiraAPI" Version="0.3.9-ci.904" />
-    <PackageReference Include="AmongUs.GameLibs.Steam" Version="2025.11.18" />
-    <PackageReference Include="BepInEx.AutoPlugin" Version="1.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.1.0-rc.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.735" />
-    <PackageReference Include="Reactor" Version="2.5.0-ci.371" />
-    <PackageReference Include="TownOfUsMira" Version="1.5.9-sid" />
+    <EmbeddedResource Include="Resources\**\*.*" />
   </ItemGroup>
+
+  <Import Project="../AmongUs.props" />
 
 </Project>

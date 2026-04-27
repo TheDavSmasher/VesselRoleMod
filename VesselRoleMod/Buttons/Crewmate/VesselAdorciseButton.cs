@@ -2,6 +2,8 @@
 using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
+using System;
+using System.Linq;
 using TownOfUs;
 using TownOfUs.Buttons;
 using TownOfUs.Modifiers;

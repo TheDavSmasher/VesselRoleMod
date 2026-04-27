@@ -5,6 +5,7 @@ using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
 using System.Globalization;
+using System.Linq;
 using TownOfUs;
 using TownOfUs.Buttons;
 using TownOfUs.Modifiers;
