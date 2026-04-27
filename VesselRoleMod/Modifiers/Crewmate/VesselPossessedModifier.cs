@@ -1,13 +1,18 @@
 ﻿using MiraAPI.Events;
+using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
+using MiraAPI.Modifiers.Types;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
+using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
-public sealed class VesselPossessedModifier : BaseModifier
+public sealed class VesselPossessedModifier : TimedModifier
 {
+	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override string ModifierName => "Possessed";
+	public override bool HideOnUi => true;
 
 	public override void OnActivate()
 	{
@@ -19,5 +24,20 @@ public sealed class VesselPossessedModifier : BaseModifier
 		}
 
 		MiraEventManager.InvokeEvent(new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Player));
+	}
+
+	public override void OnDeactivate()
+	{
+		base.OnDeactivate();
+	}
+
+	public override void OnDeath(DeathReason reason)
+	{
+		ModifierComponent?.RemoveModifier(this);
+	}
+
+	public override void OnMeetingStart()
+	{
+		ModifierComponent?.RemoveModifier(this);
 	}
 }
