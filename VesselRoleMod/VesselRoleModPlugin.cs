@@ -44,7 +44,7 @@ public partial class VesselRoleModPlugin : BasePlugin, IMiraPlugin
 
 	public override void Load()
 	{
-		ReactorCredits.Register("Tou Extension Example", Version, IsDevBuild, ReactorCredits.AlwaysShow);
+		ReactorCredits.Register("Tou Extension: Vessel Role", Version, IsDevBuild, ReactorCredits.AlwaysShow);
 		IL2CPPChainloader.Instance.Finished += Modules.ExtensionLocale.SearchInternalLocale; // Initialise AFTER the mods are loaded to ensure maximum parity (no need for the soft dependency either then)
 		
 		Harmony.PatchAll();
