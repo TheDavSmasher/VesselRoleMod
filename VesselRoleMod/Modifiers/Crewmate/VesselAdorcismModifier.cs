@@ -1,12 +1,9 @@
 ﻿using MiraAPI.GameOptions;
-using MiraAPI.Modifiers.Types;
-using VesselRoleMod.Options.Roles.Crewmate;
+using MiraAPI.Modifiers;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
-public sealed class VesselAdorcismModifier : TimedModifier
+public sealed class VesselAdorcismModifier : BaseModifier
 {
-	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
-
 	public override string ModifierName => "Vessel Adorcism";
 }
