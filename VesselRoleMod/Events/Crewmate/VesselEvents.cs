@@ -35,10 +35,22 @@ public static class VesselEvents
 
 
 	}
+
+	[RegisterEvent]
+	public static void VesselAdorcismSuccessHandler(CustomAbilityEvent<VesselAbilityType> @event)
+	{
+		if (@event.AbilityType != VesselAbilityType.AdorcismSuccess)
+		{
+			return;
+		}
+
+
+	}
 }
 
 public enum VesselAbilityType
 {
 	AdorciseStart,
-	AdorciseEnd
+	AdorciseEnd,
+	AdorcismSuccess
 }

@@ -70,15 +70,15 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 
 	protected override void OnClick()
 	{
-		if (EffectActive)
+		if (EffectActive && PlayerControl.LocalPlayer.HasModifier<VesselPossessedModifier>())
 		{
-			// TODO: Rpc Exorcise Method
+			PlayerControl.LocalPlayer.RpcRemoveModifier<VesselPossessedModifier>();
 			return;
 		}
 
 		if (WaitingOnTrigger && PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>())
 		{
-			// TODO: Rpc Cancel Adorcise Method
+			PlayerControl.LocalPlayer.RpcRemoveModifier<VesselAdorcismModifier>();
 			return;
 		}
 
@@ -89,7 +89,8 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnTriggerActivate();
 
-		// TODO: Rpc Possess Method
+		PlayerControl.LocalPlayer.RpcAddModifier<VesselPossessedModifier>();
+
 		OverrideName(TouLocale.Get("VesselRoleExorcise", "Exorcise"));
 		OverrideSprite(VesselCrewAssets.ExorciseSprite.LoadAsset());
 	}
@@ -98,7 +99,11 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnTriggerEnd();
 
-		// TODO: Rpc Cancel Adorcise Method
+		if (PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>())
+		{
+			PlayerControl.LocalPlayer.RpcRemoveModifier<VesselAdorcismModifier>();
+		}
+
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
 	}
@@ -107,7 +112,11 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnEffectEnd();
 
-		// TODO: Rpc Exorcise Method
+		if (PlayerControl.LocalPlayer.HasModifier<VesselPossessedModifier>())
+		{
+			PlayerControl.LocalPlayer.RpcRemoveModifier<VesselPossessedModifier>();
+		}
+
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
 	}
