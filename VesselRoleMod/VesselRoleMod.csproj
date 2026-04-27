@@ -22,8 +22,4 @@
     <PackageReference Include="TownOfUsMira" Version="1.5.9-sid" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
-
 </Project>

@@ -20,8 +20,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 	public DoomableType DoomHintType => DoomableType.Death;
 	public string RoleName => TouLocale.Get("VesselRole");
-	public string RoleDescription => throw new NotImplementedException();
-	public string RoleLongDescription => throw new NotImplementedException();
+	public string RoleDescription => TouLocale.GetParsed("VesselRoleIntroBlurb");
+	public string RoleLongDescription => TouLocale.GetParsed("VesselRoleTabDescription");
 
 	public string GetAdvancedDescription()
 	{

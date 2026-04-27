@@ -15,7 +15,7 @@ public static class ExtensionLocale
 		foreach (var locale in TouLocale.LangList)
 		{
 			using var resourceStream =
-				assembly.GetManifestResourceStream("VesselRole.Resources.Locale." + locale.Value);
+				assembly.GetManifestResourceStream("VesselRoleMod.Resources.Locale." + locale.Value);
 			if (resourceStream == null)
 			{
 				LocaleLogger.LogError($"Vessel Language is not added: {locale.Key.ToDisplayString()}");

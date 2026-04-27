@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <string name="VesselRole">Vessel</string>
+  <!-- Descriptions -->
+  <string name="VesselRoleIntroBlurb">Allow ghosts to possess you to gain their information.</string>
+  <string name="VesselRoleTabDescription">Open yourself to be possessed by the ghosts of dead players and find a way to learn from their actions</string>
+  <string name="VesselRoleWikiDescription">The Vessel is a Crewmate Support that can allow the dead to transfer their knowledge by controlling the Vessel.</string>
+  <!-- Buttons -->
+  <string name="VesselRoleAdorcise">Adorcise</string>
+  <string name="VesselRoleExorcise">Exorcise</string>
+  <!-- Options -->
+  <string name="VesselOptionAdorciseCooldown">Adorcise Cooldown</string>
+  <string name="VesselOptionAdorciseWindow">Window to accept possessions</string>
+  <string name="VesselOptionPossessionDuration">Duration of a Possession</string>
+  <string name="VesselOptionImpostorsCanPossess">Impostor ghosts can possess</string>
+  <string name="VesselOptionNeutralsCanPossess">Neutral ghosts can possess</string>
+  <string name="VesselOptionAllowSharedControl">Vessel and Ghost share control</string>
+  <string name="VesselOptionGhostCanKill">Killing ghosts can kill through Vessel</string>
+  <string name="VesselOptionCanReject">Vessel can reject possession attempts</string>
+  <string name="VesselOptionCanRejectEnumNone">None</string>
+  <string name="VesselOptionCanRejectEnumBlacklistOnly">Through Blacklist</string>
+  <string name="VesselOptionCanRejectEnumFree">Per Attempt</string>
+  <string name="VesselOptionKnowsGhostName">Vessel knows their possessor's name</string>
+</resources>
