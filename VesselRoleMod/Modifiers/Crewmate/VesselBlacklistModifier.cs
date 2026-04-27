@@ -1,4 +1,5 @@
-﻿using MiraAPI.Modifiers;
+﻿using Il2CppInterop.Runtime.Attributes;
+using MiraAPI.Modifiers;
 using System.Collections.Generic;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modules;
@@ -14,7 +15,7 @@ public sealed class VesselBlacklistModifier : BaseModifier
 
 	public override string ModifierName => "VesselBlacklist";
 
-	private readonly HashSet<byte> blacklistedPlrIds = [];
+	[HideFromIl2Cpp] public HashSet<byte> BlacklistedPlrIds { get; } = [];
 
 	public override void OnActivate()
 	{
@@ -42,7 +43,7 @@ public sealed class VesselBlacklistModifier : BaseModifier
 			meetingMenu.GenButtons(MeetingHud.Instance,
 				Player.AmOwner && !Player.HasDied() && !Player.HasModifier<JailedModifier>());
 
-			foreach (var blockPlrId in blacklistedPlrIds)
+			foreach (var blockPlrId in BlacklistedPlrIds)
 			{
 				meetingMenu.Actives[blockPlrId] = true;
 			}
@@ -83,11 +84,11 @@ public sealed class VesselBlacklistModifier : BaseModifier
 
 		if (meetingMenu.Actives[voteArea.TargetPlayerId] = !meetingMenu.Actives[voteArea.TargetPlayerId])
 		{
-			blacklistedPlrIds.Add(voteArea.TargetPlayerId);
+			BlacklistedPlrIds.Add(voteArea.TargetPlayerId);
 		}
 		else
 		{
-			blacklistedPlrIds.Remove(voteArea.TargetPlayerId);
+			BlacklistedPlrIds.Remove(voteArea.TargetPlayerId);
 		}
 	}
 }
