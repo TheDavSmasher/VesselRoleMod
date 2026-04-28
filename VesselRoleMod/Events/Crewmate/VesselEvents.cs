@@ -55,6 +55,31 @@ public static class VesselEvents
 			return;
 		}
 
+		ClearGhostModifiers(@event.Player);
+	}
+
+	[RegisterEvent]
+	public static void VesselAdorcismSuccessHandler(CustomAbilityEvent<VesselAbilityType> @event)
+	{
+		if (@event.AbilityType != VesselAbilityType.AdorcismSuccess ||
+			@event.Target is not PlayerControl Target)
+		{
+			return;
+		}
+
+		ClearGhostModifiers(Target);
+
+		// @event.Player is the ghost
+		// @event.Target is the Vessel
+
+		var notif1 = Helpers.CreateAndShowNotification(
+			"Adorcism Succeeded with Possession",
+			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
+		notif1.AdjustNotification();
+	}
+
+	private static void ClearGhostModifiers(PlayerControl Player)
+	{
 		foreach (var ghostArrow in ModifierUtils.GetActiveModifiers<AdorcismArrowModifier>())
 		{
 			if (ghostArrow == null)
@@ -62,7 +87,7 @@ public static class VesselEvents
 				continue;
 			}
 
-			if (ghostArrow.Owner.PlayerId == @event.Player.PlayerId)
+			if (ghostArrow.Owner.PlayerId == Player.PlayerId)
 			{
 				ghostArrow.Player.RemoveModifier(ghostArrow);
 			}
@@ -75,27 +100,11 @@ public static class VesselEvents
 				continue;
 			}
 
-			if (validAdorcismMod.Target.PlayerId == @event.Player.PlayerId)
+			if (validAdorcismMod.Target.PlayerId == Player.PlayerId)
 			{
 				validAdorcismMod.Player.RemoveModifier(validAdorcismMod);
 			}
 		}
-	}
-
-	[RegisterEvent]
-	public static void VesselAdorcismSuccessHandler(CustomAbilityEvent<VesselAbilityType> @event)
-	{
-		if (@event.AbilityType != VesselAbilityType.AdorcismSuccess)
-		{
-			return;
-		}
-		// @event.Player is the ghost
-		// @event.Target is the Vessel
-
-		var notif1 = Helpers.CreateAndShowNotification(
-			"Adorcism Succeeded with Possession",
-			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
-		notif1.AdjustNotification();
 	}
 }
 
