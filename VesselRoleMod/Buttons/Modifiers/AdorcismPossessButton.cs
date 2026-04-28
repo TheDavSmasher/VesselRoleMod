@@ -49,12 +49,12 @@ public sealed class AdorcismPossessButton : TownOfUsTargetButton<PlayerControl>
 
 	protected override void OnClick()
 	{
-		if (Target == null || Target.Data.Role is not VesselRole)
+		if (Target == null || Target.Data.Role is not VesselRole Role)
 		{
 			return;
 		}
 
-		var button = CustomButtonManager.Buttons.Where(x => x.Enabled(Target.Data.Role))
+		var button = CustomButtonManager.Buttons.Where(x => x.Enabled(Role))
 			.OfType<VesselAdorciseButton>().FirstOrDefault();
 
 		if (button == null)
