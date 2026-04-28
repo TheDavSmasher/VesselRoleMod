@@ -63,5 +63,6 @@ public sealed class AdorcismPossessButton : TownOfUsTargetButton<PlayerControl>
 		}
 
 		button.ActivateTriggerEffect();
+		Target.RpcAddModifier<VesselPossessedModifier>(PlayerControl.LocalPlayer);
 	}
 }

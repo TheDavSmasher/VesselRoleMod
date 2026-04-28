@@ -8,11 +8,12 @@ using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
-public sealed class VesselPossessedModifier : TimedModifier
+public sealed class VesselPossessedModifier(PlayerControl ghost) : TimedModifier
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override string ModifierName => "Possessed";
 	public override bool HideOnUi => true;
+	public PlayerControl Ghost => ghost;
 
 	public override void OnActivate()
 	{
@@ -23,7 +24,7 @@ public sealed class VesselPossessedModifier : TimedModifier
 			Player.RpcRemoveModifier<VesselAdorcismModifier>();
 		}
 
-		MiraEventManager.InvokeEvent(new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Player));
+		MiraEventManager.InvokeEvent(new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Ghost, Player));
 	}
 
 	public override void OnDeactivate()

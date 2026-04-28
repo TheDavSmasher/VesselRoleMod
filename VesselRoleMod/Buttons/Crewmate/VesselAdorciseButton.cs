@@ -91,8 +91,6 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnTriggerActivate();
 
-		PlayerControl.LocalPlayer.RpcAddModifier<VesselPossessedModifier>();
-
 		OverrideName(TouLocale.Get("VesselRoleExorcise", "Exorcise"));
 		OverrideSprite(VesselCrewAssets.ExorciseSprite.LoadAsset());
 	}

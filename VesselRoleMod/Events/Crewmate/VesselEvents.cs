@@ -89,6 +89,8 @@ public static class VesselEvents
 		{
 			return;
 		}
+		// @event.Player is the ghost
+		// @event.Target is the Vessel
 
 		var notif1 = Helpers.CreateAndShowNotification(
 			"Adorcism Succeeded with Possession",
