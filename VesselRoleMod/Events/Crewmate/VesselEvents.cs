@@ -43,6 +43,7 @@ public static class VesselEvents
 		foreach (var ghost in deadPlayers)
 		{
 			ghost.AddModifier<AdorcismArrowModifier>(Player, color);
+			ghost.AddModifier<ValidAdorcismGhostModifier>(Player);
 		}
 	}
 
@@ -64,6 +65,19 @@ public static class VesselEvents
 			if (ghostArrow.Owner.PlayerId == @event.Player.PlayerId)
 			{
 				ghostArrow.Player.RemoveModifier(ghostArrow);
+			}
+		}
+
+		foreach (var validAdorcismMod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>())
+		{
+			if (validAdorcismMod == null)
+			{
+				continue;
+			}
+
+			if (validAdorcismMod.Target.PlayerId == @event.Player.PlayerId)
+			{
+				validAdorcismMod.Player.RemoveModifier(validAdorcismMod);
 			}
 		}
 	}

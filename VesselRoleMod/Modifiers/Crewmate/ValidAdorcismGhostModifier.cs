@@ -4,8 +4,10 @@ using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
-public sealed class ValidAdorcismGhostModifier : TimedModifier
+public sealed class ValidAdorcismGhostModifier(PlayerControl target) : TimedModifier
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 	public override string ModifierName => "ValidAdorcismGhost";
+
+	public PlayerControl Target => target;
 }
