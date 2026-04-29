@@ -2,12 +2,8 @@
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Modifiers;
-using MiraAPI.Utilities;
 using System.Linq;
-using TownOfUs.Assets;
-using TownOfUs.Utilities;
 using TownOfUs.Utilities.Appearances;
-using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -71,11 +67,6 @@ public static class VesselEvents
 
 		// @event.Player is the ghost
 		// @event.Target is the Vessel
-
-		var notif1 = Helpers.CreateAndShowNotification(
-			"Adorcism Succeeded with Possession",
-			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
-		notif1.AdjustNotification();
 	}
 
 	private static void ClearGhostModifiers(PlayerControl Player)
