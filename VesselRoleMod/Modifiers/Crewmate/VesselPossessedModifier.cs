@@ -1,17 +1,19 @@
 ﻿using MiraAPI.Events;
 using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
-using MiraAPI.Modifiers.Types;
+using TownOfUs.Modifiers;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
 using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
-public sealed class VesselPossessedModifier(PlayerControl ghost) : TimedModifier
+public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModifier
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override string ModifierName => "Possessed";
+	public override bool CanUseAbilities => true;
+	public override bool CanReport => true;
 	public override bool HideOnUi => true;
 	public PlayerControl Ghost => ghost;
 
