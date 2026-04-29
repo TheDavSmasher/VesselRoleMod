@@ -2,21 +2,19 @@
 using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
-using System.Linq;
 using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
-using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 using static Reactor.Utilities.Extensions.UnityExtensions;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class AdorcismPossessButton : TownOfUsTargetButton<PlayerControl>
+public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerControl>
 {
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.SecondaryAction;
@@ -54,16 +52,9 @@ public sealed class AdorcismPossessButton : TownOfUsTargetButton<PlayerControl>
 			return;
 		}
 
-		var button = CustomButtonManager.Buttons.Where(x => x.Enabled(Role))
-			.OfType<VesselAdorciseButton>().FirstOrDefault();
+		EffectActive = true;
+		Timer = EffectDuration;
 
-		if (button == null)
-		{
-			return;
-		}
-
-		button.ActivateTriggerEffect();
-		Target.RpcAddModifier<VesselPossessedModifier>(PlayerControl.LocalPlayer);
-		PlayerControl.LocalPlayer.RpcAddModifier<GhostPossessorModifier>(Target);
+		// Rpc
 	}
 }

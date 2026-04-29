@@ -3,7 +3,7 @@ using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
-public sealed class GhostPossessorModifier(PlayerControl vessel) : BaseModifier
+public sealed class PoltergeistModifier(PlayerControl vessel) : BaseModifier
 {
 	public override string ModifierName => "Ghost Possessor";
 
@@ -11,7 +11,7 @@ public sealed class GhostPossessorModifier(PlayerControl vessel) : BaseModifier
 
 	public PlayerControl Vessel => vessel;
 
-	public bool IsKillingGhost()
+	public bool CanKill()
 	{
 		return Vessel.Data.Role is VesselRole;
 	}

@@ -2,6 +2,9 @@
 
 public enum VesselModRpc : uint
 {
+	AdorcismStart,
+	AdorcismEnd,
+	Possess,
 	VesselPossession,
 	VesselEndPossession,
 	VesselTriggerInteraction

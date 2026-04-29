@@ -9,7 +9,7 @@ namespace VesselRoleMod.Modifiers.Crewmate;
 /// Modifier added to ghosts when a Vessel is performing an Adorcism, which gives an arrow to them to possess.
 /// </summary>
 /// <param name="owner">The Vessel player that the arrow points to</param>
-public sealed class AdorcismArrowModifier(PlayerControl owner, Color color)
+public sealed class PoltergeistArrowModifier(PlayerControl owner, Color color)
 	: ArrowSourceModifier(owner, color, 0)
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;

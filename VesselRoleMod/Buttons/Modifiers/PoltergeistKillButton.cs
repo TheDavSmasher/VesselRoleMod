@@ -11,20 +11,20 @@ using VesselRoleMod.Modifiers.Crewmate;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class VesselPossessionKillButton : TownOfUsTargetButton<PlayerControl>, IDiseaseableButton, IKillButton
+public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>, IDiseaseableButton, IKillButton
 {
 	public override string Name => "Kill";
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
 	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 
-	private static PlayerControl? Vessel => PlayerControl.LocalPlayer.GetModifier<GhostPossessorModifier>()?.Vessel;
+	private static PlayerControl? Vessel => PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>()?.Vessel;
 
 	public override bool Enabled(RoleBehaviour? role)
 	{
 		return PlayerControl.LocalPlayer != null &&
 			   PlayerControl.LocalPlayer.Data.IsDead &&
-			   PlayerControl.LocalPlayer.HasModifier<GhostPossessorModifier>();
+			   PlayerControl.LocalPlayer.HasModifier<PoltergeistModifier>();
 	}
 
 	public override PlayerControl? GetTarget()

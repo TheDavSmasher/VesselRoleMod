@@ -16,7 +16,7 @@ public static class ControlStateEvents
 
 		foreach (var player in PlayerControl.AllPlayerControls)
 		{
-			if (player.TryGetModifier<GhostPossessorModifier>(out var gmod))
+			if (player.TryGetModifier<PoltergeistModifier>(out var gmod))
 			{
 				player.RemoveModifier(gmod);
 			}
@@ -35,7 +35,7 @@ public static class ControlStateEvents
 
 		foreach (var player in PlayerControl.AllPlayerControls)
 		{
-			if (player.TryGetModifier<GhostPossessorModifier>(out var gmod))
+			if (player.TryGetModifier<PoltergeistModifier>(out var gmod))
 			{
 				player.RemoveModifier(gmod);
 			}

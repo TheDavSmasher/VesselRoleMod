@@ -38,7 +38,7 @@ public static class VesselEvents
 		var color = Palette.PlayerColors[Player.GetDefaultAppearance().ColorId];
 		foreach (var ghost in deadPlayers)
 		{
-			ghost.AddModifier<AdorcismArrowModifier>(Player, color);
+			ghost.AddModifier<PoltergeistArrowModifier>(Player, color);
 			ghost.AddModifier<ValidAdorcismGhostModifier>(Player);
 		}
 	}
@@ -71,7 +71,7 @@ public static class VesselEvents
 
 	private static void ClearGhostModifiers(PlayerControl Player)
 	{
-		foreach (var ghostArrow in ModifierUtils.GetActiveModifiers<AdorcismArrowModifier>())
+		foreach (var ghostArrow in ModifierUtils.GetActiveModifiers<PoltergeistArrowModifier>())
 		{
 			if (ghostArrow == null)
 			{
