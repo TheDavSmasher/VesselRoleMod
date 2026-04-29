@@ -52,6 +52,13 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 			Ghost.RpcRemoveModifier<PoltergeistModifier>();
 		}
 
+		var button = CustomButtonSingleton<VesselAdorciseButton>.Instance;
+
+		if (button != null && button.EffectActive)
+		{
+			button.ResetCooldownAndOrEffect();
+		}
+
 		var notif1 = Helpers.CreateAndShowNotification(
 			"Possession Ended",
 			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());

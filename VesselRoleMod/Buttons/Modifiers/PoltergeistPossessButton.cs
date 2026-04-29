@@ -1,4 +1,5 @@
-﻿using MiraAPI.Hud;
+﻿using Il2CppInterop.Runtime.Attributes;
+using MiraAPI.Hud;
 using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
@@ -25,6 +26,8 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public override LoadableAsset<Sprite> Sprite => TouAssets.BarryButtonSprite;
 	public override bool UsableInDeath => true;
 
+	[HideFromIl2Cpp] public PlayerControl? Vessel { get; set; }
+
 	public override bool Enabled(RoleBehaviour? role)
 	{
 		return PlayerControl.LocalPlayer != null &&
@@ -49,6 +52,18 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 
 	protected override void OnClick()
 	{
+		if (EffectActive && Vessel != null)
+		{
+			ResetCooldownAndOrEffect();
+
+			if (Vessel.HasModifier<VesselPossessedModifier>())
+			{
+				Vessel.RpcRemoveModifier<VesselPossessedModifier>();
+			}
+
+			return;
+		}
+
 		if (Target == null || Target.Data.Role is not VesselRole)
 		{
 			return;
@@ -58,5 +73,6 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		Timer = EffectDuration;
 
 		PoltergeistModifier.RpcPossess(PlayerControl.LocalPlayer, Target);
+		Vessel = Target;
 	}
 }

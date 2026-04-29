@@ -25,7 +25,12 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : BaseModifier
 	{
 		base.OnDeactivate();
 
-		CustomButtonSingleton<PoltergeistPossessButton>.Instance.ResetCooldownAndOrEffect();
+		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
+
+		if (button != null && button.EffectActive)
+		{
+			button.ResetCooldownAndOrEffect();
+		}
 	}
 
 	[MethodRpc((uint)VesselModRpc.AdorcismStart)]
