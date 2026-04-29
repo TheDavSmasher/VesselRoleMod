@@ -1,11 +1,13 @@
 ﻿using MiraAPI.Events;
 using MiraAPI.GameOptions;
+using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using TownOfUs.Assets;
 using TownOfUs.Modifiers;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
 using VesselRoleMod.Options.Roles.Crewmate;
@@ -31,6 +33,8 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 		}
 
 		MiraEventManager.InvokeEvent(new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Ghost, Player));
+
+		CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
 
 		var notif1 = Helpers.CreateAndShowNotification(
 			"Adorcism Succeeded with Possession",
