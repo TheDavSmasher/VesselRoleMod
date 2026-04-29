@@ -39,7 +39,7 @@ public static class VesselEvents
 		var color = Palette.PlayerColors[Player.GetDefaultAppearance().ColorId];
 		foreach (var ghost in deadPlayers)
 		{
-			PoltergeistModifier.RpcSeekVessel(ghost, Player);
+			VesselRole.RpcSeekVessel(ghost, Player);
 			ghost.AddModifier<PoltergeistArrowModifier>(Player, color);
 		}
 	}
@@ -92,7 +92,7 @@ public static class VesselEvents
 
 			if (validAdorcismMod.Vessel.PlayerId == Player.PlayerId)
 			{
-				PoltergeistModifier.RpcVesselClosed(validAdorcismMod.Player, Player);
+				VesselRole.RpcVesselClosed(validAdorcismMod.Player, Player);
 			}
 		}
 	}

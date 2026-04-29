@@ -2,6 +2,7 @@
 using MiraAPI.Modifiers;
 using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
+using Reactor.Networking.Attributes;
 using System;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
@@ -11,6 +12,7 @@ using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Roles.Crewmate;
@@ -61,5 +63,74 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public override void OnMeetingStart()
 	{
 		RoleBehaviourStubs.OnMeetingStart(this);
+	}
+
+	[MethodRpc((uint)VesselModRpc.AdorcismStart)]
+	public static void RpcSeekVessel(PlayerControl player, PlayerControl target)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(player);
+			return;
+		}
+		if (player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
+		{
+			Error("RpcSeekVessel - Invalid ghost");
+			return;
+		}
+		if (target.Data.Role is not VesselRole)
+		{
+			Error("RpcSeekVessel - Invalid Vessel target");
+			return;
+		}
+
+		player.AddModifier<ValidAdorcismGhostModifier>(target);
+	}
+
+	[MethodRpc((uint)VesselModRpc.AdorcismEnd)]
+	public static void RpcVesselClosed(PlayerControl player, PlayerControl target)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(player);
+			return;
+		}
+		if (target.Data.Role is not VesselRole)
+		{
+			Error("RpcVesselClosed - Invalid Vessel target");
+			return;
+		}
+
+		if (player.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == target.PlayerId))
+		{
+			player.RemoveModifier(mod);
+		}
+		else
+		{
+			Error("RpcVesselClosed - Invalid ghost");
+		}
+	}
+
+	[MethodRpc((uint)VesselModRpc.Possess)]
+	public static void RpcPossess(PlayerControl player, PlayerControl target)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(player);
+			return;
+		}
+		if (!player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
+		{
+			Error("RpcPossess - Invalid poltergeist");
+			return;
+		}
+		if (target.Data.Role is not VesselRole)
+		{
+			Error("RpcPossess - Invalid Vessel target");
+			return;
+		}
+
+		player.AddModifier<PoltergeistModifier>(target);
+		target.AddModifier<VesselPossessedModifier>(player);
 	}
 }
