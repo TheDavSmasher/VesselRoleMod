@@ -10,6 +10,7 @@ using UnityEngine;
 using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
@@ -45,6 +46,16 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 	public override void OnDeactivate()
 	{
 		base.OnDeactivate();
+
+		if (Ghost.HasModifier<PoltergeistModifier>())
+		{
+			Ghost.RpcRemoveModifier<PoltergeistModifier>();
+		}
+
+		var notif1 = Helpers.CreateAndShowNotification(
+			"Possession Ended",
+			Color.white, new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Medium.LoadAsset());
+		notif1.AdjustNotification();
 	}
 
 	public override void OnDeath(DeathReason reason)

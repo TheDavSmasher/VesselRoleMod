@@ -1,6 +1,8 @@
-﻿using MiraAPI.Modifiers;
+﻿using MiraAPI.Hud;
+using MiraAPI.Modifiers;
 using Reactor.Networking.Attributes;
 using TownOfUs.Utilities;
+using VesselRoleMod.Buttons.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -17,6 +19,13 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : BaseModifier
 	public bool CanKill()
 	{
 		return Vessel.Data.Role is VesselRole;
+	}
+
+	public override void OnDeactivate()
+	{
+		base.OnDeactivate();
+
+		CustomButtonSingleton<PoltergeistPossessButton>.Instance.ResetCooldownAndOrEffect();
 	}
 
 	[MethodRpc((uint)VesselModRpc.AdorcismStart)]
