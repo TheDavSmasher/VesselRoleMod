@@ -7,7 +7,7 @@ using TownOfUs.Buttons;
 using TownOfUs.Networking;
 using TownOfUs.Utilities;
 using UnityEngine;
-using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 

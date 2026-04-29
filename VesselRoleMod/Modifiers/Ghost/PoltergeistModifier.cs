@@ -1,7 +1,7 @@
 ﻿using MiraAPI.Modifiers;
 using VesselRoleMod.Roles.Crewmate;
 
-namespace VesselRoleMod.Modifiers.Crewmate;
+namespace VesselRoleMod.Modifiers.Ghost;
 
 public sealed class PoltergeistModifier(PlayerControl vessel) : BaseModifier
 {

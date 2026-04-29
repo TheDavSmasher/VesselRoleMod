@@ -3,7 +3,7 @@ using TownOfUs.Modules.RainbowMod;
 using UnityEngine;
 using VesselRoleMod.Options.Roles.Crewmate;
 
-namespace VesselRoleMod.Modifiers.Crewmate;
+namespace VesselRoleMod.Modifiers.Ghost;
 
 /// <summary>
 /// Modifier added to ghosts when a Vessel is performing an Adorcism, which gives an arrow to them to possess.

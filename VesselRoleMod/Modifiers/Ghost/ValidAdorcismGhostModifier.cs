@@ -2,7 +2,7 @@
 using MiraAPI.Modifiers.Types;
 using VesselRoleMod.Options.Roles.Crewmate;
 
-namespace VesselRoleMod.Modifiers.Crewmate;
+namespace VesselRoleMod.Modifiers.Ghost;
 
 public sealed class ValidAdorcismGhostModifier(PlayerControl target) : TimedModifier
 {

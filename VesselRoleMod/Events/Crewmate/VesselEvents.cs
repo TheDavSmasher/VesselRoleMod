@@ -5,6 +5,7 @@ using MiraAPI.Modifiers;
 using System.Linq;
 using TownOfUs.Utilities.Appearances;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Events.Crewmate;

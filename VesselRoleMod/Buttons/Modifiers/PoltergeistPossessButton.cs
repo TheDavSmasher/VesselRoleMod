@@ -9,6 +9,7 @@ using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Roles.Crewmate;
 using static Reactor.Utilities.Extensions.UnityExtensions;
 

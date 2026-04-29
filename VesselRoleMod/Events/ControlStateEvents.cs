@@ -3,6 +3,7 @@ using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Modifiers;
 using TownOfUs.Events.TouEvents;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 
 namespace VesselRoleMod.Events;
