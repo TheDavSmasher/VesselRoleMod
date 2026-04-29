@@ -1,20 +1,20 @@
-﻿using MiraAPI.Hud;
+﻿using MiraAPI.GameOptions;
+using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using Reactor.Networking.Attributes;
 using TownOfUs.Utilities;
 using VesselRoleMod.Buttons.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : BaseModifier
+public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel)
 {
 	public override string ModifierName => "Ghost Possessor";
 
-	public override bool HideOnUi => true;
-
-	public PlayerControl Vessel => vessel;
+	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 
 	public bool CanKill()
 	{
