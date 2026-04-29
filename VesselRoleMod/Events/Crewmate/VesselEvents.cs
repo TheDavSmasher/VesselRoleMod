@@ -39,8 +39,8 @@ public static class VesselEvents
 		var color = Palette.PlayerColors[Player.GetDefaultAppearance().ColorId];
 		foreach (var ghost in deadPlayers)
 		{
+			PoltergeistModifier.RpcSeekVessel(ghost, Player);
 			ghost.AddModifier<PoltergeistArrowModifier>(Player, color);
-			ghost.AddModifier<ValidAdorcismGhostModifier>(Player);
 		}
 	}
 
@@ -59,15 +59,13 @@ public static class VesselEvents
 	public static void VesselAdorcismSuccessHandler(CustomAbilityEvent<VesselAbilityType> @event)
 	{
 		if (@event.AbilityType != VesselAbilityType.AdorcismSuccess ||
-			@event.Target is not PlayerControl Target)
+			@event.Target is not PlayerControl Target || 
+			Target.Data.Role is not VesselRole)
 		{
 			return;
 		}
 
 		ClearGhostModifiers(Target);
-
-		// @event.Player is the ghost
-		// @event.Target is the Vessel
 	}
 
 	private static void ClearGhostModifiers(PlayerControl Player)
@@ -92,9 +90,9 @@ public static class VesselEvents
 				continue;
 			}
 
-			if (validAdorcismMod.Target.PlayerId == Player.PlayerId)
+			if (validAdorcismMod.Vessel.PlayerId == Player.PlayerId)
 			{
-				validAdorcismMod.Player.RemoveModifier(validAdorcismMod);
+				PoltergeistModifier.RpcVesselClosed(validAdorcismMod.Player, Player);
 			}
 		}
 	}

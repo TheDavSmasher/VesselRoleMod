@@ -48,7 +48,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 
 	protected override void OnClick()
 	{
-		if (Target == null || Target.Data.Role is not VesselRole Role)
+		if (Target == null || Target.Data.Role is not VesselRole)
 		{
 			return;
 		}
@@ -56,6 +56,6 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		EffectActive = true;
 		Timer = EffectDuration;
 
-		// Rpc
+		PoltergeistModifier.RpcPossess(PlayerControl.LocalPlayer, Target);
 	}
 }
