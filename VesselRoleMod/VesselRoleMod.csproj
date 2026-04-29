@@ -21,4 +21,8 @@
     <None Include="C:\Users\David Higueros\Documents\.Personal Projects\AmongDiscord\VesselRoleMod\VesselRoleMod\.editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Patches\ControlSystem\" />
+  </ItemGroup>
+
 </Project>
