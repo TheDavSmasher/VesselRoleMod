@@ -1,12 +1,10 @@
 ﻿using MiraAPI.GameOptions;
 using MiraAPI.Hud;
-using MiraAPI.Modifiers;
-using Reactor.Networking.Attributes;
-using TownOfUs.Utilities;
+using TownOfUs.Modules;
 using VesselRoleMod.Buttons.Modifiers;
-using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
@@ -18,7 +16,9 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 	public bool CanKill()
 	{
-		return Vessel.Data.Role is VesselRole;
+		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill && 
+			   Vessel.Data.Role is VesselRole && 
+			   Player.GetRoleWhenAlive().HasKillingAbility();
 	}
 
 	public override void OnDeactivate()
