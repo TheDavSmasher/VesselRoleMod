@@ -84,7 +84,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : BaseModifier
 			return;
 		}
 
-		target.AddModifier<VesselPossessedModifier>(player);
 		player.AddModifier<PoltergeistModifier>(target);
+		target.AddModifier<VesselPossessedModifier>(player);
 	}
 }

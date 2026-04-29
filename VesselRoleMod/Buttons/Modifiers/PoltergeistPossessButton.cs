@@ -28,8 +28,9 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public override bool Enabled(RoleBehaviour? role)
 	{
 		return PlayerControl.LocalPlayer != null &&
-			   PlayerControl.LocalPlayer.HasModifier<ValidAdorcismGhostModifier>() &&
-			   PlayerControl.LocalPlayer.Data.IsDead;
+			   PlayerControl.LocalPlayer.Data.IsDead &&
+			   (PlayerControl.LocalPlayer.HasModifier<ValidAdorcismGhostModifier>() ||
+			    PlayerControl.LocalPlayer.HasModifier<PoltergeistModifier>());
 	}
 
 	public override PlayerControl? GetTarget()
