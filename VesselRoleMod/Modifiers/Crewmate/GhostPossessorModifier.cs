@@ -13,6 +13,6 @@ public sealed class GhostPossessorModifier(PlayerControl vessel) : BaseModifier
 
 	public bool IsKillingGhost()
 	{
-		return vessel.Data.Role is VesselRole;
+		return Vessel.Data.Role is VesselRole;
 	}
 }
