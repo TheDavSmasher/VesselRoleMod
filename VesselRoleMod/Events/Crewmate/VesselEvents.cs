@@ -115,6 +115,8 @@ public static class VesselEvents
 
 public enum VesselAbilityType
 {
+	PoltergeistPossess,
+	PoltergeistPossessKill,
 	AdorciseStart,
 	AdorciseEnd,
 	AdorcismSuccess
