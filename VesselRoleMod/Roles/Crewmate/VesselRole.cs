@@ -11,6 +11,7 @@ using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
@@ -40,7 +41,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 	public CustomRoleConfiguration Configuration => new(this)
 	{
-		Icon = null,
+		Icon = VesselRoleIcons.Vessel,
 		IntroSound = TouAudio.MediumIntroSound
 	};
 
