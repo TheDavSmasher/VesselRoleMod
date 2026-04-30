@@ -18,7 +18,8 @@ public sealed class VesselAdorcismModifier : TimedModifier
 	{
 		base.OnActivate();
 
-		MiraEventManager.InvokeEvent(new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorciseStart, Player));
+		var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorciseStart, Player);
+		MiraEventManager.InvokeEvent(vesselAbilityEvent);
 	}
 
 	public override void OnDeactivate()
@@ -27,7 +28,8 @@ public sealed class VesselAdorcismModifier : TimedModifier
 
 		if (!Player.HasModifier<VesselPossessedModifier>())
 		{
-			MiraEventManager.InvokeEvent(new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorciseEnd, Player));
+			var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorciseEnd, Player);
+			MiraEventManager.InvokeEvent(vesselAbilityEvent);
 		}
 	}
 

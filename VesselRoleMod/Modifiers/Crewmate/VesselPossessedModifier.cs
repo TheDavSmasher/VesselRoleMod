@@ -34,7 +34,8 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 			Player.RpcRemoveModifier<VesselAdorcismModifier>();
 		}
 
-		MiraEventManager.InvokeEvent(new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Ghost, Player));
+		var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Ghost, Player);
+		MiraEventManager.InvokeEvent(vesselAbilityEvent);
 
 		CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
 
