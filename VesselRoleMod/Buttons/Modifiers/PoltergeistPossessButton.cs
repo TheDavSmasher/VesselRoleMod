@@ -1,16 +1,20 @@
-﻿using Il2CppInterop.Runtime.Attributes;
-using MiraAPI.Hud;
+﻿using MiraAPI.Hud;
 using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
+using System.Linq;
 using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
+using TownOfUs.Interfaces;
+using TownOfUs.Modifiers;
+using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using static Reactor.Utilities.Extensions.UnityExtensions;
 
@@ -26,8 +30,6 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public override LoadableAsset<Sprite> Sprite => TouAssets.BarryButtonSprite;
 	public override bool UsableInDeath => true;
 
-	[HideFromIl2Cpp] public PlayerControl? Vessel { get; set; }
-
 	public override bool Enabled(RoleBehaviour? role)
 	{
 		return PlayerControl.LocalPlayer != null &&
@@ -35,10 +37,99 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 			   PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>();
 	}
 
+	public override void FixedUpdateHandler(PlayerControl playerControl)
+	{
+		TimerPaused = false;
+		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm &&
+			pm.Vessel != null &&
+			VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
+			VesselControlState.IsInInitialGrace(pm.Vessel.PlayerId))
+		{
+			TimerPaused = true;
+		}
+
+		base.FixedUpdateHandler(playerControl);
+	}
+
+	public override bool CanUse()
+	{
+		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
+		{
+			return false;
+		}
+
+		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm &&
+			pm.Vessel != null)
+		{
+			if (pm.Vessel.Data == null ||
+				pm.Vessel.HasDied() ||
+				pm.Vessel.Data.Disconnected ||
+				!VesselControlState.IsControlled(pm.Vessel.PlayerId, out _))
+			{
+				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+				return false;
+			}
+		}
+
+		if (TimeLordRewindSystem.IsRewinding)
+		{
+			return false;
+		}
+
+		if (!PlayerControl.LocalPlayer.HasDied())
+		{
+			return false;
+		}
+
+		if (HudManager.Instance.Chat.IsOpenOrOpening || MeetingHud.Instance)
+		{
+			return false;
+		}
+
+		if (!PlayerControl.LocalPlayer.CanMove ||
+			PlayerControl.LocalPlayer.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
+		{
+			return false;
+		}
+
+		return PlayerControl.LocalPlayer.moveable && Target != null && Timer <= 0;
+	}
+
+	public override void ClickHandler()
+	{
+		if (!CanClick())
+		{
+			return;
+		}
+
+		OnClick();
+		Button?.SetDisabled();
+	}
+
 	public override PlayerControl? GetTarget()
 	{
+		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
+		{
+			return null;
+		}
+
+		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm &&
+			pm.Vessel != null)
+		{
+			return pm.Vessel;
+		}
+
+		var validTargetIds = PlayerControl.LocalPlayer.GetModifiers<ValidAdorcismGhostModifier>().Select(m => m.Vessel.PlayerId);
 		return PlayerControl.LocalPlayer.GetClosestLivingPlayer(false, Distance,
-			predicate: x => x.HasModifier<VesselAdorcismModifier>());
+			predicate: plr =>
+			    plr != null &&
+				plr != PlayerControl.LocalPlayer &&
+				!plr.HasDied() &&
+				!plr.IsInTargetingAnimState() &&
+				!plr.GetModifiers<BaseModifier>().Any(x => x is IUncontrollable) &&
+				plr.HasModifier<VesselAdorcismModifier>() &&
+				!plr.HasModifier<VesselPossessedModifier>() &&
+				validTargetIds.Contains(plr.PlayerId));
 	}
 
 	public override void SetOutline(bool active)
@@ -51,16 +142,30 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 
 	protected override void OnClick()
 	{
-		if (EffectActive && Vessel != null)
+		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
 		{
-			ResetCooldownAndOrEffect();
-
-			if (Vessel.HasModifier<VesselPossessedModifier>())
-			{
-				Vessel.RpcRemoveModifier<VesselPossessedModifier>();
-			}
-
 			return;
+		}
+
+		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm)
+		{
+			if (pm.Vessel != null)
+			{
+				if (!pm.Vessel.HasDied() &&
+					!pm.Vessel.Data.Disconnected &&
+					VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
+					(pm.Vessel.IsInTargetingAnimState() ||
+					 pm.Vessel.inMovingPlat ||
+					 pm.Vessel.onLadder ||
+					 pm.Vessel.walkingToVent)) // pm.Vessel.inVent
+				{
+					return;
+				}
+
+				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+				ResetCooldownAndOrEffect();
+				return;
+			}
 		}
 
 		if (Target == null || Target.Data.Role is not VesselRole)
@@ -68,10 +173,8 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 			return;
 		}
 
+		VesselRole.RpcGhostPossession(PlayerControl.LocalPlayer, Target);
 		EffectActive = true;
 		Timer = EffectDuration;
-
-		VesselRole.RpcGhostPossession(PlayerControl.LocalPlayer, Target);
-		Vessel = Target;
 	}
 }
