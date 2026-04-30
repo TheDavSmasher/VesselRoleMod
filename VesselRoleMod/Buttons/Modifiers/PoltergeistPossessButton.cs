@@ -71,7 +71,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		EffectActive = true;
 		Timer = EffectDuration;
 
-		VesselRole.RpcPossess(PlayerControl.LocalPlayer, Target);
+		VesselRole.RpcGhostPossession(PlayerControl.LocalPlayer, Target);
 		Vessel = Target;
 	}
 }

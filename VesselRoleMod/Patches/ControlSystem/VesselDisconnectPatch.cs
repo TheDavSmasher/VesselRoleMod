@@ -1,0 +1,51 @@
+﻿using HarmonyLib;
+using MiraAPI.Modifiers;
+using TownOfUs.Utilities;
+using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Roles.Crewmate;
+
+namespace VesselRoleMod.Patches.ControlSystem;
+
+[HarmonyPatch(typeof(GameData))]
+public static class VesselDisconnectPatch
+{
+	[HarmonyPrefix]
+	[HarmonyPatch(nameof(GameData.HandleDisconnect), typeof(PlayerControl), typeof(DisconnectReasons))]
+	public static void Prefix([HarmonyArgument(0)] PlayerControl player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+
+		if (VesselControlState.IsControlled(player.PlayerId, out var controllerId))
+		{
+			var controller = MiscUtils.PlayerById(controllerId);
+			if (controller != null)
+			{
+				VesselRole.RpcGhostEndPossession(controller, player);
+			}
+			else
+			{
+				VesselControlState.ClearControl(player.PlayerId);
+
+				if (player.TryGetModifier<VesselPossessedModifier>(out var mod))
+				{
+					player.RemoveModifier(mod);
+				}
+			}
+		}
+
+		if (player.TryGetModifier<PoltergeistModifier>(out var mod2) && mod2.Vessel != null)
+		{
+			VesselRole.RpcGhostEndPossession(player, mod2.Vessel);
+		}
+
+		if (player.TryGetModifier<VesselPossessedModifier>(out var mod3))
+		{
+			player.RemoveModifier(mod3);
+		}
+	}
+}

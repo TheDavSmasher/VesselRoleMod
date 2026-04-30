@@ -4,6 +4,7 @@ using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
 using Reactor.Networking.Attributes;
 using System;
+using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
 using TownOfUs.Modules.Localization;
@@ -111,26 +112,38 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 	}
 
-	[MethodRpc((uint)VesselModRpc.Possess)]
-	public static void RpcPossess(PlayerControl player, PlayerControl target)
+	[MethodRpc((uint)VesselModRpc.VesselPossession)]
+	public static void RpcGhostPossession(PlayerControl ghost, PlayerControl vessel)
 	{
 		if (LobbyBehaviour.Instance)
 		{
-			MiscUtils.RunAnticheatWarning(player);
+			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (!player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
+		if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error("RpcPossess - Invalid poltergeist");
 			return;
 		}
-		if (target.Data.Role is not VesselRole)
+		if (vessel.Data.Role is not VesselRole)
 		{
 			Error("RpcPossess - Invalid Vessel target");
 			return;
 		}
 
-		player.AddModifier<PoltergeistModifier>(target);
-		target.AddModifier<VesselPossessedModifier>(player);
+		ghost.AddModifier<PoltergeistModifier>(vessel);
+		vessel.AddModifier<VesselPossessedModifier>(ghost);
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselEndPossession)]
+	public static void RpcGhostEndPossession(PlayerControl ghost, PlayerControl vessel)
+	{
+
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselTriggerInteraction)]
+	public static void RpcGhostTriggerInteraction(PlayerControl ghost, PlayerControl vessel, Vector2 interactablePosition)
+	{
+
 	}
 }
