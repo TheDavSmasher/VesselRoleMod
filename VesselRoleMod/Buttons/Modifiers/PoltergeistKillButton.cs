@@ -24,7 +24,8 @@ public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>,
 	{
 		return PlayerControl.LocalPlayer != null &&
 			   PlayerControl.LocalPlayer.Data.IsDead &&
-			   PlayerControl.LocalPlayer.HasModifier<PoltergeistModifier>();
+			   PlayerControl.LocalPlayer.TryGetModifier<PoltergeistModifier>(out var mod) &&
+			   mod.CanKill();
 	}
 
 	public override PlayerControl? GetTarget()
