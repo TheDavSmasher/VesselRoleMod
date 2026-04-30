@@ -14,6 +14,7 @@ namespace VesselRoleMod.Buttons.Modifiers;
 public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>, IDiseaseableButton, IKillButton
 {
 	public override string Name => "Kill";
+	public override bool UsableInDeath => true;
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
 	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
@@ -30,7 +31,14 @@ public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>,
 
 	public override PlayerControl? GetTarget()
 	{
-		return Vessel?.GetClosestLivingPlayer(true, Distance);
+		return Vessel?.GetClosestLivingPlayer(
+			true,
+			Distance,
+			predicate: plr =>
+			    plr != null &&
+				plr != PlayerControl.LocalPlayer &&
+				!plr.HasDied() &&
+				!plr.IsInTargetingAnimState());
 	}
 
 	public void SetDiseasedTimer(float multiplier)
