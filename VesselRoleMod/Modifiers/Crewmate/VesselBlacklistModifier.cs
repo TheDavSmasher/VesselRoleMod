@@ -58,6 +58,11 @@ public sealed class VesselBlacklistModifier : BaseModifier
 		}
 	}
 
+	public override void OnDeath(DeathReason reason)
+	{
+		ModifierComponent?.RemoveModifier(this);
+	}
+
 	public override void OnDeactivate()
 	{
 		if (Player.AmOwner)
