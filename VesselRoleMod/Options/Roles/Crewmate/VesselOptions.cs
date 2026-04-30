@@ -4,12 +4,14 @@ using MiraAPI.GameOptions.Attributes;
 using MiraAPI.GameOptions.OptionTypes;
 using VesselRoleMod.Roles.Crewmate;
 using MiraAPI.Roles;
+using UnityEngine;
 
 namespace VesselRoleMod.Options.Roles.Crewmate;
 
 public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 {
 	public override string GroupName => CustomRoleSingleton<VesselRole>.Instance.RoleName;
+	public override Color GroupColor => VesselRoleModColors.Vessel;
 
 	[ModdedNumberOption("VesselOptionAdorciseCooldown", 5f, 120f, 2.5f, MiraNumberSuffixes.Seconds)]
 	public float AdorciseCooldown { get; set; } = 25f;
