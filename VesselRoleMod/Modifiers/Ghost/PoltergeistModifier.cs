@@ -23,7 +23,10 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 	public override void OnDeactivate()
 	{
-		base.OnDeactivate();
+		if (!Player.AmOwner)
+		{
+			return;
+		}
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
 
