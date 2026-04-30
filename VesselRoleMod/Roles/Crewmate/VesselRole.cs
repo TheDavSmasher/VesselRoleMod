@@ -58,6 +58,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public override void Deinitialize(PlayerControl targetPlayer)
 	{
 		RoleBehaviourStubs.Deinitialize(this, targetPlayer);
+		if (targetPlayer.HasModifier<VesselBlacklistModifier>())
+		{
+			targetPlayer.RemoveModifier<VesselBlacklistModifier>();
+		}
 	}
 
 	public override void OnMeetingStart()
