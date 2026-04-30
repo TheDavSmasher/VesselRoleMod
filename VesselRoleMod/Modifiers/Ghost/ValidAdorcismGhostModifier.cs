@@ -7,4 +7,5 @@ public sealed class ValidAdorcismGhostModifier(PlayerControl vessel) : VesselSee
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 	public override string ModifierName => "ValidAdorcismGhost";
+	public override bool Unique => false;
 }
