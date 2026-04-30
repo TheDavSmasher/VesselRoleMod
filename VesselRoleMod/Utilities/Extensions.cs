@@ -1,14 +1,21 @@
-﻿namespace VesselRoleMod.Utilities;
+﻿using TownOfUs.Roles;
+using TownOfUs.Utilities;
+
+namespace VesselRoleMod.Utilities;
 
 public static class Extensions
 {
 	public static bool HasKillingAbility(this PlayerControl player)
 	{
-		return false;
+		return player.Data.Role.HasKillingAbility();
 	}
 
 	public static bool HasKillingAbility(this RoleBehaviour role)
 	{
-		return false;
+		var alignment = role.GetRoleAlignment();
+
+		return role.IsImpostor() ||
+			   (alignment == RoleAlignment.NeutralKilling) ||
+			   (alignment == RoleAlignment.CrewmateKilling);
 	}
 }
