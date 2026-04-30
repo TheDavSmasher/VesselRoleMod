@@ -1,9 +1,12 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
+using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
+using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using System.Linq;
 using TownOfUs.Utilities.Appearances;
+using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Roles.Crewmate;
@@ -16,6 +19,18 @@ public static class VesselEvents
 	public static void VotingCompleteHandler(VotingCompleteEvent @event)
 	{
 		ModifierUtils.GetActiveModifiers<VesselBlacklistModifier>().Do(x => x.OnVotingComplete());
+	}
+
+	[RegisterEvent]
+	public static void RoundStartHandler(RoundStartEvent @event)
+	{
+		if (@event.TriggeredByIntro)
+		{
+			return;
+		}
+
+		var button = CustomButtonSingleton<VesselAdorciseButton>.Instance;
+		button.ResetCooldownAndOrEffect();
 	}
 
 	[RegisterEvent]
