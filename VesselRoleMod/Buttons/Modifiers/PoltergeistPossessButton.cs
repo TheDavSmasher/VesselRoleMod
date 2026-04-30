@@ -128,7 +128,6 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 				!plr.IsInTargetingAnimState() &&
 				!plr.GetModifiers<BaseModifier>().Any(x => x is IUncontrollable) &&
 				plr.HasModifier<VesselAdorcismModifier>() &&
-				!plr.HasModifier<VesselPossessedModifier>() &&
 				validTargetIds.Contains(plr.PlayerId));
 	}
 

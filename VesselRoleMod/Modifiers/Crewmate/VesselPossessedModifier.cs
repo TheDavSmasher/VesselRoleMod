@@ -4,6 +4,7 @@ using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using TownOfUs.Assets;
+using TownOfUs.Interfaces;
 using TownOfUs.Modifiers;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -15,7 +16,11 @@ using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
-public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModifier
+/// <summary>
+/// Applied to the vessel while they are controlled by a Poltergeist.
+/// Movement/input suppression is handled by Harmony patches while this modifier is present.
+/// </summary>
+public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModifier, IUncontrollable
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override string ModifierName => "Possessed";
