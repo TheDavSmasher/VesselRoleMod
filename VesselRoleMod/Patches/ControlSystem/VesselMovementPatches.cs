@@ -162,7 +162,7 @@ public static class VesselMovementPatches
 
 			if (player.onLadder || player.inMovingPlat)
 			{
-				VesselControlState.ClearMovementState(player.PlayerId);
+				VesselControlState.ClearForcedMovementState(player.PlayerId);
 				return true;
 			}
 
@@ -171,9 +171,9 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			var dir = VesselControlState.GetDirection(player.PlayerId);
-			var pos = VesselControlState.GetPosition(player.PlayerId);
-			var vel = VesselControlState.GetVelocity(player.PlayerId);
+			var dir = VesselControlState.GetForcedDirection(player.PlayerId);
+			var pos = VesselControlState.GetForcedPosition(player.PlayerId);
+			var vel = VesselControlState.GetForcedVelocity(player.PlayerId);
 
 			if (dir == Vector2.zero)
 			{
@@ -223,7 +223,7 @@ public static class VesselMovementPatches
 
 			if (player.onLadder || player.inMovingPlat)
 			{
-				VesselControlState.ClearMovementState(player.PlayerId);
+				VesselControlState.ClearForcedMovementState(player.PlayerId);
 				return true;
 			}
 
@@ -232,9 +232,9 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			var dir = VesselControlState.GetDirection(player.PlayerId);
-			var pos = VesselControlState.GetPosition(player.PlayerId);
-			var vel = VesselControlState.GetVelocity(player.PlayerId);
+			var dir = VesselControlState.GetForcedDirection(player.PlayerId);
+			var pos = VesselControlState.GetForcedPosition(player.PlayerId);
+			var vel = VesselControlState.GetForcedVelocity(player.PlayerId);
 
 			if (dir == Vector2.zero)
 			{
@@ -287,7 +287,7 @@ public static class VesselMovementPatches
 
 		if (player.AmOwner && VesselControlState.IsControlled(player.PlayerId, out _))
 		{
-			direction = VesselControlState.GetDirection(player.PlayerId);
+			direction = VesselControlState.GetForcedDirection(player.PlayerId);
 		}
 
 		return true;
