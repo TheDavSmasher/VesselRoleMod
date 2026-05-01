@@ -40,6 +40,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		}
 
 		WaitingOnTrigger = false;
+		EffectActive = false;
 	}
 
 	public virtual void ActivateTriggerEffect()
@@ -52,6 +53,12 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 
 		WaitingOnTrigger = false;
 		EffectActive = true;
+	}
+
+	public override void ResetCooldownAndOrEffect()
+	{
+		base.ResetCooldownAndOrEffect();
+		WaitingOnTrigger = false;
 	}
 
 	public virtual void OnTriggerActivate()

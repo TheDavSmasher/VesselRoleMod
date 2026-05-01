@@ -66,7 +66,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			return false;
 		}
 
-		return ((Timer <= 0 && !EffectActive) ||
+		return ((Timer <= 0 && !EffectActive && !WaitingOnTrigger) ||
 			(EffectActive && Timer <= EffectDuration - 5f) ||
 			(WaitingOnTrigger && Timer <= TriggerWindow - 2f));
 	}
