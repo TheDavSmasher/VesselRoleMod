@@ -36,15 +36,15 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 
 		OnClick();
 		Button?.SetDisabled();
-		if (HasTrigger && !WaitingOnTrigger)
-		{
-			WaitingOnTrigger = true;
-			Timer = TriggerWindow;
-		}
-		else if (HasEffect && EffectActive)
+		if (HasEffect && EffectActive && Timer > 0)
 		{
 			EffectActive = false;
 			Timer = Cooldown;
+		}
+		else if (HasTrigger && !WaitingOnTrigger && Timer <= 0)
+		{
+			WaitingOnTrigger = true;
+			Timer = TriggerWindow;
 		}
 		else
 		{
