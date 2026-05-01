@@ -54,6 +54,35 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 	}
 
+	public override void FixedUpdate()
+	{
+		if (Player == null || Player.Data == null || !Player.HasDied() || !Player.AmOwner)
+		{
+			return;
+		}
+
+		if (Vessel == null)
+		{
+			return;
+		}
+
+		if (Vessel.Data == null || Vessel.HasDied() || Vessel.Data.Disconnected || !Player.HasDied())
+		{
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
+			return;
+		}
+
+		base.FixedUpdate();
+	}
+
+	public override void OnTimerComplete()
+	{
+		if (Player.AmOwner)
+		{
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
+		}
+	}
+
 	public void CreateNotification()
 	{
 		if (Vessel == null || Player == null || !Player.AmOwner)
