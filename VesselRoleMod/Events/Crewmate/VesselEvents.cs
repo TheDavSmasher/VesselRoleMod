@@ -51,12 +51,9 @@ public static class VesselEvents
 			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId)).ToList();
 		}
 
-		var color = Palette.PlayerColors[Player.GetDefaultAppearance().ColorId];
 		foreach (var ghost in deadPlayers)
 		{
 			VesselRole.RpcSeekVessel(ghost, Player);
-			var mod = new PoltergeistArrowModifier(Player, color);
-			ghost.AddModifier(mod);
 		}
 	}
 

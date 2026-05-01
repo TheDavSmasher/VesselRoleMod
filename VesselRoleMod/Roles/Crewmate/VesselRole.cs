@@ -13,6 +13,7 @@ using TownOfUs.Modules.Localization;
 using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
+using TownOfUs.Utilities.Appearances;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Modifiers;
@@ -100,6 +101,13 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 
 		player.AddModifier<ValidAdorcismGhostModifier>(target);
+
+		var color = Palette.PlayerColors[target.GetDefaultAppearance().ColorId];
+		if (target.AmOwner)
+		{
+			var mod = new PoltergeistArrowModifier(target, color);
+			player.AddModifier(mod);
+		}
 	}
 
 	[MethodRpc((uint)VesselModRpc.AdorcismEnd)]
