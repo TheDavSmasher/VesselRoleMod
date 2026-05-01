@@ -1,6 +1,12 @@
 ﻿using MiraAPI.GameOptions;
 using MiraAPI.Hud;
+using MiraAPI.Utilities;
+using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
+using TownOfUs.Modules.Localization;
+using TownOfUs.Utilities;
+using UnityEngine;
+using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Modifiers;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
@@ -13,6 +19,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 	public override string ModifierName => "Ghost Possessor";
 
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
+
+	private LobbyNotificationMessage? controllerNotification;
 
 	public bool CanKill()
 	{
@@ -33,6 +41,42 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		if (button != null && button.EffectActive)
 		{
 			button.ResetCooldownAndOrEffect();
+		}
+	}
+
+	public override void OnMeetingStart()
+	{
+		ModifierComponent?.RemoveModifier(this);
+
+		if (Player.AmOwner)
+		{
+			VesselRole.RpcGhostEndPossession(Player, Vessel);
+		}
+	}
+
+	public void CreateNotification()
+	{
+		if (Vessel == null || Player == null || !Player.AmOwner)
+		{
+			return;
+		}
+
+		if (controllerNotification == null)
+		{
+			var controllerText = TouLocale.GetParsed("PoltergeistControlNotif", $"You are possessing {Vessel.Data.PlayerName}!");
+			controllerNotification = Helpers.CreateAndShowNotification(
+				$"<b>{VesselRoleModColors.Vessel.ToTextColor()}{controllerText.Replace("<player>", Vessel.Data.PlayerName)}</color></b>",
+				Color.white, new Vector3(0f, 2f, -20f), spr: VesselRoleIcons.Vessel.LoadAsset());
+			controllerNotification?.AdjustNotification();
+		}
+	}
+
+	public void ClearNotifications()
+	{
+		if (controllerNotification != null && controllerNotification.gameObject != null)
+		{
+			controllerNotification.gameObject.Destroy();
+			controllerNotification = null;
 		}
 	}
 }

@@ -83,11 +83,6 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 		ClearNotification();
 		if (Player.AmOwner)
 		{
-			if (Ghost.HasModifier<PoltergeistModifier>())
-			{
-				Ghost.RpcRemoveModifier<PoltergeistModifier>();
-			}
-
 			var button = CustomButtonSingleton<VesselAdorciseButton>.Instance;
 
 			if (button != null && button.EffectActive)
