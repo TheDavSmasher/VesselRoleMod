@@ -8,11 +8,9 @@ using System;
 using System.Collections.Generic;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
-using TownOfUs.Modifiers.Game.Universal;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
-using TownOfUs.Roles.Crewmate;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
@@ -195,77 +193,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
 
-			var positions = GetAdjustedPositions(ghost, vessel);
-			TransporterRole.Transport(ghost, positions.Item2);
+			// TODO: Make Ghost snap to vessel position at all times
 		}
-	}
-
-	private static (Vector2, Vector2) GetAdjustedPositions(MonoBehaviour transportable, MonoBehaviour transportable2)
-	{
-		// assign dummy values so it doesnt error about returning unassigned variables
-		Vector2 TP1Position = new(0, 0);
-		Vector2 TP2Position = new(0, 0);
-
-		if (transportable.TryCast<DeadBody>() == null && transportable2.TryCast<DeadBody>() == null)
-		{
-			Error($"type: {transportable.GetIl2CppType().Name}");
-			var TP1 = transportable.TryCast<PlayerControl>()!;
-			TP1Position = TP1.GetTruePosition();
-			TP1Position = new Vector2(TP1Position.x, TP1Position.y + 0.3636f);
-
-			var TP2 = transportable2.TryCast<PlayerControl>()!;
-			TP2Position = TP2.GetTruePosition();
-			TP2Position = new Vector2(TP2Position.x, TP2Position.y + 0.3636f);
-
-			if (TP1.HasModifier<MiniModifier>())
-			{
-				TP1Position = new Vector2(TP1Position.x, TP1Position.y + 0.2233912f * 0.75f);
-				TP2Position = new Vector2(TP2Position.x, TP2Position.y - 0.2233912f * 0.75f);
-			}
-			else if (TP2.HasModifier<MiniModifier>())
-			{
-				TP1Position = new Vector2(TP1Position.x, TP1Position.y - 0.2233912f * 0.75f);
-				TP2Position = new Vector2(TP2Position.x, TP2Position.y + 0.2233912f * 0.75f);
-			}
-		}
-		else if (transportable.TryCast<DeadBody>() != null && transportable2.TryCast<DeadBody>() == null)
-		{
-			var Player1Body = transportable.TryCast<DeadBody>()!;
-			TP1Position = Player1Body.TruePosition;
-			TP1Position = new Vector2(TP1Position.x, TP1Position.y + 0.3636f);
-
-			var TP2 = transportable2.TryCast<PlayerControl>()!;
-			TP2Position = TP2.GetTruePosition();
-			TP2Position = new Vector2(TP2Position.x, TP2Position.y + 0.3636f);
-
-			if (TP2.HasModifier<MiniModifier>())
-			{
-				TP1Position = new Vector2(TP1Position.x, TP1Position.y - 0.2233912f * 0.75f);
-				TP2Position = new Vector2(TP2Position.x, TP2Position.y + 0.2233912f * 0.75f);
-			}
-		}
-		else if (transportable.TryCast<DeadBody>() == null && transportable2.TryCast<DeadBody>() != null)
-		{
-			var TP1 = transportable.TryCast<PlayerControl>()!;
-			TP1Position = TP1.GetTruePosition();
-			TP1Position = new Vector2(TP1Position.x, TP1Position.y + 0.3636f);
-
-			var Player2Body = transportable2.TryCast<DeadBody>()!;
-			TP2Position = Player2Body.TruePosition;
-			TP2Position = new Vector2(TP2Position.x, TP2Position.y + 0.3636f);
-			if (TP1.HasModifier<MiniModifier>())
-			{
-				TP1Position = new Vector2(TP1Position.x, TP1Position.y + 0.2233912f * 0.75f);
-				TP2Position = new Vector2(TP2Position.x, TP2Position.y - 0.2233912f * 0.75f);
-			}
-		}
-		else if (transportable.TryCast<DeadBody>() != null && transportable2.TryCast<DeadBody>() != null)
-		{
-			TP1Position = transportable.TryCast<DeadBody>()!.TruePosition;
-			TP2Position = transportable2.TryCast<DeadBody>()!.TruePosition;
-		}
-
-		return (TP1Position, TP2Position);
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselEndPossession)]
