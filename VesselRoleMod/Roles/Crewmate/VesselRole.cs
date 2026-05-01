@@ -16,6 +16,7 @@ using TownOfUs.Utilities;
 using TownOfUs.Utilities.Appearances;
 using UnityEngine;
 using VesselRoleMod.Assets;
+using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Buttons.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
@@ -107,6 +108,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			var mod = new PoltergeistArrowModifier(target, color);
 			player.AddModifier(mod);
+
+			CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(true, player.Data.Role);
 		}
 	}
 
@@ -131,6 +134,19 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		else
 		{
 			Error("RpcVesselClosed - Invalid ghost");
+		}
+
+		if (player.AmOwner)
+		{
+			if (!player.HasModifier<VesselSeekingModifier>())
+			{
+				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, player.Data.Role);
+	}
+
+			if (player.GetModifier<PoltergeistArrowModifier>(m => m.Owner.PlayerId == target.PlayerId) is { } arrow)
+			{
+				player.RemoveModifier(arrow);
+			}
 		}
 	}
 
@@ -204,6 +220,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 			ShyModifier.SetVisibility(ghost, 0.5f, true);
 			// TODO: Make Ghost snap to vessel position at all times
+		}
+		else if (vessel.AmOwner)
+		{
+			CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
 		}
 	}
 
@@ -293,6 +313,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			if (ghost.AmOwner)
 			{
 				CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(false, ghost.Data.Role);
+				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, ghost.Data.Role);
 
 				ShyModifier.SetVisibility(ghost, mod.GhostVisibility, true);
 			}

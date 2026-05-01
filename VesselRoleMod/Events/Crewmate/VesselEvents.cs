@@ -83,19 +83,6 @@ public static class VesselEvents
 
 	private static void ClearGhostModifiers(PlayerControl Player)
 	{
-		foreach (var ghostArrow in ModifierUtils.GetActiveModifiers<PoltergeistArrowModifier>())
-		{
-			if (ghostArrow == null)
-			{
-				continue;
-			}
-
-			if (ghostArrow.Owner.PlayerId == Player.PlayerId)
-			{
-				ghostArrow.Player.RemoveModifier(ghostArrow);
-			}
-		}
-
 		foreach (var validAdorcismMod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>())
 		{
 			if (validAdorcismMod == null)

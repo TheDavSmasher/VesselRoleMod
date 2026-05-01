@@ -52,8 +52,6 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 			{
 				Player.RpcRemoveModifier<VesselAdorcismModifier>();
 			}
-
-			CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
 		}
 		else if (Ghost.AmOwner)
 		{
