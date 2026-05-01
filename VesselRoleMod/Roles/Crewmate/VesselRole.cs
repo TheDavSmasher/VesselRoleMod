@@ -103,7 +103,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		player.AddModifier<ValidAdorcismGhostModifier>(target);
 
 		var color = Palette.PlayerColors[target.GetDefaultAppearance().ColorId];
-		if (target.AmOwner)
+		if (player.AmOwner)
 		{
 			var mod = new PoltergeistArrowModifier(target, color);
 			player.AddModifier(mod);
