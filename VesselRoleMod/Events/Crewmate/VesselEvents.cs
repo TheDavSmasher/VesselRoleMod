@@ -55,7 +55,8 @@ public static class VesselEvents
 		foreach (var ghost in deadPlayers)
 		{
 			VesselRole.RpcSeekVessel(ghost, Player);
-			ghost.AddModifier<PoltergeistArrowModifier>(Player, color);
+			var mod = new PoltergeistArrowModifier(Player, color);
+			ghost.AddModifier(mod);
 		}
 	}
 
