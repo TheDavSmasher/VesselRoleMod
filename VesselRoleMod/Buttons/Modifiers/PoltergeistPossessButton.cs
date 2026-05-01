@@ -25,7 +25,7 @@ namespace VesselRoleMod.Buttons.Modifiers;
 public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerControl>
 {
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
-	public override BaseKeybind Keybind => Keybinds.SecondaryAction;
+	public override BaseKeybind Keybind => Keybinds.TertiaryAction;
 	public override Color TextOutlineColor => TownOfUsColors.ButtonBarry;
 	public override float InitialCooldown => 0.01f;
 	public override float Cooldown => 0.01f;
