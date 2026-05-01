@@ -300,13 +300,13 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			Error("RpcPossess - Invalid poltergeist");
 			return;
 		}
-		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole || vessel.HasDied())
+		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole role || vessel.HasDied())
 		{
 			Error("RpcPossess - Invalid Vessel target");
 			return;
 		}
 
-		if (mod.Vessel != vessel || !VesselControlState.IsControlled(vessel.PlayerId, out _))
+		if (mod.Vessel != vessel || role.Ghost != ghost || !VesselControlState.IsControlled(vessel.PlayerId, out _))
 		{
 			return;
 		}
