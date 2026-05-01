@@ -133,10 +133,9 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnEffectEnd();
 
-		if (PlayerControl.LocalPlayer.GetModifier<VesselPossessedModifier>() is VesselPossessedModifier mod &&
-			mod.Ghost != null && mod.Player.AmOwner)
+		if (PlayerControl.LocalPlayer.Data.Role is VesselRole role && role.Ghost != null)
 		{
-			VesselRole.RpcGhostEndPossession(mod.Ghost, mod.Player);
+			VesselRole.RpcGhostEndPossession(role.Ghost, PlayerControl.LocalPlayer);
 		}
 
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
