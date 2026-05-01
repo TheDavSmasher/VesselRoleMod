@@ -72,13 +72,15 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 
 	protected override void OnClick()
 	{
-		if (EffectActive && RemoveButtonModifier<VesselPossessedModifier>())
+		if (EffectActive)
 		{
+			ResetCooldownAndOrEffect();
 			return;
 		}
 
-		if (WaitingOnTrigger && RemoveButtonModifier<VesselAdorcismModifier>())
+		if (WaitingOnTrigger)
 		{
+			EndTriggerWindow();
 			return;
 		}
 

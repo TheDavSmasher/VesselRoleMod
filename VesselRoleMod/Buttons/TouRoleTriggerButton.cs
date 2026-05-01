@@ -31,6 +31,17 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 	/// </summary>
 	public bool WaitingOnTrigger { get; set; }
 
+	public virtual void EndTriggerWindow()
+	{
+		Timer = Cooldown;
+		if (WaitingOnTrigger)
+		{
+			OnTriggerEnd();
+		}
+
+		WaitingOnTrigger = false;
+	}
+
 	public virtual void ActivateTriggerEffect()
 	{
 		Timer = EffectDuration;
