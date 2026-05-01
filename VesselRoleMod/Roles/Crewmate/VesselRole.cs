@@ -34,6 +34,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public string RoleDescription => TouLocale.GetParsed("VesselRoleIntroBlurb");
 	public string RoleLongDescription => TouLocale.GetParsed("VesselRoleTabDescription");
 
+	public PlayerControl? Ghost { get; set; }
+
 	public string GetAdvancedDescription()
 	{
 		return
@@ -136,7 +138,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			Error("RpcPossess - Invalid poltergeist");
 			return;
 		}
-		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole || vessel.HasDied())
+		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole role || vessel.HasDied())
 		{
 			Error("RpcPossess - Invalid Vessel target");
 			return;
@@ -149,6 +151,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		var mod = new PoltergeistModifier(vessel);
 		ghost.AddModifier(mod);
+		role.Ghost = ghost;
 
 		VesselControlState.SetControl(vessel.PlayerId, ghost.PlayerId);
 		if (vessel.HasModifier<VesselPossessedModifier>())
@@ -206,13 +209,14 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		if (vessel != null)
+		if (vessel != null && vessel.Data.Role is VesselRole role)
 		{
 			VesselControlState.ClearControl(vessel.PlayerId);
 			if (vessel.TryGetModifier<VesselPossessedModifier>(out var mod2))
 			{
 				vessel.RemoveModifier(mod2);
 			}
+			role.Ghost = null;
 
 			if (vessel.MyPhysics != null)
 			{
