@@ -49,8 +49,9 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		{
 			OnTriggerActivate();
 		}
-		
-		EffectActive = !(WaitingOnTrigger = false);
+
+		WaitingOnTrigger = false;
+		EffectActive = true;
 	}
 
 	public virtual void OnTriggerActivate()
