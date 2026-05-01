@@ -16,7 +16,9 @@ public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>,
 	public override string Name => "Kill";
 	public override bool UsableInDeath => true;
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
-	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
+	public override float InitialCooldown => 0.01f;
+	public override float Cooldown => 0.01f;
+	public override float EffectDuration => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 
 	private static PlayerControl? Vessel => PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>()?.Vessel;
