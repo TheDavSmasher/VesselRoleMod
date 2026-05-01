@@ -11,7 +11,6 @@ using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
-using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;

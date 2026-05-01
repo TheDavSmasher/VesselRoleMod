@@ -1,17 +1,14 @@
 ﻿using HarmonyLib;
-using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using Reactor.Networking.Rpc;
 using System.Collections.Generic;
 using TownOfUs.Modules;
-using TownOfUs.Modules.ControlSystem;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
-using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
