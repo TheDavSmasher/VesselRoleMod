@@ -90,18 +90,21 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(player);
 			return;
 		}
-		if (player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
-		{
-			Error("RpcSeekVessel - Invalid ghost");
-			return;
-		}
 		if (target.Data.Role is not VesselRole)
 		{
-			Error("RpcSeekVessel - Invalid Vessel target");
+			Error($"RpcSeekVessel - Invalid Vessel target: {target.name} (not a vessel)");
 			return;
 		}
 
+		if (!target.HasModifier<VesselAdorcismModifier>())
+		{
+			target.AddModifier<VesselAdorcismModifier>();
+		}
+
+		if (!player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
+		{
 		player.AddModifier<ValidAdorcismGhostModifier>(target);
+		}
 
 		var color = Palette.PlayerColors[target.GetDefaultAppearance().ColorId];
 		if (player.AmOwner)
@@ -116,6 +119,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	[MethodRpc((uint)VesselModRpc.AdorcismEnd)]
 	public static void RpcVesselClosed(PlayerControl player, PlayerControl target)
 	{
+		VesselClosed(player, target);
+	}
+
+	public static void VesselClosed(PlayerControl player, PlayerControl target)
+	{
 		if (LobbyBehaviour.Instance)
 		{
 			MiscUtils.RunAnticheatWarning(player);
@@ -125,6 +133,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			Error("RpcVesselClosed - Invalid Vessel target");
 			return;
+		}
+
+		if (target.HasModifier<VesselAdorcismModifier>())
+		{
+			target.RemoveModifier<VesselAdorcismModifier>();
 		}
 
 		if (player.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == target.PlayerId))
@@ -182,6 +195,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		if (vessel.HasModifier<VesselPossessedModifier>())
 		{
 			vessel.AddModifier<VesselPossessedModifier>(ghost);
+		}
+		if (ghost.HasModifier<ValidAdorcismGhostModifier>(m => m.Vessel.PlayerId == vessel.PlayerId))
+		{
+			VesselClosed(ghost, vessel);
 		}
 
 		if (vessel.inVent)

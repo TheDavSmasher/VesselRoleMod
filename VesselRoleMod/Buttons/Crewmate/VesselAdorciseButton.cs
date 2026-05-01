@@ -12,6 +12,7 @@ using TownOfUs.Modules.Localization;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -85,7 +86,18 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			return;
 		}
 
-		PlayerControl.LocalPlayer.RpcAddModifier<VesselAdorcismModifier>();
+		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
+			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId).ToList();
+
+		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
+		{
+			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId)).ToList();
+		}
+
+		foreach (var ghost in deadPlayers)
+		{
+			VesselRole.RpcSeekVessel(ghost, PlayerControl.LocalPlayer);
+		}
 	}
 
 	public override void OnTriggerActivate()
@@ -100,7 +112,18 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnTriggerEnd();
 
-		RemoveButtonModifier<VesselAdorcismModifier>();
+		foreach (var validAdorcismMod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>())
+		{
+			if (validAdorcismMod == null)
+			{
+				continue;
+			}
+
+			if (validAdorcismMod.Vessel.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+			{
+				VesselRole.RpcVesselClosed(validAdorcismMod.Player, PlayerControl.LocalPlayer);
+			}
+		}
 
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
@@ -110,19 +133,13 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnEffectEnd();
 
-		RemoveButtonModifier<VesselPossessedModifier>();
+		if (PlayerControl.LocalPlayer.GetModifier<VesselPossessedModifier>() is VesselPossessedModifier mod &&
+			mod.Ghost != null && mod.Player.AmOwner)
+		{
+			VesselRole.RpcGhostEndPossession(mod.Ghost, mod.Player);
+		}
 
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
-	}
-
-	private static bool RemoveButtonModifier<TMod>() where TMod : BaseModifier
-	{
-		if (PlayerControl.LocalPlayer.HasModifier<TMod>())
-		{
-			PlayerControl.LocalPlayer.RpcRemoveModifier<TMod>();
-			return true;
-		}
-		return false;
 	}
 }
