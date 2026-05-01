@@ -1,4 +1,5 @@
-﻿using MiraAPI.Hud;
+﻿using MiraAPI.GameOptions;
+using MiraAPI.Hud;
 using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
@@ -15,6 +16,7 @@ using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 using static Reactor.Utilities.Extensions.UnityExtensions;
 
@@ -25,7 +27,9 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.SecondaryAction;
 	public override Color TextOutlineColor => TownOfUsColors.ButtonBarry;
-	public override float Cooldown => 1f;
+	public override float InitialCooldown => 0.01f;
+	public override float Cooldown => 0.01f;
+	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override ButtonLocation Location => ButtonLocation.BottomLeft;
 	public override LoadableAsset<Sprite> Sprite => TouAssets.BarryButtonSprite;
 	public override bool UsableInDeath => true;
@@ -92,7 +96,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 			return false;
 		}
 
-		return PlayerControl.LocalPlayer.moveable && Target != null && Timer <= 0;
+		return Target != null && Timer <= 0;
 	}
 
 	public override void ClickHandler()
