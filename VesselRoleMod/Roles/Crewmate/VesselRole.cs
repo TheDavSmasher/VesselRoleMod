@@ -103,7 +103,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		if (!player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
 		{
-		player.AddModifier<ValidAdorcismGhostModifier>(target);
+			player.AddModifier<ValidAdorcismGhostModifier>(target);
 		}
 
 		var color = Palette.PlayerColors[target.GetDefaultAppearance().ColorId];
@@ -131,7 +131,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (target.Data.Role is not VesselRole)
 		{
-			Error("RpcVesselClosed - Invalid Vessel target");
+			Error($"RpcVesselClosed - Invalid Vessel target: {target.name} (not a vessel)");
 			return;
 		}
 
@@ -146,7 +146,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else
 		{
-			Error("RpcVesselClosed - Invalid ghost");
+			Error($"RpcVesselClosed - Invalid ghost: {player.name} (no valid modifier)");
 		}
 
 		if (player.AmOwner)
@@ -154,7 +154,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			if (!player.HasModifier<VesselSeekingModifier>())
 			{
 				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, player.Data.Role);
-	}
+			}
 
 			if (player.GetModifier<PoltergeistArrowModifier>(m => m.Owner.PlayerId == target.PlayerId) is { } arrow)
 			{
@@ -173,7 +173,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
-			Error("RpcPossess - Invalid poltergeist");
+			Error($"RpcPossess - Invalid poltergeist: {ghost.name} (no valid modifier)");
 			return;
 		}
 		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole role || vessel.HasDied())
