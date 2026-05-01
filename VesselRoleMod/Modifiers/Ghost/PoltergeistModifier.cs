@@ -17,6 +17,7 @@ namespace VesselRoleMod.Modifiers.Ghost;
 public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel)
 {
 	public override string ModifierName => "Ghost Possessor";
+	public float GhostVisibility { get; private set; } = 1f;
 
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 
@@ -27,6 +28,13 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill && 
 			   Vessel.Data.Role is VesselRole && 
 			   Player.GetRoleWhenAlive().HasKillingAbility();
+	}
+
+	public override void OnActivate()
+	{
+		base.OnActivate();
+
+		GhostVisibility = Player.CalculatedAlpha;
 	}
 
 	public override void OnDeactivate()

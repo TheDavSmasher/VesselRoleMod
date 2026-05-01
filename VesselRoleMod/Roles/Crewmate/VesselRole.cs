@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
+using TownOfUs.Modifiers.Game.Universal;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
@@ -193,6 +194,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
 
+			ShyModifier.SetVisibility(ghost, 0.5f, true);
 			// TODO: Make Ghost snap to vessel position at all times
 		}
 	}
@@ -283,6 +285,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			if (ghost.AmOwner)
 			{
 				CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(false, ghost.Data.Role);
+
+				ShyModifier.SetVisibility(ghost, mod.GhostVisibility, true);
 			}
 		}
 
