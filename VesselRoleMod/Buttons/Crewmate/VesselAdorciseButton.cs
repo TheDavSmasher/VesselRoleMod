@@ -48,6 +48,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		}
 		else
 		{
+			WaitingOnTrigger = false;
 			Timer = Cooldown;
 		}
 	}
@@ -74,13 +75,13 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		if (EffectActive)
 		{
-			ResetCooldownAndOrEffect();
+			OnEffectEnd();
 			return;
 		}
 
 		if (WaitingOnTrigger)
 		{
-			EndTriggerWindow();
+			OnTriggerEnd();
 			return;
 		}
 
