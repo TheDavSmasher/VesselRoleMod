@@ -294,10 +294,7 @@ public static class VesselMovementPatches
 		{
 			if (VesselControlState.CanShareControl)
 			{
-				direction = CombineMovementVectors(
-					VesselControlState.GetSelfDirection(controllerId),
-					VesselControlState.GetForcedDirection(player.PlayerId));
-
+				direction = VesselControlState.GetDirection(controllerId, player.PlayerId);
 			}
 			else if (VesselControlState.HasControlOver(controllerId, player.PlayerId))
 			{
@@ -306,31 +303,6 @@ public static class VesselMovementPatches
 		}
 
 		return true;
-	}
-
-	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
-	{
-		return new Vector2(
-			CombineMovementFloats(v1.x, v2.x),
-			CombineMovementFloats(v1.y, v2.y)
-			);
-	}
-
-	private static float CombineMovementFloats(float f1, float f2)
-	{
-		var fr = f1 * f2;
-		if (fr > 0)
-		{
-			return Math.Max(f1, f2);
-		}
-		if (fr < 0)
-		{
-			return f1 + f2;
-		}
-		else
-		{
-			return f1 != 0f ? f1 : f2;
-		}
 	}
 
 	[HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.FixedUpdate))]

@@ -1,4 +1,5 @@
 ﻿using MiraAPI.GameOptions;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VesselRoleMod.Options.Roles.Crewmate;
@@ -128,6 +129,11 @@ public static class VesselControlState
 		return SelfDirection.TryGetValue(controllerId, out var dir) ? dir : Vector2.zero;
 	}
 
+	public static Vector2 GetDirection(byte controllerId, byte controlledId)
+	{
+		return CombineMovementVectors(GetSelfDirection(controllerId), GetForcedDirection(controlledId));
+	}
+
 	public static void SetForcedMovementState(byte controlledId, Vector2 position, Vector2 velocity)
 	{
 		ControlledPosition[controlledId] = position;
@@ -210,5 +216,30 @@ public static class VesselControlState
 
 		ControlledSince.Clear();
 		ControllingSince.Clear();
+	}
+
+	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
+	{
+		return new Vector2(
+			CombineMovementFloats(v1.x, v2.x),
+			CombineMovementFloats(v1.y, v2.y)
+			);
+	}
+
+	private static float CombineMovementFloats(float f1, float f2)
+	{
+		var fr = f1 * f2;
+		if (fr > 0)
+		{
+			return Math.Max(f1, f2);
+		}
+		if (fr < 0)
+		{
+			return f1 + f2;
+		}
+		else
+		{
+			return f1 != 0f ? f1 : f2;
+		}
 	}
 }
