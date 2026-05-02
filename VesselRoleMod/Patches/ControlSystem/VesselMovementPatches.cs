@@ -21,21 +21,13 @@ public static class VesselMovementPatches
 	private const float MovementChangeEpsilonSqr = 0.0001f * 0.0001f;
 	private const float MovementKeepAliveSeconds = 0.03f;
 
-	private static readonly Dictionary<byte, Vector2> _lastSentForceDir = new();
-	private static readonly Dictionary<byte, Vector2> _lastSentSelfDir = new();
-
-	private static readonly Dictionary<byte, Vector2> _lastSentForcePos = new();
-	private static readonly Dictionary<byte, Vector2> _lastSentSelfPos = new();
-
-	private static readonly Dictionary<byte, Vector2> _lastSentForceVel = new();
-	private static readonly Dictionary<byte, Vector2> _lastSentSelfVel = new();
-
-	private static readonly Dictionary<byte, float> _lastSentForceAt = new();
-	private static readonly Dictionary<byte, float> _lastSentSelfAt = new();
-
+	private static readonly Dictionary<byte, Vector2> _lastSentDir = new();
+	private static readonly Dictionary<byte, Vector2> _lastSentPos = new();
+	private static readonly Dictionary<byte, Vector2> _lastSentVel = new();
+	private static readonly Dictionary<byte, float> _lastSentAt = new();
 	private static readonly Dictionary<byte, Vector2> _localDesiredDir = new();
 
-	private static void SendControlledInputIfNeeded(byte controlledId, Vector2 dir, Vector2 position, Vector2 velocity)
+	private static void SendPlayerInputIfNeeded(byte playerId, bool controlled, Vector2 dir, Vector2 position, Vector2 velocity)
 	{
 		if (PlayerControl.LocalPlayer == null)
 		{
@@ -45,10 +37,10 @@ public static class VesselMovementPatches
 		var now = Time.time;
 		var shouldSend = true;
 
-		if (_lastSentForceDir.TryGetValue(controlledId, out var lastDir) &&
-			_lastSentForcePos.TryGetValue(controlledId, out var lastPos) &&
-			_lastSentForceVel.TryGetValue(controlledId, out var lastVel) &&
-			_lastSentForceAt.TryGetValue(controlledId, out var lastAt))
+		if (_lastSentDir.TryGetValue(playerId, out var lastDir) &&
+			_lastSentPos.TryGetValue(playerId, out var lastPos) &&
+			_lastSentVel.TryGetValue(playerId, out var lastVel) &&
+			_lastSentAt.TryGetValue(playerId, out var lastAt))
 		{
 			var dirChanged = (dir - lastDir).sqrMagnitude > MovementChangeEpsilonSqr;
 			var posChanged = (position - lastPos).sqrMagnitude > MovementChangeEpsilonSqr;
@@ -62,51 +54,14 @@ public static class VesselMovementPatches
 			return;
 		}
 
-		_lastSentForceDir[controlledId] = dir;
-		_lastSentForcePos[controlledId] = position;
-		_lastSentForceVel[controlledId] = velocity;
-		_lastSentForceAt[controlledId] = now;
+		_lastSentDir[playerId] = dir;
+		_lastSentPos[playerId] = position;
+		_lastSentVel[playerId] = velocity;
+		_lastSentAt[playerId] = now;
 
 		Rpc<VesselInputUnreliableRpc>.Instance.Send(
 			PlayerControl.LocalPlayer,
-			new VesselInputPacket(controlledId, dir, position, velocity));
-	}
-
-	private static void SendSelfInputIfNeeded(byte controllerId, Vector2 dir, Vector2 position, Vector2 velocity)
-	{
-		if (PlayerControl.LocalPlayer == null)
-		{
-			return;
-		}
-
-		var now = Time.time;
-		var shouldSend = true;
-
-		if (_lastSentSelfDir.TryGetValue(controllerId, out var lastDir) &&
-			_lastSentSelfPos.TryGetValue(controllerId, out var lastPos) &&
-			_lastSentSelfVel.TryGetValue(controllerId, out var lastVel) &&
-			_lastSentSelfAt.TryGetValue(controllerId, out var lastAt))
-		{
-			var dirChanged = (dir - lastDir).sqrMagnitude > MovementChangeEpsilonSqr;
-			var posChanged = (position - lastPos).sqrMagnitude > MovementChangeEpsilonSqr;
-			var velChanged = (velocity - lastVel).sqrMagnitude > MovementChangeEpsilonSqr;
-			var keepAliveDue = (now - lastAt) >= MovementKeepAliveSeconds;
-			shouldSend = dirChanged || posChanged || velChanged || keepAliveDue;
-		}
-
-		if (!shouldSend)
-		{
-			return;
-		}
-
-		_lastSentForceDir[controllerId] = dir;
-		_lastSentForcePos[controllerId] = position;
-		_lastSentForceVel[controllerId] = velocity;
-		_lastSentForceAt[controllerId] = now;
-
-		Rpc<PoltergeistInputUnreliableRpc>.Instance.Send(
-			PlayerControl.LocalPlayer,
-			new PoltergeistInputPacket(controllerId, dir, position, velocity));
+			new VesselInputPacket(playerId, controlled, dir, position, velocity));
 	}
 
 	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.FixedUpdate))]
@@ -187,7 +142,7 @@ public static class VesselMovementPatches
 				? vessel.MyPhysics.body.velocity
 				: Vector2.zero;
 
-			SendControlledInputIfNeeded(vesselId, dir, vesselPos, vesselVel);
+			SendPlayerInputIfNeeded(vesselId, true, dir, vesselPos, vesselVel);
 
 			if (!shouldMove)
 			{
