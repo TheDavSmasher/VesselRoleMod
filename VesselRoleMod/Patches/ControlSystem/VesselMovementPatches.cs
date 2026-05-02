@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using MiraAPI.Modifiers;
 using Reactor.Networking.Rpc;
-using System;
 using System.Collections.Generic;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
@@ -25,6 +24,7 @@ public static class VesselMovementPatches
 	private static readonly Dictionary<byte, Vector2> _lastSentPos = new();
 	private static readonly Dictionary<byte, Vector2> _lastSentVel = new();
 	private static readonly Dictionary<byte, float> _lastSentAt = new();
+
 	private static readonly Dictionary<byte, Vector2> _localDesiredDir = new();
 
 	private static void SendPlayerInputIfNeeded(byte playerId, bool controlled, Vector2 dir, Vector2 position, Vector2 velocity)
@@ -114,13 +114,13 @@ public static class VesselMovementPatches
 							   vessel.walkingToVent;
 
 			var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
-				_localDesiredDir[vesselId] = dir;
+			_localDesiredDir[vesselId] = dir;
 
 			if (vessel.MyPhysics != null)
 			{
 				if (dir == Vector2.zero)
 				{
-						var cachedDir = _localDesiredDir.TryGetValue(vesselId, out var cached) ? cached : Vector2.zero;
+					var cachedDir = _localDesiredDir.TryGetValue(vesselId, out var cached) ? cached : Vector2.zero;
 					if (cachedDir != Vector2.zero)
 					{
 						AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, cachedDir);
