@@ -47,7 +47,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm &&
 			pm.Vessel != null &&
 			VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
-			VesselControlState.IsInInitialGraceForced(pm.Vessel.PlayerId))
+			VesselControlState.IsInInitialGrace(pm.Vessel.PlayerId))
 		{
 			TimerPaused = true;
 		}

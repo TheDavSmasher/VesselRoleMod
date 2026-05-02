@@ -34,7 +34,6 @@ public static class VesselControlState
 	private static readonly Dictionary<byte, Vector2> SelfVelocity = new();
 
 	private static readonly Dictionary<byte, float> ControlledSince = new();
-	private static readonly Dictionary<byte, float> ControllingSince = new();
 
 	public static void SetControl(byte controlledId, byte controllerId)
 	{
@@ -54,7 +53,6 @@ public static class VesselControlState
 		SelfVelocity[controllerId] = Vector2.zero;
 
 		ControlledSince[controlledId] = Time.time;
-		ControllingSince[controllerId] = Time.time;
 	}
 
 	public static void ClearControl(byte controlledId)
@@ -75,7 +73,6 @@ public static class VesselControlState
 		SelfVelocity.Remove(controllerId);
 
 		ControlledSince.Remove(controlledId);
-		ControllingSince.Remove(controllerId);
 	}
 
 	public static bool IsControlled(byte controlledId, out byte controllerId)
@@ -166,24 +163,14 @@ public static class VesselControlState
 		return SelfVelocity.TryGetValue(controllerId, out var vel) ? vel : Vector2.zero;
 	}
 
-	public static float GetForcedControlElapsedSeconds(byte controlledId)
+	public static float GetControlElapsedSeconds(byte controlledId)
 	{
 		return ControlledSince.TryGetValue(controlledId, out var since) ? Mathf.Max(0f, Time.time - since) : float.PositiveInfinity;
 	}
 
-	public static float GetSelfControlElapsedSeconds(byte controllerId)
+	public static bool IsInInitialGrace(byte controlledId)
 	{
-		return ControllingSince.TryGetValue(controllerId, out var since) ? Mathf.Max(0f, Time.time - since) : float.PositiveInfinity;
-	}
-
-	public static bool IsInInitialGraceForced(byte controlledId)
-	{
-		return GetForcedControlElapsedSeconds(controlledId) < InitialControlSyncGraceSeconds;
-	}
-
-	public static bool IsInInitialGraceSelf(byte controllerId)
-	{
-		return GetSelfControlElapsedSeconds(controllerId) < InitialControlSyncGraceSeconds;
+		return GetControlElapsedSeconds(controlledId) < InitialControlSyncGraceSeconds;
 	}
 
 	public static void ClearForcedMovementState(byte controlledId)
@@ -215,7 +202,6 @@ public static class VesselControlState
 		SelfVelocity.Clear();
 
 		ControlledSince.Clear();
-		ControllingSince.Clear();
 	}
 
 	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
