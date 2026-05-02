@@ -59,6 +59,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 			if (HudManager.InstanceExists && HudManager.Instance != null)
 			{
 				HudManager.Instance.PlayerCam.SetTarget(Player);
+				HudManager.Instance.ShadowQuad.gameObject.SetActive(true);
 			}
 			try
 			{
@@ -94,6 +95,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 			if (HudManager.InstanceExists && HudManager.Instance != null)
 			{
 				HudManager.Instance.PlayerCam.SetTarget(Ghost);
+				HudManager.Instance.ShadowQuad.gameObject.SetActive(false);
 			}
 			try
 			{

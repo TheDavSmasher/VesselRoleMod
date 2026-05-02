@@ -9,6 +9,7 @@ using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -24,8 +25,6 @@ public static class VesselMovementPatches
 	private static readonly Dictionary<byte, Vector2> _lastSentPos = new();
 	private static readonly Dictionary<byte, Vector2> _lastSentVel = new();
 	private static readonly Dictionary<byte, float> _lastSentAt = new();
-
-	private static readonly Dictionary<byte, Vector2> _localDesiredDir = new();
 
 	private static void SendPlayerInputIfNeeded(byte playerId, bool controlled, Vector2 dir, Vector2 position, Vector2 velocity)
 	{
@@ -64,6 +63,37 @@ public static class VesselMovementPatches
 			new VesselInputPacket(playerId, controlled, dir, position, velocity));
 	}
 
+	private static bool CollectLocalVesselInput(PlayerControl vessel, bool controlled)
+	{
+		if (TimeLordRewindSystem.IsRewinding)
+		{
+			return true;
+		}
+
+		if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+		{
+			return true;
+		}
+
+		var vesselId = vessel.PlayerId;
+		var vesselInAnim = vessel.IsInTargetingAnimState() ||
+						   vessel.inVent ||
+						   vessel.inMovingPlat ||
+						   vessel.onLadder ||
+						   vessel.walkingToVent;
+
+		var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
+		var vesselPos = vessel.MyPhysics?.body != null
+			? vessel.MyPhysics.body.position
+			: (Vector2)vessel.transform.position;
+		var vesselVel = vessel.MyPhysics?.body != null
+			? vessel.MyPhysics.body.velocity
+			: Vector2.zero;
+
+		SendPlayerInputIfNeeded(vesselId, controlled, dir, vesselPos, vesselVel);
+		return false;
+	}
+
 	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.FixedUpdate))]
 	[HarmonyPrefix]
 	public static bool PlayerPhysicsFixedUpdatePrefix(PlayerPhysics __instance)
@@ -86,77 +116,26 @@ public static class VesselMovementPatches
 			}
 		}
 
-		// player is local & ghost possessor
 		if (player == PlayerControl.LocalPlayer &&
-			PlayerControl.LocalPlayer != null &&
-			PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is var ghost &&
-			ghost?.Vessel != null)
+			PlayerControl.LocalPlayer != null)
 		{
-			if (TimeLordRewindSystem.IsRewinding)
+			if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is var ghost &&
+				ghost?.Vessel != null &&
+				CollectLocalVesselInput(ghost.Vessel, true))
 			{
 				return true;
 			}
 
-			var vessel = ghost.Vessel;
-
-			if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+			if (PlayerControl.LocalPlayer.Data.Role is VesselRole vesselRole &&
+				vesselRole.Ghost != null &&
+				CollectLocalVesselInput(player, false))
 			{
 				return true;
 			}
-
-			var shouldMove = Minigame.Instance == null && !player.inVent && !player.inMovingPlat && !player.onLadder && !player.walkingToVent;
-
-			var vesselId = vessel.PlayerId;
-			var vesselInAnim = vessel.IsInTargetingAnimState() ||
-							   vessel.inVent ||
-							   vessel.inMovingPlat ||
-							   vessel.onLadder ||
-							   vessel.walkingToVent;
-
-			var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
-			_localDesiredDir[vesselId] = dir;
-
-			if (vessel.MyPhysics != null)
-			{
-				if (dir == Vector2.zero)
-				{
-					var cachedDir = _localDesiredDir.TryGetValue(vesselId, out var cached) ? cached : Vector2.zero;
-					if (cachedDir != Vector2.zero)
-					{
-						AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, cachedDir);
-					}
-					else
-					{
-						AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, Vector2.zero, stopIfZero: true);
-					}
-				}
-				else
-				{
-					AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir, stopIfZero: true);
-				}
-			}
-
-			var vesselPos = vessel.MyPhysics?.body != null
-				? vessel.MyPhysics.body.position
-				: (Vector2)vessel.transform.position;
-			var vesselVel = vessel.MyPhysics?.body != null
-				? vessel.MyPhysics.body.velocity
-				: Vector2.zero;
-
-			SendPlayerInputIfNeeded(vesselId, true, dir, vesselPos, vesselVel);
-
-			if (!shouldMove)
-			{
-				return true;
-			}
-
-			var ghostDir = GetNormalDirection();
-			AdvancedMovementUtilities.ApplyControlledMovement(__instance, ghostDir, stopIfZero: true);
-			return false;
 		}
 
 		// player is player vessel
-		if (VesselControlState.IsControlled(player.PlayerId, out _))
+		if (VesselControlState.IsControlled(player.PlayerId, out var ghostId))
 		{
 			if (TimeLordRewindSystem.IsRewinding)
 			{
@@ -165,7 +144,7 @@ public static class VesselMovementPatches
 
 			if (player.onLadder || player.inMovingPlat)
 			{
-				VesselControlState.ClearMovementState(player.PlayerId);
+				VesselControlState.ClearMovementState(player.PlayerId, ghostId);
 				return true;
 			}
 
@@ -174,21 +153,29 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			var dir = VesselControlState.GetForcedDirection(player.PlayerId);
-			var pos = VesselControlState.GetForcedPosition(player.PlayerId);
-			var vel = VesselControlState.GetForcedVelocity(player.PlayerId);
+			Vector2 dir, pos, vel;
+			if (VesselControlState.CanShareControl)
+			{
+				dir = VesselControlState.GetDirection(ghostId, player.PlayerId);
+				pos = VesselControlState.GetPosition(ghostId, player.PlayerId);
+				vel = VesselControlState.GetVelocity(ghostId, player.PlayerId);
+			}
+			else if (VesselControlState.HasControlOver(ghostId, player.PlayerId))
+			{
+				dir = VesselControlState.GetForcedDirection(player.PlayerId);
+				pos = VesselControlState.GetForcedPosition(player.PlayerId);
+				vel = VesselControlState.GetForcedVelocity(player.PlayerId);
+			}
+			else
+			{
+				dir = VesselControlState.GetSelfDirection(ghostId);
+				pos = VesselControlState.GetSelfPosition(ghostId);
+				vel = VesselControlState.GetSelfVelocity(ghostId);
+			}
 
 			if (dir == Vector2.zero)
 			{
-				var cachedDir = _localDesiredDir.TryGetValue(player.PlayerId, out var cached) ? cached : Vector2.zero;
-				if (cachedDir != Vector2.zero)
-				{
-					AdvancedMovementUtilities.ApplyControlledMovement(__instance, cachedDir);
-				}
-				else
-				{
-					AdvancedMovementUtilities.ApplyControlledMovement(__instance, Vector2.zero, stopIfZero: true);
-				}
+				AdvancedMovementUtilities.ApplyControlledMovement(__instance, Vector2.zero, stopIfZero: true);
 			}
 			else
 			{
@@ -236,9 +223,19 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			var dir = VesselControlState.GetForcedDirection(player.PlayerId);
-			var pos = VesselControlState.GetForcedPosition(player.PlayerId);
-			var vel = VesselControlState.GetForcedVelocity(player.PlayerId);
+			Vector2 dir, pos, vel;
+			if (VesselControlState.CanShareControl || VesselControlState.HasControlOver(ghostId, player.PlayerId))
+			{
+				dir = VesselControlState.GetForcedDirection(player.PlayerId);
+				pos = VesselControlState.GetForcedPosition(player.PlayerId);
+				vel = VesselControlState.GetForcedVelocity(player.PlayerId);
+			}
+			else
+			{
+				dir = Vector2.zero;
+				pos = Vector2.zero;
+				vel = Vector2.zero;
+			}
 
 			if (dir == Vector2.zero)
 			{
