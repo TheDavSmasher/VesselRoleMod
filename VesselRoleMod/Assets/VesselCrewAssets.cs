@@ -9,4 +9,8 @@ public static class VesselCrewAssets
 	public static LoadableAsset<Sprite> AdorciseSprite { get; } = TouCrewAssets.MediateSprite;
 
 	public static LoadableAsset<Sprite> ExorciseSprite { get; } = TouCrewAssets.MediateSprite;
+
+	public static LoadableAsset<Sprite> TakeControlSprite { get; } = TouCrewAssets.MediateSprite;
+
+	public static LoadableAsset<Sprite> GiveControlSprite { get; } = TouCrewAssets.MediateSprite;
 }

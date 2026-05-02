@@ -7,7 +7,8 @@ public enum VesselModRpc : uint
 	OffsetForVessel,
 	VesselPossession,
 	VesselEndPossession,
-	VesselTriggerInteraction
+	VesselTriggerInteraction,
+	ChangePossessionControl
 }
 
 internal enum VesselModInternalRpc : uint

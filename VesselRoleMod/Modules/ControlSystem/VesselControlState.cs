@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using MiraAPI.GameOptions;
+using System.Collections.Generic;
 using UnityEngine;
+using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modules.ControlSystem;
 
@@ -14,8 +16,12 @@ public static class VesselControlState
 	// During this grace window we avoid applying any victim movement input to prevent desync.
 	public const float InitialControlSyncGraceSeconds = 1.0f;
 
+	public static bool CanShareControl => OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
+
 	private static readonly Dictionary<byte, byte> ControlledBy = new();
 	private static readonly Dictionary<byte, byte> Controlling = new();
+
+	private static readonly Dictionary<byte, bool> InControl = new();
 
 	private static readonly Dictionary<byte, Vector2> ControlledDirection = new();
 	private static readonly Dictionary<byte, Vector2> SelfDirection = new();
@@ -34,6 +40,9 @@ public static class VesselControlState
 		ControlledBy[controlledId] = controllerId;
 		Controlling[controllerId] = controlledId;
 
+		InControl[controlledId] = CanShareControl;
+		InControl[controlledId] = true;
+
 		ControlledDirection[controlledId] = Vector2.zero;
 		SelfDirection[controllerId] = Vector2.zero;
 
@@ -51,6 +60,9 @@ public static class VesselControlState
 	{
 		ControlledBy.Remove(controlledId, out var controllerId);
 		Controlling.Remove(controllerId);
+
+		InControl.Remove(controlledId);
+		InControl.Remove(controllerId);
 
 		ControlledDirection.Remove(controlledId);
 		SelfDirection.Remove(controllerId);
@@ -73,6 +85,27 @@ public static class VesselControlState
 	public static bool IsControlling(byte controllerId, out byte controlledId)
 	{
 		return Controlling.TryGetValue(controllerId, out controlledId);
+	}
+
+	public static bool IsUsingState(byte playerId, out byte withId)
+	{
+		return IsControlled(playerId, out withId) || IsControlling(playerId, out withId);
+	}
+
+	public static bool HasControlOver(byte playerId, byte againstId)
+	{
+		return IsUsingState(playerId, out var withId) && withId == againstId &&
+				InControl.TryGetValue(playerId, out bool has) && has;
+	}
+
+	public static void SwapControlOver(byte playerId, byte againstId)
+	{
+		if (!IsUsingState(playerId, out var withId) || withId != againstId)
+		{
+			return;
+		}
+
+		(InControl[playerId], InControl[againstId]) = (InControl[againstId], InControl[playerId]);
 	}
 
 	public static void SetForcedDirection(byte controlledId, Vector2 direction)
@@ -163,6 +196,8 @@ public static class VesselControlState
 	{
 		ControlledBy.Clear();
 		Controlling.Clear();
+
+		InControl.Clear();
 
 		ControlledDirection.Clear();
 		SelfDirection.Clear();

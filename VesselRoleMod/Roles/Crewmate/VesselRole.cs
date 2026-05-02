@@ -242,6 +242,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
 		}
+
+		if (!VesselControlState.CanShareControl && (ghost.AmOwner || vessel.AmOwner))
+		{
+			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(true, PlayerControl.LocalPlayer.Data.Role);
+		}
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselEndPossession)]
@@ -337,6 +342,35 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 
 		mod.ClearNotifications();
+
+		if (!VesselControlState.CanShareControl && (ghost != null && ghost.AmOwner || vessel != null && vessel.AmOwner))
+		{
+			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(false, PlayerControl.LocalPlayer.Data.Role);
+		}
+	}
+
+	[MethodRpc((uint)VesselModRpc.ChangePossessionControl)]
+	public static void RpcChangeControl(PlayerControl ghost, PlayerControl vessel)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(ghost);
+			return;
+		}
+		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		{
+			Error("RpcPossess - Invalid poltergeist");
+			return;
+		}
+		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole role || vessel.HasDied())
+		{
+			Error("RpcPossess - Invalid Vessel target");
+			return;
+		}
+		if (ghost.AmOwner || vessel.AmOwner)
+		{
+			VesselControlState.SwapControlOver(ghost.PlayerId, vessel.PlayerId);
+		}
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselTriggerInteraction)]
@@ -358,7 +392,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		if (mod.Vessel != vessel || role.Ghost != ghost || !VesselControlState.IsControlled(vessel.PlayerId, out _))
+		if (mod.Vessel != vessel || role.Ghost != ghost ||
+			!VesselControlState.HasControlOver(ghost.PlayerId, vessel.PlayerId))
 		{
 			return;
 		}
