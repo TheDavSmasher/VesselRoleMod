@@ -235,7 +235,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
 
-			ShyModifier.SetVisibility(ghost, 0.5f, true);
+			ShyModifier.SetVisibility(ghost, 0.2f, true);
 			// TODO: Make Ghost snap to vessel position at all times
 		}
 		else if (vessel.AmOwner)
@@ -337,7 +337,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 				CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(false, ghost.Data.Role);
 				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, ghost.Data.Role);
 
-				ShyModifier.SetVisibility(ghost, mod.GhostVisibility, true);
+				ShyModifier.SetVisibility(ghost, mod.GhostVisibility, false);
 			}
 		}
 

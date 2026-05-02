@@ -34,7 +34,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 	{
 		base.OnActivate();
 
-		GhostVisibility = Player.CalculatedAlpha;
+		GhostVisibility = Player.invisibilityAlpha;
 	}
 
 	public override void OnDeactivate()
