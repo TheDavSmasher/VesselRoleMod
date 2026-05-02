@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using MiraAPI.Modifiers;
 using Reactor.Networking.Rpc;
+using System;
 using System.Collections.Generic;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
@@ -321,7 +322,9 @@ public static class VesselMovementPatches
 	public static bool SetNormalizedVelocityPrefix(PlayerPhysics __instance, ref Vector2 direction)
 	{
 		var player = __instance.myPlayer;
-		if (player == null || !player.HasModifier<VesselPossessedModifier>())
+		if (player == null ||
+			!player.HasModifier<VesselPossessedModifier>() || 
+			!player.HasModifier<PoltergeistModifier>())
 		{
 			return true;
 		}
@@ -331,12 +334,58 @@ public static class VesselMovementPatches
 			return true;
 		}
 
-		if (player.AmOwner && VesselControlState.IsControlled(player.PlayerId, out _))
+		if (player.AmOwner)
 		{
-			direction = VesselControlState.GetForcedDirection(player.PlayerId);
+			if (VesselControlState.IsControlled(player.PlayerId, out var controllerId))
+			{
+				direction = CombineVesselStateVectors(controllerId, player.PlayerId,
+					VesselControlState.GetForcedDirection, VesselControlState.GetSelfDirection);
+			}
+			if (VesselControlState.IsControlling(player.PlayerId, out var controlledId))
+			{
+				direction = CombineVesselStateVectors(player.PlayerId, controlledId,
+					VesselControlState.GetForcedDirection, VesselControlState.GetSelfDirection);
+			}
 		}
 
 		return true;
+	}
+
+	private static Vector2 CombineVesselStateVectors(
+		byte controllerId,
+		byte controlledId,
+		Func<byte, Vector2> getForcedVector,
+		Func<byte, Vector2> getSelfVector)
+	{
+		return CombineMovementVectors(
+			getForcedVector(controlledId),
+			getSelfVector(controllerId)
+			);
+	}
+
+	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
+	{
+		return new Vector2(
+			CombineMovementFloats(v1.x, v2.x),
+			CombineMovementFloats(v1.y, v2.y)
+			);
+	}
+
+	private static float CombineMovementFloats(float f1, float f2)
+	{
+		var fr = f1 * f2;
+		if (fr > 0)
+		{
+			return Math.Max(f1, f2);
+		}
+		if (fr < 0)
+		{
+			return f1 + f2;
+		}
+		else
+		{
+			return f1 != 0f ? f1 : f2;
+		}
 	}
 
 	[HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.FixedUpdate))]
@@ -349,7 +398,8 @@ public static class VesselMovementPatches
 		}
 
 		var player = __instance.myPlayer;
-		if (!VesselControlState.IsControlled(player.PlayerId, out _))
+		if (!VesselControlState.IsControlled(player.PlayerId, out _) ||
+			!VesselControlState.IsControlling(player.PlayerId, out _))
 		{
 			return true;
 		}
