@@ -4,6 +4,10 @@ using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
+using TownOfUs.Options;
+using TownOfUs.Patches;
+using TownOfUs.Roles.Crewmate;
+using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using TownOfUs.Utilities.Appearances;
 using UnityEngine;
@@ -94,6 +98,49 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 
 		base.FixedUpdate();
+
+		if (!OptionGroupSingleton<PostmortemOptions>.Instance.TheDeadKnow)
+		{
+			return;
+		}
+
+		foreach (var player in PlayerControl.AllPlayerControls)
+		{
+			if (player.AmOwner)
+			{
+				continue;
+			}
+
+			if (!player.Data.IsDead)
+			{
+				continue;
+			}
+
+			switch (player.Data.Role)
+			{
+				case SpectreRole { Caught: false }:
+				case HaunterRole { Caught: false }:
+					continue;
+			}
+
+			var bodyForms = player.gameObject.transform.GetChild(1).gameObject;
+
+			foreach (var form in bodyForms.GetAllChildren())
+			{
+				if (form.activeSelf)
+				{
+					form.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
+				}
+			}
+
+			if (player.cosmetics.HasPetEquipped())
+			{
+				player.cosmetics.CurrentPet.Visible = false;
+			}
+
+			player.cosmetics.gameObject.SetActive(false);
+			player.gameObject.transform.GetChild(3).gameObject.SetActive(false);
+		}
 	}
 
 	public override void OnTimerComplete()
