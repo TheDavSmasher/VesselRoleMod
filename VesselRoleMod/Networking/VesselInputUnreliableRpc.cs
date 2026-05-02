@@ -56,7 +56,7 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 	{
 		var controlledPlayerInfo = GameData.Instance?.GetPlayerById(data.PlayerId);
 		var controlled = controlledPlayerInfo?.Object;
-		if (controlled == null)
+		if (controlled == null || sender == null)
 		{
 			return;
 		}
@@ -66,14 +66,25 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 			return;
 		}
 
-		if (sender == null ||
-			!VesselControlState.IsControlled(data.PlayerId, out var controllerId) ||
-			controllerId != sender.PlayerId)
+		if (data.Controlled)
+		{
+			if (!VesselControlState.IsControlled(data.PlayerId, out var controllerId) ||
+				controllerId != sender.PlayerId)
+			{
+				return;
+			}
+			VesselControlState.SetForcedDirection(data.PlayerId, data.Direction);
+			VesselControlState.SetForcedMovementState(data.PlayerId, data.Position, data.Velocity);
+			return;
+		}
+		
+		if (!VesselControlState.IsControlling(data.PlayerId, out var controlledId) ||
+			controlledId != sender.PlayerId)
 		{
 			return;
 		}
 
-		VesselControlState.SetForcedDirection(data.PlayerId, data.Direction);
-		VesselControlState.SetForcedMovementState(data.PlayerId, data.Position, data.Velocity);
+		VesselControlState.SetSelfDirection(data.PlayerId, data.Direction);
+		VesselControlState.SetSelfMovementState(data.PlayerId, data.Position, data.Velocity);
 	}
 }
