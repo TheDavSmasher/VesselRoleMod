@@ -5,6 +5,7 @@ using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
+using TownOfUs.Utilities.Appearances;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Modifiers;
@@ -14,14 +15,21 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel)
+public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel), IVisualAppearance
 {
 	public override string ModifierName => "Ghost Possessor";
-	public float GhostVisibility { get; private set; } = 1f;
 
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 
 	private LobbyNotificationMessage? controllerNotification;
+
+	public VisualAppearance? GetVisualAppearance()
+	{
+		var vesselAppearance = Vessel.GetDefaultAppearance();
+		var appearance = Player.GetDefaultAppearance();
+		appearance.Speed = vesselAppearance.Speed;
+		return appearance;
+	}
 
 	public bool CanKill()
 	{
@@ -32,9 +40,12 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 	public override void OnActivate()
 	{
-		base.OnActivate();
+		if (!Player.AmOwner)
+		{
+			return;
+		}
 
-		GhostVisibility = Player.invisibilityAlpha;
+		Player.RawSetAppearance(this);
 	}
 
 	public override void OnDeactivate()
@@ -43,6 +54,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		{
 			return;
 		}
+
+		Player.ResetAppearance();
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
 
