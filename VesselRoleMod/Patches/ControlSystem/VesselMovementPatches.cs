@@ -86,6 +86,7 @@ public static class VesselMovementPatches
 			}
 		}
 
+		// player is local & ghost possessor
 		if (player == PlayerControl.LocalPlayer &&
 			PlayerControl.LocalPlayer != null &&
 			PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is var ghost &&
@@ -149,13 +150,12 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			// Move self (ghost)
 			var ghostDir = GetNormalDirection();
 			AdvancedMovementUtilities.ApplyControlledMovement(__instance, ghostDir, stopIfZero: true);
 			return false;
 		}
 
-		// player is vessel (LocalPlayer is vessel or ghost)
+		// player is player vessel
 		if (VesselControlState.IsControlled(player.PlayerId, out _))
 		{
 			if (TimeLordRewindSystem.IsRewinding)
@@ -217,7 +217,7 @@ public static class VesselMovementPatches
 			return false;
 		}
 
-		// player is vessel (LocalPlayer is vessel or ghost)
+		// player is vessel dummy
 		if (player.HasModifier<VesselPossessedModifier>() && player.GetComponent<DummyBehaviour>() != null)
 		{
 			if (TimeLordRewindSystem.IsRewinding)
