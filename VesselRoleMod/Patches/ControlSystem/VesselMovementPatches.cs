@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using Reactor.Networking.Rpc;
 using System;
@@ -10,6 +11,7 @@ using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
+using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -20,6 +22,9 @@ public static class VesselMovementPatches
 
 	private const float MovementChangeEpsilonSqr = 0.0001f * 0.0001f;
 	private const float MovementKeepAliveSeconds = 0.03f;
+
+	private static bool CanShareControl => OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
+
 	private static readonly Dictionary<byte, Vector2> _lastSentForceDir = new();
 	private static readonly Dictionary<byte, Vector2> _lastSentSelfDir = new();
 
