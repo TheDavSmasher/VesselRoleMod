@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using Reactor.Networking.Rpc;
 using System;
@@ -11,7 +10,6 @@ using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
-using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -22,8 +20,6 @@ public static class VesselMovementPatches
 
 	private const float MovementChangeEpsilonSqr = 0.0001f * 0.0001f;
 	private const float MovementKeepAliveSeconds = 0.03f;
-
-	private static bool CanShareControl => OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
 
 	private static readonly Dictionary<byte, Vector2> _lastSentForceDir = new();
 	private static readonly Dictionary<byte, Vector2> _lastSentSelfDir = new();
@@ -154,7 +150,6 @@ public static class VesselMovementPatches
 			}
 
 			var shouldMove = Minigame.Instance == null && !player.inVent && !player.inMovingPlat && !player.onLadder && !player.walkingToVent;
-			//var canShareControl = OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
 
 			var vesselId = vessel.PlayerId;
 			var vesselInAnim = vessel.IsInTargetingAnimState() ||
@@ -200,11 +195,13 @@ public static class VesselMovementPatches
 				return true;
 			}
 
+			// Move self (ghost)
 			var ghostDir = GetNormalDirection();
 			AdvancedMovementUtilities.ApplyControlledMovement(__instance, ghostDir, stopIfZero: true);
 			return false;
 		}
 
+		// player is vessel (LocalPlayer is vessel or ghost)
 		if (VesselControlState.IsControlled(player.PlayerId, out _))
 		{
 			if (TimeLordRewindSystem.IsRewinding)
@@ -266,6 +263,7 @@ public static class VesselMovementPatches
 			return false;
 		}
 
+		// player is vessel (LocalPlayer is vessel or ghost)
 		if (player.HasModifier<VesselPossessedModifier>() && player.GetComponent<DummyBehaviour>() != null)
 		{
 			if (TimeLordRewindSystem.IsRewinding)
@@ -328,8 +326,7 @@ public static class VesselMovementPatches
 	{
 		var player = __instance.myPlayer;
 		if (player == null ||
-			!player.HasModifier<VesselPossessedModifier>() || 
-			!player.HasModifier<PoltergeistModifier>())
+			!player.HasModifier<VesselPossessedModifier>())
 		{
 			return true;
 		}
@@ -339,33 +336,22 @@ public static class VesselMovementPatches
 			return true;
 		}
 
-		if (player.AmOwner)
+		if (player.AmOwner && VesselControlState.IsControlled(player.PlayerId, out var controllerId))
 		{
-			if (VesselControlState.IsControlled(player.PlayerId, out var controllerId))
+			if (VesselControlState.CanShareControl)
 			{
-				direction = CombineVesselStateVectors(controllerId, player.PlayerId,
-					VesselControlState.GetForcedDirection, VesselControlState.GetSelfDirection);
+				direction = CombineMovementVectors(
+					VesselControlState.GetSelfDirection(controllerId),
+					VesselControlState.GetForcedDirection(player.PlayerId));
+
 			}
-			if (VesselControlState.IsControlling(player.PlayerId, out var controlledId))
+			else if (VesselControlState.HasControlOver(controllerId, player.PlayerId))
 			{
-				direction = CombineVesselStateVectors(player.PlayerId, controlledId,
-					VesselControlState.GetForcedDirection, VesselControlState.GetSelfDirection);
+				direction = VesselControlState.GetForcedDirection(player.PlayerId);
 			}
 		}
 
 		return true;
-	}
-
-	private static Vector2 CombineVesselStateVectors(
-		byte controllerId,
-		byte controlledId,
-		Func<byte, Vector2> getForcedVector,
-		Func<byte, Vector2> getSelfVector)
-	{
-		return CombineMovementVectors(
-			getForcedVector(controlledId),
-			getSelfVector(controllerId)
-			);
 	}
 
 	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
@@ -403,8 +389,8 @@ public static class VesselMovementPatches
 		}
 
 		var player = __instance.myPlayer;
-		if (!VesselControlState.IsControlled(player.PlayerId, out _) ||
-			!VesselControlState.IsControlling(player.PlayerId, out _))
+		if (!VesselControlState.IsUsingState(player.PlayerId, out byte withId) ||
+			VesselControlState.HasControlOver(player.PlayerId, withId))
 		{
 			return true;
 		}
