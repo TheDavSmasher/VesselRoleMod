@@ -165,7 +165,7 @@ public static class VesselMovementPatches
 
 			if (player.onLadder || player.inMovingPlat)
 			{
-				VesselControlState.ClearForcedMovementState(player.PlayerId);
+				VesselControlState.ClearMovementState(player.PlayerId);
 				return true;
 			}
 
@@ -227,7 +227,7 @@ public static class VesselMovementPatches
 
 			if (player.onLadder || player.inMovingPlat)
 			{
-				VesselControlState.ClearForcedMovementState(player.PlayerId);
+				VesselControlState.ClearMovementState(player.PlayerId);
 				return true;
 			}
 

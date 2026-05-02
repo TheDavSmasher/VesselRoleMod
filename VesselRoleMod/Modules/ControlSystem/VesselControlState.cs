@@ -153,6 +153,11 @@ public static class VesselControlState
 		return SelfPosition.TryGetValue(controllerId, out var pos) ? pos : Vector2.zero;
 	}
 
+	public static Vector2 GetPosition(byte controllerId, byte controlledId)
+	{
+		return CombineMovementVectors(GetSelfPosition(controllerId), GetForcedPosition(controlledId));
+	}
+
 	public static Vector2 GetForcedVelocity(byte controlledId)
 	{
 		return ControlledVelocity.TryGetValue(controlledId, out var vel) ? vel : Vector2.zero;
@@ -161,6 +166,11 @@ public static class VesselControlState
 	public static Vector2 GetSelfVelocity(byte controllerId)
 	{
 		return SelfVelocity.TryGetValue(controllerId, out var vel) ? vel : Vector2.zero;
+	}
+
+	public static Vector2 GetVelocity(byte controllerId, byte controlledId)
+	{
+		return CombineMovementVectors(GetSelfVelocity(controllerId), GetForcedVelocity(controlledId));
 	}
 
 	public static float GetControlElapsedSeconds(byte controlledId)
@@ -173,14 +183,16 @@ public static class VesselControlState
 		return GetControlElapsedSeconds(controlledId) < InitialControlSyncGraceSeconds;
 	}
 
-	public static void ClearForcedMovementState(byte controlledId)
+	public static void ClearMovementState(byte controlledId)
 	{
 		ControlledPosition[controlledId] = Vector2.zero;
 		ControlledVelocity[controlledId] = Vector2.zero;
 	}
 
-	public static void ClearSelfMovementState(byte controllerId)
+	public static void ClearMovementState(byte controlledId, byte controllerId)
 	{
+		ClearMovementState(controlledId);
+
 		SelfPosition[controllerId] = Vector2.zero;
 		SelfVelocity[controllerId] = Vector2.zero;
 	}
