@@ -33,8 +33,7 @@ public static class VesselMovementPatches
 	private static readonly Dictionary<byte, float> _lastSentForceAt = new();
 	private static readonly Dictionary<byte, float> _lastSentSelfAt = new();
 
-	private static readonly Dictionary<byte, Vector2> _localDesiredForceDir = new();
-	private static readonly Dictionary<byte, Vector2> _localDesiredSelfDir = new();
+	private static readonly Dictionary<byte, Vector2> _localDesiredDir = new();
 
 	private static void SendControlledInputIfNeeded(byte controlledId, Vector2 dir, Vector2 position, Vector2 velocity)
 	{
@@ -159,13 +158,13 @@ public static class VesselMovementPatches
 							   vessel.walkingToVent;
 
 			var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
-			_localDesiredForceDir[vesselId] = dir;
+				_localDesiredDir[vesselId] = dir;
 
 			if (vessel.MyPhysics != null)
 			{
 				if (dir == Vector2.zero)
 				{
-					var cachedDir = _localDesiredForceDir.TryGetValue(vesselId, out var cached) ? cached : Vector2.zero;
+						var cachedDir = _localDesiredDir.TryGetValue(vesselId, out var cached) ? cached : Vector2.zero;
 					if (cachedDir != Vector2.zero)
 					{
 						AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, cachedDir);
@@ -226,7 +225,7 @@ public static class VesselMovementPatches
 
 			if (dir == Vector2.zero)
 			{
-				var cachedDir = _localDesiredForceDir.TryGetValue(player.PlayerId, out var cached) ? cached : Vector2.zero;
+				var cachedDir = _localDesiredDir.TryGetValue(player.PlayerId, out var cached) ? cached : Vector2.zero;
 				if (cachedDir != Vector2.zero)
 				{
 					AdvancedMovementUtilities.ApplyControlledMovement(__instance, cachedDir);
