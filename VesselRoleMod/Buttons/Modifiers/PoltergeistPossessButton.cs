@@ -97,7 +97,18 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 			return false;
 		}
 
-		return base.CanUse() && Target != null && Timer <= 0;
+		var newTarget = GetTarget();
+		if (newTarget != Target)
+		{
+			SetOutline(false);
+		}
+
+		Target = IsTargetValid(newTarget) ? newTarget : null;
+		SetOutline(true);
+
+		return Target != null &&
+			((EffectActive && Timer <= EffectDuration - 5f) ||
+			(!EffectActive && Timer <= 0));
 	}
 
 	public override bool CanClick()
