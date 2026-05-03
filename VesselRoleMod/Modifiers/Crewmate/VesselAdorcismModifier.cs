@@ -4,7 +4,9 @@ using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
@@ -30,6 +32,19 @@ public sealed class VesselAdorcismModifier : TimedModifier
 		{
 			var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorciseEnd, Player);
 			MiraEventManager.InvokeEvent(vesselAbilityEvent);
+		}
+
+		foreach (var validAdorcismMod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>())
+		{
+			if (validAdorcismMod == null)
+			{
+				continue;
+			}
+
+			if (validAdorcismMod.Vessel.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+			{
+				VesselRole.VesselClosed(validAdorcismMod.Player, PlayerControl.LocalPlayer);
+			}
 		}
 	}
 

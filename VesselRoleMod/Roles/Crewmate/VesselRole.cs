@@ -110,12 +110,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 	}
 
-	[MethodRpc((uint)VesselModRpc.AdorcismEnd)]
-	public static void RpcVesselClosed(PlayerControl player, PlayerControl target)
-	{
-		VesselClosed(player, target);
-	}
-
 	public static void VesselClosed(PlayerControl player, PlayerControl target)
 	{
 		if (LobbyBehaviour.Instance)

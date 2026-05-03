@@ -129,19 +129,6 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		}
 		PlayerControl.LocalPlayer.RpcRemoveModifier<VesselAdorcismModifier>();
 
-		foreach (var validAdorcismMod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>())
-		{
-			if (validAdorcismMod == null)
-			{
-				continue;
-			}
-
-			if (validAdorcismMod.Vessel.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-			{
-				VesselRole.RpcVesselClosed(validAdorcismMod.Player, PlayerControl.LocalPlayer);
-			}
-		}
-
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
 	}

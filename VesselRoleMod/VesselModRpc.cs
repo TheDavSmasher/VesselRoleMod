@@ -3,7 +3,6 @@
 public enum VesselModRpc : uint
 {
 	AdorcismStart = 100,
-	AdorcismEnd,
 	OffsetForVessel,
 	VesselPossession,
 	VesselEndPossession,
