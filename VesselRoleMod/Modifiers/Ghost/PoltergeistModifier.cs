@@ -19,10 +19,10 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel), IVisualAppearance
+public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel), IVisualAppearance, IVesselModifier
 {
 	public override string ModifierName => "Ghost Possessor";
-
+	public PlayerControl Ghost => Player;
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 
 	private LobbyNotificationMessage? controllerNotification;

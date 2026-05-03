@@ -19,7 +19,7 @@ namespace VesselRoleMod.Modifiers.Crewmate;
 /// Applied to the vessel while they are controlled by a Poltergeist.
 /// Movement/input suppression is handled by Harmony patches while this modifier is present.
 /// </summary>
-public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModifier, IUncontrollable
+public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModifier, IUncontrollable, IVesselModifier
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override string ModifierName => "Possessed";
@@ -27,6 +27,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 	public override bool CanReport => true;
 	public override bool HideOnUi => true;
 	public override bool AutoStart => true;
+	public PlayerControl Vessel => Player;
 	public PlayerControl Ghost => ghost;
 
 	private LobbyNotificationMessage? _possessedNotification;
