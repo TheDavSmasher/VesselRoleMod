@@ -1,13 +1,13 @@
 ﻿using MiraAPI.Keybinds;
-using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Modules.Localization;
 using UnityEngine;
 using VesselRoleMod.Assets;
-using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Crewmate;
 
@@ -42,8 +42,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 	{
 		return VesselControlState.CanShareControl &&
 			PlayerControl.LocalPlayer != null && role != null && 
-			((role is VesselRole vessel && vessel.Ghost != null) ||
-			 role.Player.HasModifier<PoltergeistModifier>());
+			role.Player.HasModifierOfType<IVesselModifier>();
 	}
 
 	protected override void OnClick()
@@ -53,24 +52,12 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 			return;
 		}
 
-		PlayerControl ghost, vessel;
-
-		if (PlayerControl.LocalPlayer.Data.Role is VesselRole role && role.Ghost != null)
-		{
-			ghost = role.Ghost;
-			vessel = PlayerControl.LocalPlayer;
-		}
-		else if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is { } mod && mod.Vessel != null)
-		{
-			ghost = PlayerControl.LocalPlayer;
-			vessel = mod.Vessel;
-		}
-		else
+		if (PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is not { } mod)
 		{
 			Error("ChangeControlButton - Invalid click source");
 			return;
 		}
 
-		VesselRole.RpcChangeControl(ghost, vessel);
+		VesselRole.RpcChangeControl(mod.Ghost, mod.Vessel);
 	}
 }

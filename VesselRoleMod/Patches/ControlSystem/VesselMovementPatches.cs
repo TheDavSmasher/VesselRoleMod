@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -277,7 +279,7 @@ public static class VesselMovementPatches
 	{
 		var player = __instance.myPlayer;
 		if (player == null ||
-			!player.HasModifier<VesselPossessedModifier>())
+			!player.HasModifierOfType<IVesselModifier>())
 		{
 			return true;
 		}

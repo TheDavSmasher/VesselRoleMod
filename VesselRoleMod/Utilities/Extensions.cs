@@ -1,10 +1,24 @@
-﻿using TownOfUs.Roles;
+﻿using MiraAPI.Modifiers;
+using System;
+using System.Linq;
+using TownOfUs.Roles;
 using TownOfUs.Utilities;
 
 namespace VesselRoleMod.Utilities;
 
 public static class Extensions
 {
+	public static bool HasModifierOfType<T>(this PlayerControl player, Func<T, bool>? predicate = null)
+	{
+		return player.GetModifierComponent() is { } comp && comp.ActiveModifiers.OfType<T>().Any(predicate ?? (_ => true));
+	}
+
+	public static T? GetModifierOfType<T>(this PlayerControl player, Func<T, bool>? predicate = null)
+	{
+		return player.GetModifierComponent() is { } comp &&
+			comp.ActiveModifiers.OfType<T>().FirstOrDefault(predicate ?? (_ => true)) is T res ? res : default;
+	}
+
 	public static bool HasKillingAbility(this PlayerControl player)
 	{
 		return player.Data.Role.HasKillingAbility();
