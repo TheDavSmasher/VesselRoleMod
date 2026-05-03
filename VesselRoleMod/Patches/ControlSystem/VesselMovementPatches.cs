@@ -108,7 +108,7 @@ public static class VesselMovementPatches
 
 		if (TimeLordRewindSystem.IsRewinding)
 		{
-			if (player.HasModifier<VesselPossessedModifier>() && player.AmOwner)
+			if (player.HasModifierOfType<IVesselModifier>() && player.AmOwner)
 			{
 				return true;
 			}
@@ -119,7 +119,8 @@ public static class VesselMovementPatches
 		}
 
 		if (player == PlayerControl.LocalPlayer &&
-			PlayerControl.LocalPlayer != null)
+			PlayerControl.LocalPlayer != null &&
+			PlayerControl.LocalPlayer.HasModifierOfType<IVesselModifier>())
 		{
 			if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is var ghost &&
 				ghost?.Vessel != null &&
@@ -278,8 +279,7 @@ public static class VesselMovementPatches
 	public static bool SetNormalizedVelocityPrefix(PlayerPhysics __instance, ref Vector2 direction)
 	{
 		var player = __instance.myPlayer;
-		if (player == null ||
-			!player.HasModifierOfType<IVesselModifier>())
+		if (player == null || !player.HasModifierOfType<IVesselModifier>())
 		{
 			return true;
 		}
