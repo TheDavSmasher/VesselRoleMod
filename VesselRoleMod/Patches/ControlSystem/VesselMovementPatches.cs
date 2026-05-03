@@ -289,15 +289,31 @@ public static class VesselMovementPatches
 			return true;
 		}
 
-		if (player.AmOwner && VesselControlState.IsControlled(player.PlayerId, out var controllerId))
+		if (player.AmOwner && VesselControlState.IsUsingState(player.PlayerId, out var withId))
 		{
+			byte controlledId, controllerId;
+			if (VesselControlState.IsControlled(player.PlayerId, out _))
+			{
+				controlledId = player.PlayerId;
+				controllerId = withId;
+			}
+			else
+			{
+				controlledId = withId;
+				controllerId = player.PlayerId;
+			}
+
 			if (VesselControlState.CanShareControl)
 			{
-				direction = VesselControlState.GetDirection(controllerId, player.PlayerId);
+				direction = VesselControlState.GetDirection(controllerId, controlledId);
 			}
-			else if (VesselControlState.HasControlOver(controllerId, player.PlayerId))
+			else if (VesselControlState.HasControlOver(controllerId, controlledId))
 			{
-				direction = VesselControlState.GetForcedDirection(player.PlayerId);
+				direction = VesselControlState.GetForcedDirection(controlledId);
+			}
+			else
+			{
+				direction = VesselControlState.GetSelfDirection(controllerId);
 			}
 		}
 
