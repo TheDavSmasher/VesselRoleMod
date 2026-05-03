@@ -90,15 +90,19 @@ public static class VesselControlState
 		return IsControlled(playerId, out withId) || IsControlling(playerId, out withId);
 	}
 
+	public static bool IsUsingState(byte playerId1, byte playerId2)
+	{
+		return IsUsingState(playerId1, out var pId2) && pId2 == playerId2;
+	}
+
 	public static bool HasControlOver(byte playerId, byte againstId)
 	{
-		return IsUsingState(playerId, out var withId) && withId == againstId &&
-				InControl.TryGetValue(playerId, out bool has) && has;
+		return IsUsingState(playerId, againstId) && InControl.TryGetValue(playerId, out bool has) && has;
 	}
 
 	public static void SwapControlOver(byte playerId, byte againstId)
 	{
-		if (!IsUsingState(playerId, out var withId) || withId != againstId)
+		if (!IsUsingState(playerId, againstId))
 		{
 			return;
 		}
