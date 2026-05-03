@@ -194,6 +194,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			VesselClosed(validmod.Player, vessel);
 		}
+		foreach (var validmod2 in ghost.GetModifiers<ValidAdorcismGhostModifier>())
+		{
+			VesselClosed(ghost, validmod2.Vessel);
+		}
 
 		if (vessel.inVent)
 		{
