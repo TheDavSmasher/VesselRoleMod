@@ -67,11 +67,6 @@ public static class VesselMovementPatches
 
 	private static bool CollectLocalVesselInput(PlayerControl vessel, bool controlled)
 	{
-		if (TimeLordRewindSystem.IsRewinding)
-		{
-			return true;
-		}
-
 		if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
 		{
 			return true;
@@ -106,35 +101,66 @@ public static class VesselMovementPatches
 			return true;
 		}
 
-		if (TimeLordRewindSystem.IsRewinding)
+		if (player == PlayerControl.LocalPlayer &&
+			PlayerControl.LocalPlayer != null &&
+			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod1)
 		{
-			if (player.HasModifierOfType<IVesselModifier>() && player.AmOwner)
+			if (TimeLordRewindSystem.IsRewinding && player.AmOwner)
 			{
 				return true;
 			}
-			if (player == PlayerControl.LocalPlayer)
+
+			if (mod1.Vessel != null && mod1.Ghost != null)
 			{
-				return true;
+				var isController = mod1 is PoltergeistModifier;
+				if (CollectLocalVesselInput(mod1.Vessel, isController))
+				{
+					return true;
+				}
 			}
 		}
 
-		if (player == PlayerControl.LocalPlayer &&
-			PlayerControl.LocalPlayer != null &&
-			PlayerControl.LocalPlayer.HasModifierOfType<IVesselModifier>())
+		// player is player ghost
+		if (VesselControlState.IsControlling(player.PlayerId, out var vesselId))
 		{
-			if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is var ghost &&
-				ghost?.Vessel != null &&
-				CollectLocalVesselInput(ghost.Vessel, true))
+			if (TimeLordRewindSystem.IsRewinding)
 			{
 				return true;
 			}
 
-			if (PlayerControl.LocalPlayer.Data.Role is VesselRole vesselRole &&
-				vesselRole.Ghost != null &&
-				CollectLocalVesselInput(player, false))
+			if (player.onLadder || player.inMovingPlat)
+			{
+				VesselControlState.ClearMovementState(vesselId, player.PlayerId);
+				return true;
+			}
+
+			if (player.IsInTargetingAnimState() || player.inVent || player.walkingToVent)
 			{
 				return true;
 			}
+
+			Vector2 dir, pos, vel;
+			if (VesselControlState.CanShareControl)
+			{
+				dir = VesselControlState.GetDirection(player.PlayerId, vesselId);
+				pos = VesselControlState.GetPosition(player.PlayerId, vesselId);
+				vel = VesselControlState.GetVelocity(player.PlayerId, vesselId);
+			}
+			else if (VesselControlState.HasControlOver(vesselId, player.PlayerId))
+			{
+				dir = VesselControlState.GetSelfDirection(player.PlayerId);
+				pos = VesselControlState.GetSelfPosition(player.PlayerId);
+				vel = VesselControlState.GetSelfVelocity(player.PlayerId);
+			}
+			else
+			{
+				dir = VesselControlState.GetForcedDirection(vesselId);
+				pos = VesselControlState.GetForcedPosition(vesselId);
+				vel = VesselControlState.GetForcedVelocity(vesselId);
+			}
+
+			ApplyAllDataTo(__instance, dir, pos, vel);
+			return false;
 		}
 
 		// player is player vessel
@@ -176,34 +202,7 @@ public static class VesselMovementPatches
 				vel = VesselControlState.GetSelfVelocity(ghostId);
 			}
 
-			if (dir == Vector2.zero)
-			{
-				AdvancedMovementUtilities.ApplyControlledMovement(__instance, Vector2.zero, stopIfZero: true);
-			}
-			else
-			{
-				AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir, stopIfZero: true);
-			}
-
-			if (pos != Vector2.zero)
-			{
-				var currentPos = __instance.body != null ? __instance.body.position : (Vector2)__instance.myPlayer.transform.position;
-				var delta = pos - currentPos;
-				if (delta.magnitude > 0.5f)
-				{
-					if (__instance.body != null)
-					{
-						__instance.body.position = pos;
-					}
-					__instance.myPlayer.transform.position = pos;
-				}
-			}
-
-			if (__instance.body != null && vel != Vector2.zero)
-			{
-				__instance.body.velocity = vel;
-			}
-
+			ApplyAllDataTo(__instance, dir, pos, vel);
 			return false;
 		}
 
@@ -227,7 +226,7 @@ public static class VesselMovementPatches
 			}
 
 			Vector2 dir, pos, vel;
-			if (VesselControlState.CanShareControl || VesselControlState.HasControlOver(ghostId, player.PlayerId))
+			if (VesselControlState.CanShareControl || !VesselControlState.HasControl(player.PlayerId))
 			{
 				dir = VesselControlState.GetForcedDirection(player.PlayerId);
 				pos = VesselControlState.GetForcedPosition(player.PlayerId);
@@ -240,38 +239,42 @@ public static class VesselMovementPatches
 				vel = Vector2.zero;
 			}
 
-			if (dir == Vector2.zero)
-			{
-				AdvancedMovementUtilities.ApplyControlledMovement(__instance, Vector2.zero, stopIfZero: true);
-			}
-			else
-			{
-				AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir, stopIfZero: true);
-			}
-
-			if (pos != Vector2.zero)
-			{
-				var currentPos = __instance.body != null ? __instance.body.position : (Vector2)__instance.myPlayer.transform.position;
-				var delta = pos - currentPos;
-				if (delta.magnitude > 0.5f)
-				{
-					if (__instance.body != null)
-					{
-						__instance.body.position = pos;
-					}
-					__instance.myPlayer.transform.position = pos;
-				}
-			}
-
-			if (__instance.body != null && vel != Vector2.zero)
-			{
-				__instance.body.velocity = vel;
-			}
-
+			ApplyAllDataTo(__instance, dir, pos, vel);
 			return false;
 		}
 
 		return true;
+	}
+
+	private static void ApplyAllDataTo(PlayerPhysics __instance, Vector2 dir, Vector2 pos, Vector2 vel)
+	{
+		if (dir == Vector2.zero)
+		{
+			AdvancedMovementUtilities.ApplyControlledMovement(__instance, Vector2.zero, stopIfZero: true);
+		}
+		else
+		{
+			AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir, stopIfZero: true);
+		}
+
+		if (pos != Vector2.zero)
+		{
+			var currentPos = __instance.body != null ? __instance.body.position : (Vector2)__instance.myPlayer.transform.position;
+			var delta = pos - currentPos;
+			if (delta.magnitude > 0.5f)
+			{
+				if (__instance.body != null)
+				{
+					__instance.body.position = pos;
+				}
+				__instance.myPlayer.transform.position = pos;
+			}
+		}
+
+		if (__instance.body != null && vel != Vector2.zero)
+		{
+			__instance.body.velocity = vel;
+		}
 	}
 
 	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.SetNormalizedVelocity))]
