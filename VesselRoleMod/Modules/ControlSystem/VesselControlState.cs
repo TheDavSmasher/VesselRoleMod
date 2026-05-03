@@ -225,6 +225,8 @@ public static class VesselControlState
 		ControlledSince.Clear();
 	}
 
+	private const float MovementChangeEpsilonSqr = 0.0001f * 0.0001f;
+
 	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
 	{
 		return new Vector2(
@@ -236,17 +238,17 @@ public static class VesselControlState
 	private static float CombineMovementFloats(float f1, float f2)
 	{
 		var fr = f1 * f2;
-		if (fr > 0)
+		if (fr > MovementChangeEpsilonSqr)
 		{
-			return Math.Max(f1, f2);
+			return f1 > 0f ? Math.Max(f1, f2) : Math.Min(f1, f2);
 		}
-		if (fr < 0)
+		if (fr < -MovementChangeEpsilonSqr)
 		{
 			return f1 + f2;
 		}
 		else
 		{
-			return f1 != 0f ? f1 : f2;
+			return (f1 * f1 <= MovementChangeEpsilonSqr) ? f1 : f2;
 		}
 	}
 }
