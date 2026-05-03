@@ -15,6 +15,7 @@ using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
+using static UnityEngine.GraphicsBuffer;
 
 namespace VesselRoleMod.Buttons.Crewmate;
 
@@ -94,6 +95,16 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId)).ToList();
 		}
 
+		if (deadPlayers.Count == 0)
+		{
+			return;
+		}
+
+		if (!PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>())
+		{
+			PlayerControl.LocalPlayer.RpcAddModifier<VesselAdorcismModifier>();
+		}
+
 		foreach (var ghost in deadPlayers)
 		{
 			VesselRole.RpcSeekVessel(ghost, PlayerControl.LocalPlayer);
@@ -111,6 +122,12 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	public override void OnTriggerEnd()
 	{
 		base.OnTriggerEnd();
+
+		if (PlayerControl.LocalPlayer.GetModifier<VesselAdorcismModifier>() is not { } mod)
+		{
+			return;
+		}
+		PlayerControl.LocalPlayer.RpcRemoveModifier<VesselAdorcismModifier>();
 
 		foreach (var validAdorcismMod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>())
 		{

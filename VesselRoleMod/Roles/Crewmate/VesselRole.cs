@@ -95,12 +95,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		if (!target.HasModifier<VesselAdorcismModifier>())
-		{
-			Info("Adding adorcise modifier");
-			target.AddModifier<VesselAdorcismModifier>();
-		}
-
 		if (!player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
 		{
 			player.AddModifier<ValidAdorcismGhostModifier>(target);
@@ -133,11 +127,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			Error($"RpcVesselClosed - Invalid Vessel target: {target.name} (not a vessel)");
 			return;
-		}
-
-		if (target.HasModifier<VesselAdorcismModifier>())
-		{
-			target.RemoveModifier<VesselAdorcismModifier>();
 		}
 
 		if (player.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == target.PlayerId))
@@ -192,13 +181,18 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		role.Ghost = ghost;
 
 		VesselControlState.SetControl(vessel.PlayerId, ghost.PlayerId);
-		if (vessel.HasModifier<VesselPossessedModifier>())
+		if (!vessel.HasModifier<VesselPossessedModifier>())
 		{
 			vessel.AddModifier<VesselPossessedModifier>(ghost);
 		}
-		if (ghost.HasModifier<ValidAdorcismGhostModifier>(m => m.Vessel.PlayerId == vessel.PlayerId))
+		if (vessel.HasModifier<VesselAdorcismModifier>())
 		{
-			VesselClosed(ghost, vessel);
+			vessel.RemoveModifier<VesselAdorcismModifier>();
+		}
+
+		foreach (var validmod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>(m => m.Vessel.PlayerId == vessel.PlayerId))
+		{
+			VesselClosed(validmod.Player, vessel);
 		}
 
 		if (vessel.inVent)
