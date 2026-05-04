@@ -12,10 +12,8 @@ using TownOfUs.Modules.Localization;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
-using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
-using static UnityEngine.GraphicsBuffer;
 
 namespace VesselRoleMod.Buttons.Crewmate;
 
