@@ -64,14 +64,13 @@ public static class VesselMovementPatches
 			new VesselInputPacket(playerId, controlled, dir, position, velocity));
 	}
 
-	private static bool CollectLocalVesselInput(PlayerControl vessel, bool controlled)
+	private static bool CollectLocalVesselInput(PlayerControl vessel, byte playerId, bool controlled)
 	{
 		if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
 		{
 			return true;
 		}
 
-		var vesselId = vessel.PlayerId;
 		var vesselInAnim = vessel.IsInTargetingAnimState() ||
 						   vessel.inVent ||
 						   vessel.inMovingPlat ||
@@ -86,7 +85,7 @@ public static class VesselMovementPatches
 			? vessel.MyPhysics.body.velocity
 			: Vector2.zero;
 
-		SendPlayerInputIfNeeded(vesselId, controlled, dir, vesselPos, vesselVel);
+		SendPlayerInputIfNeeded(playerId, controlled, dir, vesselPos, vesselVel);
 		return false;
 	}
 
@@ -112,7 +111,8 @@ public static class VesselMovementPatches
 			if (mod1.Vessel != null && mod1.Ghost != null)
 			{
 				var isController = mod1 is PoltergeistModifier;
-				if (CollectLocalVesselInput(mod1.Vessel, isController))
+				var target = isController ? mod1.Vessel : mod1.Ghost;
+				if (CollectLocalVesselInput(mod1.Vessel, target.PlayerId, isController))
 				{
 					return true;
 				}
