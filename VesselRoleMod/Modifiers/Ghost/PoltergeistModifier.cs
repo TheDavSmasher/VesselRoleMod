@@ -50,6 +50,13 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 
 		Player.RawSetAppearance(this);
+
+		if (Minigame.Instance && Minigame.Instance.TryCast<HauntMenuMinigame>())
+		{
+			Minigame.Instance.Close();
+		}
+		HudManager.Instance.AbilityButton.SetDisabled();
+		HudManagerPatches.ResetZoom();
 	}
 
 	public override void OnDeactivate()
@@ -67,6 +74,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		{
 			button.ResetCooldownAndOrEffect();
 		}
+		HudManager.Instance.AbilityButton.SetEnabled();
+		HudManagerPatches.ZoomButton.SetActive(HudManagerPatches.CanZoom);
 	}
 
 	public override void OnMeetingStart()
