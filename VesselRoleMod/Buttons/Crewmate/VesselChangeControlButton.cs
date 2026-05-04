@@ -40,7 +40,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 
 	public override bool Enabled(RoleBehaviour? role)
 	{
-		return VesselControlState.CanShareControl &&
+		return !VesselControlState.CanShareControl &&
 			PlayerControl.LocalPlayer != null && role != null && 
 			role.Player.HasModifierOfType<IVesselModifier>();
 	}
