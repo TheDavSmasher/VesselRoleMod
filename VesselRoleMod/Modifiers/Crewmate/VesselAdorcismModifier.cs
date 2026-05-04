@@ -41,9 +41,9 @@ public sealed class VesselAdorcismModifier : TimedModifier
 				continue;
 			}
 
-			if (validAdorcismMod.Vessel.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+			if (validAdorcismMod.Vessel.PlayerId == Player.PlayerId)
 			{
-				VesselRole.VesselClosed(validAdorcismMod.Player, PlayerControl.LocalPlayer);
+				VesselRole.VesselClosed(validAdorcismMod.Player, Player);
 			}
 		}
 	}

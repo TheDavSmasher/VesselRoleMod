@@ -36,8 +36,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public string RoleDescription => TouLocale.GetParsed("VesselRoleIntroBlurb");
 	public string RoleLongDescription => TouLocale.GetParsed("VesselRoleTabDescription");
 
-	public PlayerControl? Ghost { get; set; }
-
 	public string GetAdvancedDescription()
 	{
 		return
@@ -159,7 +157,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			Error($"RpcPossess - Invalid poltergeist: {ghost.name} (no valid modifier)");
 			return;
 		}
-		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole role || vessel.HasDied())
+		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole || vessel.HasDied())
 		{
 			Error("RpcPossess - Invalid Vessel target");
 			return;
@@ -172,7 +170,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		var mod = new PoltergeistModifier(vessel);
 		ghost.AddModifier(mod);
-		role.Ghost = ghost;
 
 		VesselControlState.SetControl(vessel.PlayerId, ghost.PlayerId);
 		if (!vessel.HasModifier<VesselPossessedModifier>())
@@ -254,14 +251,13 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		if (vessel != null && vessel.Data.Role is VesselRole role)
+		if (vessel != null && vessel.GetModifier<VesselPossessedModifier>() is { } mod1)
 		{
 			VesselControlState.ClearControl(vessel.PlayerId);
 			if (vessel.TryGetModifier<VesselPossessedModifier>(out var mod2))
 			{
 				vessel.RemoveModifier(mod2);
 			}
-			role.Ghost = null;
 
 			if (vessel.MyPhysics != null)
 			{
@@ -372,14 +368,13 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			Error($"RpcVesselInteraction - Invalid poltergeist: {ghost.name} (no poltergeist modifier)");
 			return;
 		}
-		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole role || vessel.HasDied())
+		if (vessel == null || vessel.Data == null || vessel.Data.Role is not VesselRole || vessel.HasDied())
 		{
 			Error("RpcVesselInteraction - Invalid Vessel target");
 			return;
 		}
 
-		if (mod.Vessel != vessel || role.Ghost != ghost ||
-			!VesselControlState.HasControlOver(ghost.PlayerId, vessel.PlayerId))
+		if (mod.Vessel != vessel || !VesselControlState.HasControlOver(ghost.PlayerId, vessel.PlayerId))
 		{
 			return;
 		}
