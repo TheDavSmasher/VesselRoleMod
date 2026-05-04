@@ -182,6 +182,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 				}
 
 				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+				OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
 				ResetCooldownAndOrEffect();
 				return;
 			}
@@ -193,6 +194,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		}
 
 		VesselRole.RpcGhostPossession(PlayerControl.LocalPlayer, Target);
+		OverrideName(TouLocale.Get("VesselModGhostRelease", "Release"));
 		EffectActive = true;
 		Timer = EffectDuration;
 	}
