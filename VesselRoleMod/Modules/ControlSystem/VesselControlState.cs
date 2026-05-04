@@ -41,7 +41,7 @@ public static class VesselControlState
 		Controlling[controllerId] = controlledId;
 
 		InControl[controlledId] = CanShareControl;
-		InControl[controlledId] = true;
+		InControl[controllerId] = true;
 
 		ControlledDirection[controlledId] = Vector2.zero;
 		SelfDirection[controllerId] = Vector2.zero;
