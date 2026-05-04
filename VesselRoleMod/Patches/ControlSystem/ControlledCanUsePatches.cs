@@ -38,7 +38,8 @@ public static class ControlledCanUsePatches
 		var player = pc.Object;
 
 		var isVessel = player.HasModifier<VesselPossessedModifier>() &&
-					   VesselControlState.IsControlled(player.PlayerId, out _);
+					   VesselControlState.IsControlled(player.PlayerId, out _) &&
+					   VesselControlState.HasControl(player.PlayerId);
 
 		if (!isVessel)
 		{

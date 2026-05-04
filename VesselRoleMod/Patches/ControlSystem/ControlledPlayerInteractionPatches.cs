@@ -52,7 +52,8 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsControlled(controlled.PlayerId, out _))
+				VesselControlState.IsControlled(controlled.PlayerId, out _) &&
+				VesselControlState.HasControlOver(localPlayer.PlayerId, controlled.PlayerId))
 			{
 				var (interactable, interactablePos) = FindClosestInteractable(controlled);
 				if (interactable != null)
@@ -127,7 +128,8 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsControlled(controlled.PlayerId, out _))
+				VesselControlState.IsControlled(controlled.PlayerId, out _) &&
+				VesselControlState.HasControlOver(localPlayer.PlayerId, controlled.PlayerId))
 			{
 				isControlling = true;
 				controlledPlayer = controlled;
