@@ -73,7 +73,6 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
 				return false;
 			}
-			return base.CanUse();
 		}
 
 		if (TimeLordRewindSystem.IsRewinding)
