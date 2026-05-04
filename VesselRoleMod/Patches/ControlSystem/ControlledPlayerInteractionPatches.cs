@@ -3,6 +3,7 @@ using MiraAPI.Modifiers;
 using System.Collections.Generic;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
@@ -58,7 +59,7 @@ public static class ControlledPlayerInteractionPatches
 				var (interactable, interactablePos) = FindClosestInteractable(controlled);
 				if (interactable != null)
 				{
-					VesselRole.RpcGhostTriggerInteraction(PlayerControl.LocalPlayer, controlled, interactablePos);
+					VesselRole.RpcGhostTriggerInteraction(localPlayer, controlled, interactablePos);
 					return false;
 				}
 			}
@@ -118,6 +119,19 @@ public static class ControlledPlayerInteractionPatches
 		var localPlayer = PlayerControl.LocalPlayer;
 		if (localPlayer == null || useButton == null)
 		{
+			return;
+		}
+
+		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var possessedMod) && possessedMod.Ghost != null)
+		{
+			var controller = possessedMod.Ghost;
+			if (controller != null && controller.HasDied() &&
+				VesselControlState.IsControlling(controller.PlayerId, out _) &&
+				!VesselControlState.HasControlOver(localPlayer.PlayerId, controller.PlayerId))
+			{
+				useButton.currentTarget = null;
+				useButton.SetDisabled();
+			}
 			return;
 		}
 
