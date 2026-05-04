@@ -356,10 +356,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			Error("RpcChangeControl - Invalid Vessel target");
 			return;
 		}
-		if (ghost.AmOwner || vessel.AmOwner)
-		{
-			VesselControlState.SwapControlOver(ghost.PlayerId, vessel.PlayerId);
-		}
+		VesselControlState.SwapControlOver(ghost.PlayerId, vessel.PlayerId);
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselTriggerInteraction)]
