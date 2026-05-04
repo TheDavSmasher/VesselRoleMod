@@ -8,6 +8,12 @@
   <!-- Buttons -->
   <string name="VesselRoleAdorcise">Adorcise</string>
   <string name="VesselRoleExorcise">Exorcise</string>
+  <string name="VesselModGhostPossess">Possess</string>
+  <string name="VesselModGhostRelease">Release</string>
+  <string name="VesselModTakeControl">Take Control</string>
+  <string name="VesselModGiveControl">Give Control</string>
+  <!--Framed Murder-->
+  <string name="VesselPossession">Vessel Possession</string>
   <!-- Options -->
   <string name="VesselOptionAdorciseCooldown">Adorcise Cooldown</string>
   <string name="VesselOptionAdorciseWindow">Window to accept possessions</string>
