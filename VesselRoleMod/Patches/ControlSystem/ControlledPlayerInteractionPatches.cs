@@ -49,6 +49,17 @@ public static class ControlledPlayerInteractionPatches
 			return true;
 		}
 
+		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var vesselMod) && vesselMod.Ghost != null)
+		{
+			var controller = vesselMod.Ghost;
+			if (controller != null && controller.HasDied() &&
+				VesselControlState.IsControlling(controller.PlayerId, out _) &&
+				!VesselControlState.HasControlOver(localPlayer.PlayerId, controller.PlayerId))
+			{
+				return false;
+			}
+		}
+
 		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
 		{
 			var controlled = poltergeistMod.Vessel;
