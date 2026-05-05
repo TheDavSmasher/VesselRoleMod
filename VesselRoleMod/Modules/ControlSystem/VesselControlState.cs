@@ -26,9 +26,9 @@ public static class VesselControlState
 	private static readonly Dictionary<byte, Vector2> ControlledDirection = new();
 	private static readonly Dictionary<byte, Vector2> SelfDirection = new();
 
-	private static readonly Dictionary<byte, Vector2> HostPosition = new();
+	private static readonly Dictionary<byte, Vector2> ControlledPosition = new();
 
-	private static readonly Dictionary<byte, Vector2> HostVelocity = new();
+	private static readonly Dictionary<byte, Vector2> ControlledVelocity = new();
 
 	private static readonly Dictionary<byte, float> ControlledSince = new();
 
@@ -44,9 +44,9 @@ public static class VesselControlState
 		ControlledDirection[controlledId] = Vector2.zero;
 		SelfDirection[controllerId] = Vector2.zero;
 
-		HostPosition[controlledId] = Vector2.zero;
+		ControlledPosition[controlledId] = Vector2.zero;
 
-		HostVelocity[controlledId] = Vector2.zero;
+		ControlledVelocity[controlledId] = Vector2.zero;
 
 		ControlledSince[controlledId] = Time.time;
 	}
@@ -62,9 +62,9 @@ public static class VesselControlState
 		ControlledDirection.Remove(controlledId);
 		SelfDirection.Remove(controllerId);
 
-		HostPosition.Remove(controlledId);
+		ControlledPosition.Remove(controlledId);
 
-		HostVelocity.Remove(controlledId);
+		ControlledVelocity.Remove(controlledId);
 
 		ControlledSince.Remove(controlledId);
 	}
@@ -144,18 +144,18 @@ public static class VesselControlState
 	#region Movement State
 	public static void SetMovementState(byte controlledId, Vector2 position, Vector2 velocity)
 	{
-		HostPosition[controlledId] = position;
-		HostVelocity[controlledId] = velocity;
+		ControlledPosition[controlledId] = position;
+		ControlledVelocity[controlledId] = velocity;
 	}
 
 	public static Vector2 GetPosition(byte controlledId)
 	{
-		return HostPosition.TryGetValue(controlledId, out var pos) ? pos : Vector2.zero;
+		return ControlledPosition.TryGetValue(controlledId, out var pos) ? pos : Vector2.zero;
 	}
 
 	public static Vector2 GetVelocity(byte controlledId)
 	{
-		return HostVelocity.TryGetValue(controlledId, out var vel) ? vel : Vector2.zero;
+		return ControlledVelocity.TryGetValue(controlledId, out var vel) ? vel : Vector2.zero;
 	}
 
 	#endregion
@@ -176,8 +176,8 @@ public static class VesselControlState
 
 	public static void ClearMovementState(byte controlledId)
 	{
-		HostPosition[controlledId] = Vector2.zero;
-		HostVelocity[controlledId] = Vector2.zero;
+		ControlledPosition[controlledId] = Vector2.zero;
+		ControlledVelocity[controlledId] = Vector2.zero;
 	}
 
 	public static void ClearAll()
@@ -190,9 +190,9 @@ public static class VesselControlState
 		ControlledDirection.Clear();
 		SelfDirection.Clear();
 
-		HostPosition.Clear();
+		ControlledPosition.Clear();
 
-		HostVelocity.Clear();
+		ControlledVelocity.Clear();
 
 		ControlledSince.Clear();
 	}
