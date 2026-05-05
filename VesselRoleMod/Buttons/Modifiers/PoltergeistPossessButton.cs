@@ -70,7 +70,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 				pm.Vessel.Data.Disconnected ||
 				!VesselControlState.IsControlled(pm.Vessel.PlayerId, out _))
 			{
-				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel, "Possess: Can Use");
 				return false;
 			}
 		}
@@ -181,7 +181,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 					return;
 				}
 
-				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel, "Possess: Click");
 				OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
 				ResetCooldownAndOrEffect();
 				return;

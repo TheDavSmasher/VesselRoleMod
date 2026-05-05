@@ -64,7 +64,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		{
 			HudManager.Instance.PlayerCam.SetTarget(Player);
 			HudManager.Instance.ShadowQuad.gameObject.SetActive(true);
-	}
+		}
 		try
 		{
 			if (Ghost.lightSource != null && Target != null)
@@ -118,7 +118,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 		if (Player.AmOwner)
 		{
-			VesselRole.RpcGhostEndPossession(Player, Vessel);
+			VesselRole.RpcGhostEndPossession(Player, Vessel, "Poltegeist Meeting");
 		}
 	}
 
@@ -136,7 +136,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 		if (Vessel.Data == null || Vessel.HasDied() || Vessel.Data.Disconnected || !Player.HasDied())
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel, "Poltergeist Update");
 			return;
 		}
 
@@ -190,7 +190,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 	{
 		if (Player.AmOwner)
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel, "Poltergeist Timer");
 		}
 	}
 
