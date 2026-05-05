@@ -159,6 +159,13 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		}
 	}
 
+	public override void OnEffectEnd()
+	{
+		base.OnEffectEnd();
+
+		OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
+	}
+
 	protected override void OnClick()
 	{
 		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
