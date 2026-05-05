@@ -157,8 +157,8 @@ public static class VesselControlState
 
 	public static void SetSelfMovementState(byte controllerId, Vector2 position, Vector2 velocity)
 	{
-		ControlledPosition[controllerId] = position;
-		ControlledVelocity[controllerId] = velocity;
+		SelfPosition[controllerId] = position;
+		SelfVelocity[controllerId] = velocity;
 	}
 
 	#region Position
