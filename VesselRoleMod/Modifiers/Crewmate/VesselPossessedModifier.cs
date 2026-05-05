@@ -27,6 +27,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 	public override bool CanReport => true;
 	public override bool HideOnUi => true;
 	public override bool AutoStart => true;
+	public PlayerControl Target => Ghost;
 	public PlayerControl Vessel => Player;
 	public PlayerControl Ghost => ghost;
 

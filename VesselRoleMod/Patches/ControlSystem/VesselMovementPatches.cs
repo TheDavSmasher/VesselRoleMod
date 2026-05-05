@@ -110,9 +110,8 @@ public static class VesselMovementPatches
 
 			if (mod1.Vessel != null && mod1.Ghost != null)
 			{
-				var isController = mod1 is PoltergeistModifier;
-				var target = isController ? mod1.Vessel : mod1.Ghost;
-				if (CollectLocalVesselInput(mod1.Vessel, target.PlayerId, isController))
+				var controlled = mod1 is PoltergeistModifier;
+				if (CollectLocalVesselInput(mod1.Vessel, mod1.Target.PlayerId, controlled))
 				{
 					return true;
 				}
