@@ -1,5 +1,4 @@
 ﻿using MiraAPI.GameOptions;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VesselRoleMod.Options.Roles.Crewmate;
@@ -27,11 +26,9 @@ public static class VesselControlState
 	private static readonly Dictionary<byte, Vector2> ControlledDirection = new();
 	private static readonly Dictionary<byte, Vector2> SelfDirection = new();
 
-	private static readonly Dictionary<byte, Vector2> ControlledPosition = new();
-	private static readonly Dictionary<byte, Vector2> SelfPosition = new();
+	private static readonly Dictionary<byte, Vector2> HostPosition = new();
 
-	private static readonly Dictionary<byte, Vector2> ControlledVelocity = new();
-	private static readonly Dictionary<byte, Vector2> SelfVelocity = new();
+	private static readonly Dictionary<byte, Vector2> HostVelocity = new();
 
 	private static readonly Dictionary<byte, float> ControlledSince = new();
 
@@ -47,11 +44,9 @@ public static class VesselControlState
 		ControlledDirection[controlledId] = Vector2.zero;
 		SelfDirection[controllerId] = Vector2.zero;
 
-		ControlledPosition[controlledId] = Vector2.zero;
-		SelfPosition[controllerId] = Vector2.zero;
+		HostPosition[controlledId] = Vector2.zero;
 
-		ControlledVelocity[controlledId] = Vector2.zero;
-		SelfVelocity[controllerId] = Vector2.zero;
+		HostVelocity[controlledId] = Vector2.zero;
 
 		ControlledSince[controlledId] = Time.time;
 	}
@@ -67,11 +62,9 @@ public static class VesselControlState
 		ControlledDirection.Remove(controlledId);
 		SelfDirection.Remove(controllerId);
 
-		ControlledPosition.Remove(controlledId);
-		SelfPosition.Remove(controllerId);
+		HostPosition.Remove(controlledId);
 
-		ControlledVelocity.Remove(controlledId);
-		SelfVelocity.Remove(controllerId);
+		HostVelocity.Remove(controlledId);
 
 		ControlledSince.Remove(controlledId);
 	}
@@ -144,56 +137,27 @@ public static class VesselControlState
 
 	public static Vector2 GetDirection(byte controllerId, byte controlledId)
 	{
-		return CombineMovementVectors(GetSelfDirection(controllerId), GetForcedDirection(controlledId));
+		return (GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2;
 	}
 	#endregion
 
 	#region Movement State
-	public static void SetForcedMovementState(byte controlledId, Vector2 position, Vector2 velocity)
+	public static void SetMovementState(byte controlledId, Vector2 position, Vector2 velocity)
 	{
-		ControlledPosition[controlledId] = position;
-		ControlledVelocity[controlledId] = velocity;
+		HostPosition[controlledId] = position;
+		HostVelocity[controlledId] = velocity;
 	}
 
-	public static void SetSelfMovementState(byte controllerId, Vector2 position, Vector2 velocity)
+	public static Vector2 GetPosition(byte controlledId)
 	{
-		SelfPosition[controllerId] = position;
-		SelfVelocity[controllerId] = velocity;
+		return HostPosition.TryGetValue(controlledId, out var pos) ? pos : Vector2.zero;
 	}
 
-	#region Position
-	public static Vector2 GetForcedPosition(byte controlledId)
+	public static Vector2 GetVelocity(byte controlledId)
 	{
-		return ControlledPosition.TryGetValue(controlledId, out var pos) ? pos : Vector2.zero;
+		return HostVelocity.TryGetValue(controlledId, out var vel) ? vel : Vector2.zero;
 	}
 
-	public static Vector2 GetSelfPosition(byte controllerId)
-	{
-		return SelfPosition.TryGetValue(controllerId, out var pos) ? pos : Vector2.zero;
-	}
-
-	public static Vector2 GetPosition(byte controllerId, byte controlledId)
-	{
-		return CombineMovementVectors(GetSelfPosition(controllerId), GetForcedPosition(controlledId));
-	}
-	#endregion
-
-	#region Velocity
-	public static Vector2 GetForcedVelocity(byte controlledId)
-	{
-		return ControlledVelocity.TryGetValue(controlledId, out var vel) ? vel : Vector2.zero;
-	}
-
-	public static Vector2 GetSelfVelocity(byte controllerId)
-	{
-		return SelfVelocity.TryGetValue(controllerId, out var vel) ? vel : Vector2.zero;
-	}
-
-	public static Vector2 GetVelocity(byte controllerId, byte controlledId)
-	{
-		return CombineMovementVectors(GetSelfVelocity(controllerId), GetForcedVelocity(controlledId));
-	}
-	#endregion
 	#endregion
 
 	#region Time
@@ -209,18 +173,11 @@ public static class VesselControlState
 	#endregion
 
 	#region Clearing
+
 	public static void ClearMovementState(byte controlledId)
 	{
-		ControlledPosition[controlledId] = Vector2.zero;
-		ControlledVelocity[controlledId] = Vector2.zero;
-	}
-
-	public static void ClearMovementState(byte controlledId, byte controllerId)
-	{
-		ClearMovementState(controlledId);
-
-		SelfPosition[controllerId] = Vector2.zero;
-		SelfVelocity[controllerId] = Vector2.zero;
+		HostPosition[controlledId] = Vector2.zero;
+		HostVelocity[controlledId] = Vector2.zero;
 	}
 
 	public static void ClearAll()
@@ -233,42 +190,11 @@ public static class VesselControlState
 		ControlledDirection.Clear();
 		SelfDirection.Clear();
 
-		ControlledPosition.Clear();
-		SelfPosition.Clear();
+		HostPosition.Clear();
 
-		ControlledVelocity.Clear();
-		SelfVelocity.Clear();
+		HostVelocity.Clear();
 
 		ControlledSince.Clear();
-	}
-	#endregion
-
-	#region Vector Operations
-	private const float MovementChangeEpsilonSqr = 0.0001f * 0.0001f;
-
-	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
-	{
-		return new Vector2(
-			CombineMovementFloats(v1.x, v2.x),
-			CombineMovementFloats(v1.y, v2.y)
-			);
-	}
-
-	private static float CombineMovementFloats(float f1, float f2)
-	{
-		var fr = f1 * f2;
-		if (fr > MovementChangeEpsilonSqr)
-		{
-			return f1 > 0f ? Math.Max(f1, f2) : Math.Min(f1, f2);
-		}
-		if (fr < -MovementChangeEpsilonSqr)
-		{
-			return f1 + f2;
-		}
-		else
-		{
-			return (f1 * f1 <= MovementChangeEpsilonSqr) ? f1 : f2;
-		}
 	}
 	#endregion
 }
