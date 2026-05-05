@@ -10,15 +10,13 @@ namespace VesselRoleMod.Networking;
 
 internal readonly struct VesselInputPacket
 {
-	public VesselInputPacket(byte playerId, bool controlled, Vector2 direction)
+	public VesselInputPacket(byte ghostId, Vector2 direction)
 	{
-		PlayerId = playerId;
-		Controlled = controlled;
+		GhostId = ghostId;
 		Direction = direction;
 	}
 
-	public byte PlayerId { get; }
-	public bool Controlled { get; }
+	public byte GhostId { get; }
 	public Vector2 Direction { get; }
 }
 
@@ -31,22 +29,20 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 
 	public override void Write(MessageWriter writer, VesselInputPacket data)
 	{
-		writer.Write(data.PlayerId);
-		writer.Write(data.Controlled);
+		writer.Write(data.GhostId);
 		writer.Write(data.Direction);
 	}
 
 	public override VesselInputPacket Read(MessageReader reader)
 	{
 		var playerId = reader.ReadByte();
-		var controlled = reader.ReadBoolean();
 		var dir = reader.ReadVector2();
-		return new VesselInputPacket(playerId, controlled, dir);
+		return new VesselInputPacket(playerId, dir);
 	}
 
 	public override void Handle(PlayerControl sender, VesselInputPacket data)
 	{
-		var controlledPlayerInfo = GameData.Instance?.GetPlayerById(data.PlayerId);
+		var controlledPlayerInfo = GameData.Instance?.GetPlayerById(data.GhostId);
 		var controlled = controlledPlayerInfo?.Object;
 		if (controlled == null || sender == null)
 		{
@@ -57,24 +53,13 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 		{
 			return;
 		}
-
-		if (data.Controlled)
-		{
-			if (!VesselControlState.IsControlled(data.PlayerId, out var controllerId) ||
-				controllerId != sender.PlayerId)
-			{
-				return;
-			}
-			VesselControlState.SetForcedDirection(data.PlayerId, data.Direction);
-			return;
-		}
 		
-		if (!VesselControlState.IsControlling(data.PlayerId, out var controlledId) ||
+		if (!VesselControlState.IsControlling(data.GhostId, out var controlledId) ||
 			controlledId != sender.PlayerId)
 		{
 			return;
 		}
 
-		VesselControlState.SetSelfDirection(data.PlayerId, data.Direction);
+		VesselControlState.SetSelfDirection(data.GhostId, data.Direction);
 	}
 }

@@ -13,5 +13,5 @@ public enum VesselModRpc : uint
 internal enum VesselModInternalRpc : uint
 {
 	VesselInputUnreliable,
-	VesselStateUnreliable
+	PoltergeistInputUnreliable
 }
