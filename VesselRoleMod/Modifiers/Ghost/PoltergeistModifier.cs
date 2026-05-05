@@ -58,6 +58,22 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 		HudManager.Instance.AbilityButton.SetDisabled();
 		HudManagerPatches.ResetZoom();
+
+		try { Ghost.NetTransform.Halt(); } catch { /* ignored */ }
+		if (HudManager.InstanceExists && HudManager.Instance != null)
+		{
+			HudManager.Instance.PlayerCam.SetTarget(Player);
+			HudManager.Instance.ShadowQuad.gameObject.SetActive(true);
+	}
+		try
+		{
+			if (Ghost.lightSource != null && Target != null)
+			{
+				Ghost.lightSource.transform.SetParent(Target.transform);
+				Ghost.lightSource.Initialize(Target.Collider.offset / 2f);
+			}
+		}
+		catch { /* ignored */ }
 	}
 
 	public override void OnDeactivate()
@@ -77,6 +93,23 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 		HudManager.Instance.AbilityButton.SetEnabled();
 		HudManagerPatches.ZoomButton.SetActive(HudManagerPatches.CanZoom);
+
+		Ghost.moveable = true;
+		try { Ghost.NetTransform.Halt(); } catch { /* ignored */ }
+		if (HudManager.InstanceExists && HudManager.Instance != null)
+		{
+			HudManager.Instance.PlayerCam.SetTarget(Ghost);
+			HudManager.Instance.ShadowQuad.gameObject.SetActive(false);
+		}
+		try
+		{
+			if (Ghost.lightSource != null)
+			{
+				Ghost.lightSource.transform.SetParent(Ghost.transform);
+				Ghost.lightSource.Initialize(Ghost.Collider.offset / 2f);
+			}
+		}
+		catch { /* ignored */ }
 	}
 
 	public override void OnMeetingStart()

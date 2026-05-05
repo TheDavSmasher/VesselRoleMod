@@ -55,24 +55,6 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 				Player.RpcRemoveModifier<VesselAdorcismModifier>();
 			}
 		}
-		else if (Ghost.AmOwner)
-		{
-			try { Ghost.NetTransform.Halt(); } catch { /* ignored */ }
-			if (HudManager.InstanceExists && HudManager.Instance != null)
-			{
-				HudManager.Instance.PlayerCam.SetTarget(Player);
-				HudManager.Instance.ShadowQuad.gameObject.SetActive(true);
-			}
-			try
-			{
-				if (Ghost.lightSource != null && Player != null)
-				{
-					Ghost.lightSource.transform.SetParent(Player.transform);
-					Ghost.lightSource.Initialize(Player.Collider.offset / 2f);
-				}
-			}
-			catch { /* ignored */ }
-		}
 
 		var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Ghost, Player);
 		MiraEventManager.InvokeEvent(vesselAbilityEvent);
@@ -89,25 +71,6 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 			{
 				button.ResetCooldownAndOrEffect();
 			}
-		}
-		else if (Ghost.AmOwner)
-		{
-			Ghost.moveable = true;
-			try { Ghost.NetTransform.Halt(); } catch { /* ignored */ }
-			if (HudManager.InstanceExists && HudManager.Instance != null)
-			{
-				HudManager.Instance.PlayerCam.SetTarget(Ghost);
-				HudManager.Instance.ShadowQuad.gameObject.SetActive(false);
-			}
-			try
-			{
-				if (Ghost.lightSource != null)
-				{
-					Ghost.lightSource.transform.SetParent(Ghost.transform);
-					Ghost.lightSource.Initialize(ghost.Collider.offset / 2f);
-				}
-			}
-			catch { /* ignored */ }
 		}
 	}
 
