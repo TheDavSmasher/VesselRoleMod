@@ -189,10 +189,7 @@ public static class VesselMovementPatches
 				dir = VesselControlState.GetForcedDirection(vesselId);
 			}
 
-			Vector2 pos = VesselControlState.GetPosition(vesselId);
-			Vector2 vel = VesselControlState.GetVelocity(vesselId);
-
-			ApplyAllDataTo(__instance, dir, pos, vel);
+			ApplyAllDataTo(__instance, vesselId, dir);
 			return false;
 		}
 
@@ -229,10 +226,7 @@ public static class VesselMovementPatches
 				dir = VesselControlState.GetSelfDirection(ghostId);
 			}
 
-			Vector2 pos = VesselControlState.GetPosition(player.PlayerId);
-			Vector2 vel = VesselControlState.GetVelocity(player.PlayerId);
-
-			ApplyAllDataTo(__instance, dir, pos, vel);
+			ApplyAllDataTo(__instance, player.PlayerId, dir);
 			return false;
 		}
 
@@ -265,17 +259,14 @@ public static class VesselMovementPatches
 				dir = Vector2.zero;
 			}
 
-			Vector2 pos = VesselControlState.GetPosition(player.PlayerId);
-			Vector2 vel = VesselControlState.GetVelocity(player.PlayerId);
-
-			ApplyAllDataTo(__instance, dir, pos, vel);
+			ApplyAllDataTo(__instance, player.PlayerId, dir);
 			return false;
 		}
 
 		return true;
 	}
 
-	private static void ApplyAllDataTo(PlayerPhysics __instance, Vector2 dir, Vector2 pos, Vector2 vel)
+	private static void ApplyAllDataTo(PlayerPhysics __instance, byte vesselId, Vector2 dir)
 	{
 		if (dir == Vector2.zero)
 		{
@@ -285,6 +276,9 @@ public static class VesselMovementPatches
 		{
 			AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir, stopIfZero: true);
 		}
+
+		Vector2 pos = VesselControlState.GetPosition(vesselId);
+		Vector2 vel = VesselControlState.GetVelocity(vesselId);
 
 		if (pos != Vector2.zero)
 		{
