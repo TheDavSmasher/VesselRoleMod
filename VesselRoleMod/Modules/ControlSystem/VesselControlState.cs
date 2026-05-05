@@ -35,6 +35,7 @@ public static class VesselControlState
 
 	private static readonly Dictionary<byte, float> ControlledSince = new();
 
+	#region Set Control
 	public static void SetControl(byte controlledId, byte controllerId)
 	{
 		ControlledBy[controlledId] = controllerId;
@@ -74,7 +75,9 @@ public static class VesselControlState
 
 		ControlledSince.Remove(controlledId);
 	}
+	#endregion
 
+	#region State Check
 	public static bool IsControlled(byte controlledId, out byte controllerId)
 	{
 		return ControlledBy.TryGetValue(controlledId, out controllerId);
@@ -94,7 +97,9 @@ public static class VesselControlState
 	{
 		return IsUsingState(playerId1, out var pId2) && pId2 == playerId2;
 	}
+	#endregion
 
+	#region State Control Check
 	public static bool HasControl(byte playerId)
 	{
 		return InControl.TryGetValue(playerId, out bool has) && has;
@@ -114,7 +119,9 @@ public static class VesselControlState
 
 		(InControl[playerId], InControl[againstId]) = (InControl[againstId], InControl[playerId]);
 	}
+	#endregion
 
+	#region Direction
 	public static void SetForcedDirection(byte controlledId, Vector2 direction)
 	{
 		ControlledDirection[controlledId] = direction;
@@ -139,7 +146,9 @@ public static class VesselControlState
 	{
 		return CombineMovementVectors(GetSelfDirection(controllerId), GetForcedDirection(controlledId));
 	}
+	#endregion
 
+	#region Movement State
 	public static void SetForcedMovementState(byte controlledId, Vector2 position, Vector2 velocity)
 	{
 		ControlledPosition[controlledId] = position;
@@ -152,6 +161,7 @@ public static class VesselControlState
 		ControlledVelocity[controllerId] = velocity;
 	}
 
+	#region Position
 	public static Vector2 GetForcedPosition(byte controlledId)
 	{
 		return ControlledPosition.TryGetValue(controlledId, out var pos) ? pos : Vector2.zero;
@@ -166,7 +176,9 @@ public static class VesselControlState
 	{
 		return CombineMovementVectors(GetSelfPosition(controllerId), GetForcedPosition(controlledId));
 	}
+	#endregion
 
+	#region Velocity
 	public static Vector2 GetForcedVelocity(byte controlledId)
 	{
 		return ControlledVelocity.TryGetValue(controlledId, out var vel) ? vel : Vector2.zero;
@@ -181,7 +193,10 @@ public static class VesselControlState
 	{
 		return CombineMovementVectors(GetSelfVelocity(controllerId), GetForcedVelocity(controlledId));
 	}
+	#endregion
+	#endregion
 
+	#region Time
 	public static float GetControlElapsedSeconds(byte controlledId)
 	{
 		return ControlledSince.TryGetValue(controlledId, out var since) ? Mathf.Max(0f, Time.time - since) : float.PositiveInfinity;
@@ -191,7 +206,9 @@ public static class VesselControlState
 	{
 		return GetControlElapsedSeconds(controlledId) < InitialControlSyncGraceSeconds;
 	}
+	#endregion
 
+	#region Clearing
 	public static void ClearMovementState(byte controlledId)
 	{
 		ControlledPosition[controlledId] = Vector2.zero;
@@ -224,7 +241,9 @@ public static class VesselControlState
 
 		ControlledSince.Clear();
 	}
+	#endregion
 
+	#region Vector Operations
 	private const float MovementChangeEpsilonSqr = 0.0001f * 0.0001f;
 
 	private static Vector2 CombineMovementVectors(Vector2 v1, Vector2 v2)
@@ -251,4 +270,5 @@ public static class VesselControlState
 			return (f1 * f1 <= MovementChangeEpsilonSqr) ? f1 : f2;
 		}
 	}
+	#endregion
 }
