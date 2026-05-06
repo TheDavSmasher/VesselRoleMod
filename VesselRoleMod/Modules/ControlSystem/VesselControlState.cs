@@ -139,6 +139,32 @@ public static class VesselControlState
 	{
 		return (GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2;
 	}
+
+	public static Vector2 GetFinalDirection(byte playerId)
+	{
+		if (IsControlled(playerId, out var controllerId))
+		{
+			return GetFinalDirection(controllerId, playerId);
+		}
+		if (IsControlling(playerId, out var controlledId))
+		{
+			return GetFinalDirection(playerId, controlledId);
+		}
+		return Vector2.zero;
+	}
+
+	public static Vector2 GetFinalDirection(byte controllerId, byte controlledId)
+		{
+		if (CanShareControl)
+		{
+			return GetDirection(controllerId, controlledId);
+		}
+		if (HasControlOver(controllerId, controlledId))
+		{
+			return GetForcedDirection(controlledId);
+		}
+		return GetSelfDirection(controllerId);
+	}
 	#endregion
 
 	#region Movement State

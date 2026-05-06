@@ -186,19 +186,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir;
-			if (VesselControlState.CanShareControl)
-			{
-				dir = VesselControlState.GetDirection(player.PlayerId, vesselId);
-			}
-			else if (VesselControlState.HasControlOver(vesselId, player.PlayerId))
-			{
-				dir = VesselControlState.GetSelfDirection(player.PlayerId);
-			}
-			else
-			{
-				dir = VesselControlState.GetForcedDirection(vesselId);
-			}
+			Vector2 dir = VesselControlState.GetFinalDirection(player.PlayerId, vesselId);
 
 			ApplyAllDataTo(__instance, vesselId, dir);
 			return false;
@@ -223,19 +211,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir;
-			if (VesselControlState.CanShareControl)
-			{
-				dir = VesselControlState.GetDirection(ghostId, player.PlayerId);
-			}
-			else if (VesselControlState.HasControlOver(ghostId, player.PlayerId))
-			{
-				dir = VesselControlState.GetForcedDirection(player.PlayerId);
-			}
-			else
-			{
-				dir = VesselControlState.GetSelfDirection(ghostId);
-			}
+			Vector2 dir = VesselControlState.GetFinalDirection(ghostId, player.PlayerId);
 
 			ApplyAllDataTo(__instance, player.PlayerId, dir);
 			return false;
@@ -260,15 +236,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir;
-			if (VesselControlState.CanShareControl || !VesselControlState.HasControl(player.PlayerId))
-			{
-				dir = VesselControlState.GetForcedDirection(player.PlayerId);
-			}
-			else
-			{
-				dir = Vector2.zero;
-			}
+			Vector2 dir = VesselControlState.GetFinalDirection(player.PlayerId);
 
 			ApplyAllDataTo(__instance, player.PlayerId, dir);
 			return false;
