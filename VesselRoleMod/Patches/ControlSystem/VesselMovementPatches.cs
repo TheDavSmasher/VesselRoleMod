@@ -107,11 +107,7 @@ public static class VesselMovementPatches
 
 		if (TimeLordRewindSystem.IsRewinding)
 		{
-			if (player.HasModifier<VesselPossessedModifier>() && player.AmOwner)
-			{
-				return true;
-			}
-			if (player.HasModifier<PoltergeistModifier>() && player.AmOwner)
+			if (player.HasModifierOfType<IVesselModifier>() && player.AmOwner)
 			{
 				return true;
 			}
