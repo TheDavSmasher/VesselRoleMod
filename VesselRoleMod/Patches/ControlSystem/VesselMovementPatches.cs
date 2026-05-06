@@ -371,7 +371,7 @@ public static class VesselMovementPatches
 		}
 
 		var player = __instance.myPlayer;
-		if (!VesselControlState.IsUsingState(player.PlayerId, out byte withId))
+		if (!VesselControlState.IsUsingState(player.PlayerId, out _))
 		{
 			return true;
 		}
