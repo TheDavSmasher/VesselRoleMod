@@ -62,7 +62,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		try { Ghost.NetTransform.Halt(); } catch { /* ignored */ }
 		if (HudManager.InstanceExists && HudManager.Instance != null)
 		{
-			HudManager.Instance.PlayerCam.SetTarget(Player);
+			HudManager.Instance.PlayerCam.SetTarget(Target);
 			HudManager.Instance.ShadowQuad.gameObject.SetActive(true);
 		}
 		try
