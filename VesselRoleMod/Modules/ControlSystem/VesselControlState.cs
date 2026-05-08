@@ -137,7 +137,7 @@ public static class VesselControlState
 
 	public static Vector2 GetDirection(byte controllerId, byte controlledId)
 	{
-		return (GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2;
+		return ((GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2).normalized;
 	}
 
 	public static Vector2 GetFinalDirection(byte playerId)
