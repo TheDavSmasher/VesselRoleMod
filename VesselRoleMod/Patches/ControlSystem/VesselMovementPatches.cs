@@ -7,7 +7,6 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
-using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
 using VesselRoleMod.Utilities;
@@ -27,7 +26,7 @@ public static class VesselMovementPatches
 	private static readonly Dictionary<byte, Vector2> _lastSentVel = new();
 	private static readonly Dictionary<byte, float> _lastSentAt = new();
 
-	private static void SendVesselInputIfNeeded(byte vesselId, Vector2 dir, Vector2 position, Vector2 velocity)
+	private static void SendVesselInputIfNeeded(byte targetId, bool fromVessel, Vector2 dir, Vector2 position, Vector2 velocity)
 	{
 		if (PlayerControl.LocalPlayer == null)
 		{
@@ -37,10 +36,10 @@ public static class VesselMovementPatches
 		var now = Time.time;
 		var shouldSend = true;
 
-		if (_lastSentDir.TryGetValue(vesselId, out var lastDir) &&
-			_lastSentPos.TryGetValue(vesselId, out var lastPos) &&
-			_lastSentVel.TryGetValue(vesselId, out var lastVel) &&
-			_lastSentAt.TryGetValue(vesselId, out var lastAt))
+		if (_lastSentDir.TryGetValue(targetId, out var lastDir) &&
+			_lastSentPos.TryGetValue(targetId, out var lastPos) &&
+			_lastSentVel.TryGetValue(targetId, out var lastVel) &&
+			_lastSentAt.TryGetValue(targetId, out var lastAt))
 		{
 			var dirChanged = (dir - lastDir).sqrMagnitude > MovementChangeEpsilonSqr;
 			var posChanged = (position - lastPos).sqrMagnitude > MovementChangeEpsilonSqr;
@@ -54,45 +53,14 @@ public static class VesselMovementPatches
 			return;
 		}
 
-		_lastSentDir[vesselId] = dir;
-		_lastSentPos[vesselId] = position;
-		_lastSentVel[vesselId] = velocity;
-		_lastSentAt[vesselId] = now;
-
-		Rpc<PoltergeistInputUnreliableRpc>.Instance.Send(
-			PlayerControl.LocalPlayer,
-			new PoltergeistInputPacket(vesselId, dir, position, velocity));
-	}
-
-	private static void SendGhostInputIfNeeded(byte ghostId, Vector2 dir)
-	{
-		if (PlayerControl.LocalPlayer == null)
-		{
-			return;
-		}
-
-		var now = Time.time;
-		var shouldSend = true;
-
-		if (_lastSentDir.TryGetValue(ghostId, out var lastDir) &&
-			_lastSentAt.TryGetValue(ghostId, out var lastAt))
-		{
-			var dirChanged = (dir - lastDir).sqrMagnitude > MovementChangeEpsilonSqr;
-			var keepAliveDue = (now - lastAt) >= MovementKeepAliveSeconds;
-			shouldSend = dirChanged|| keepAliveDue;
-		}
-
-		if (!shouldSend)
-		{
-			return;
-		}
-
-		_lastSentDir[ghostId] = dir;
-		_lastSentAt[ghostId] = now;
+		_lastSentDir[targetId] = dir;
+		_lastSentPos[targetId] = position;
+		_lastSentVel[targetId] = velocity;
+		_lastSentAt[targetId] = now;
 
 		Rpc<VesselInputUnreliableRpc>.Instance.Send(
 			PlayerControl.LocalPlayer,
-			new VesselInputPacket(ghostId, dir));
+			new VesselInputPacket(targetId, fromVessel, dir, position, velocity));
 	}
 
 	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.FixedUpdate))]
@@ -119,17 +87,18 @@ public static class VesselMovementPatches
 
 
 		if (player == PlayerControl.LocalPlayer &&
-			PlayerControl.LocalPlayer != null)
+			PlayerControl.LocalPlayer != null &&
+			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod &&
+			mod.Vessel != null &&
+			VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
 		{
-			if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is { } mod &&
-				mod.Vessel != null)
-			{
 				if (TimeLordRewindSystem.IsRewinding)
 				{
 					return true;
 				}
 
 				var vessel = mod.Vessel;
+			var isVessel = player.PlayerId == mod.Vessel.PlayerId;
 
 				if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
 				{
@@ -143,6 +112,16 @@ public static class VesselMovementPatches
 								   vessel.walkingToVent;
 
 				var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
+
+			if (dir == Vector2.zero)
+			{
+				AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, Vector2.zero, stopIfZero: true);
+			}
+			else
+			{
+				AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir, stopIfZero: true);
+			}
+
 				var vesselPos = vessel.MyPhysics?.body != null
 					? vessel.MyPhysics.body.position
 					: (Vector2)vessel.transform.position;
@@ -150,32 +129,10 @@ public static class VesselMovementPatches
 					? vessel.MyPhysics.body.velocity
 					: Vector2.zero;
 
-				SendVesselInputIfNeeded(vessel.PlayerId, dir, vesselPos, vesselVel);
-			}
-			else if (PlayerControl.LocalPlayer.GetModifier<VesselPossessedModifier>() is { } mod2 &&
-				mod2.Ghost != null)
-			{
-				if (TimeLordRewindSystem.IsRewinding)
-				{
-					return true;
-				}
+			SendVesselInputIfNeeded(mod.Target.PlayerId, isVessel, dir, vesselPos, vesselVel);
 
-				var vessel = player;
-
-				if (player == null || player.Data == null || player.HasDied() || player.Data.Disconnected)
-				{
-					return true;
-				}
-
-				var vesselInAnim = vessel.IsInTargetingAnimState() ||
-								   vessel.inVent ||
-								   vessel.inMovingPlat ||
-								   vessel.onLadder ||
-								   vessel.walkingToVent;
-
-				var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
-				SendGhostInputIfNeeded(mod2.Ghost.PlayerId, dir);
-			}
+			AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir, stopIfZero: true);
+			return false;
 		}
 
 		// player is player ghost
@@ -336,6 +293,11 @@ public static class VesselMovementPatches
 
 		var player = __instance.myPlayer;
 		if (!VesselControlState.IsUsingState(player.PlayerId, out _))
+		{
+			return true;
+		}
+
+		if (VesselControlState.HasControl(player.PlayerId))
 		{
 			return true;
 		}

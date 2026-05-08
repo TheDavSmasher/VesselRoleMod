@@ -8,49 +8,53 @@ using VesselRoleMod.Modules.ControlSystem;
 
 namespace VesselRoleMod.Networking;
 
-internal readonly struct PoltergeistInputPacket
+internal readonly struct VesselInputPacket
 {
-	public PoltergeistInputPacket(byte vesselId, Vector2 direction, Vector2 position, Vector2 velocity)
+	public VesselInputPacket(byte targetId, bool fromVessel, Vector2 direction, Vector2 position, Vector2 velocity)
 	{
-		VesselId = vesselId;
+		TargetId = targetId;
+		FromVessel = fromVessel;
 		Direction = direction;
 		Position = position;
 		Velocity = velocity;
 	}
 
-	public byte VesselId { get; }
+	public byte TargetId { get; }
+	public bool FromVessel { get; }
 	public Vector2 Direction { get; }
 	public Vector2 Position { get; }
 	public Vector2 Velocity { get; }
 }
 
-[RegisterCustomRpc((uint)VesselModInternalRpc.PoltergeistInputUnreliable)]
-internal sealed class PoltergeistInputUnreliableRpc(VesselRoleModPlugin plugin, uint id)
-	: PlayerCustomRpc<VesselRoleModPlugin, PoltergeistInputPacket>(plugin, id)
+[RegisterCustomRpc((uint)VesselModInternalRpc.VesselInputUnreliable)]
+internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint id)
+	: PlayerCustomRpc<VesselRoleModPlugin, VesselInputPacket>(plugin, id)
 {
 	public override RpcLocalHandling LocalHandling => RpcLocalHandling.Before;
 	public override SendOption SendOption => (SendOption)1;
 
-	public override void Write(MessageWriter writer, PoltergeistInputPacket data)
+	public override void Write(MessageWriter writer, VesselInputPacket data)
 	{
-		writer.Write(data.VesselId);
+		writer.Write(data.TargetId);
+		writer.Write(data.FromVessel);
 		writer.Write(data.Direction);
 		writer.Write(data.Position);
 		writer.Write(data.Velocity);
 	}
 
-	public override PoltergeistInputPacket Read(MessageReader reader)
+	public override VesselInputPacket Read(MessageReader reader)
 	{
 		var playerId = reader.ReadByte();
+		var fromV = reader.ReadBoolean();
 		var dir = reader.ReadVector2();
 		var pos = reader.ReadVector2();
 		var vel = reader.ReadVector2();
-		return new PoltergeistInputPacket(playerId, dir, pos, vel);
+		return new VesselInputPacket(playerId, fromV, dir, pos, vel);
 	}
 
-	public override void Handle(PlayerControl sender, PoltergeistInputPacket data)
+	public override void Handle(PlayerControl sender, VesselInputPacket data)
 	{
-		var vesselPlayerInfo = GameData.Instance?.GetPlayerById(data.VesselId);
+		var vesselPlayerInfo = GameData.Instance?.GetPlayerById(data.TargetId);
 		var vessel = vesselPlayerInfo?.Object;
 		if (vessel == null || sender == null)
 		{
@@ -62,13 +66,25 @@ internal sealed class PoltergeistInputUnreliableRpc(VesselRoleModPlugin plugin, 
 			return;
 		}
 
-		if (!VesselControlState.IsControlled(data.VesselId, out var ghostId) ||
-			ghostId != sender.PlayerId)
+		if (data.FromVessel)
 		{
-			return;
+			if (!VesselControlState.IsControlling(data.TargetId, out var vesselId) ||
+				vesselId != sender.PlayerId)
+			{
+				return;
+			}
+			VesselControlState.SetSelfDirection(data.TargetId, data.Direction);
 		}
+		else
+		{
+			if (!VesselControlState.IsControlled(data.TargetId, out var ghostId) ||
+			ghostId != sender.PlayerId)
+			{
+				return;
+			}
 
-		VesselControlState.SetForcedDirection(data.VesselId, data.Direction);
-		VesselControlState.SetMovementState(data.VesselId, data.Position, data.Velocity);
+			VesselControlState.SetForcedDirection(data.TargetId, data.Direction);
+		}
+		VesselControlState.SetMovementState(data.TargetId, data.Position, data.Velocity);
 	}
 }
