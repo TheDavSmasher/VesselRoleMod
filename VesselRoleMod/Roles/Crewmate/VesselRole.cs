@@ -376,6 +376,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		if (mod.Vessel != vessel || !VesselControlState.HasControlOver(ghost.PlayerId, vessel.PlayerId))
 		{
+			Error("RpcVesselInteraction - Not a vessel with control over");
 			return;
 		}
 
