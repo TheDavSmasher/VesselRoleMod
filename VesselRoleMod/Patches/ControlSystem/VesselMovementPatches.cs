@@ -105,11 +105,7 @@ public static class VesselMovementPatches
 					return true;
 				}
 
-				var vesselInAnim = vessel.IsInTargetingAnimState() ||
-								   vessel.inVent ||
-								   vessel.inMovingPlat ||
-								   vessel.onLadder ||
-								   vessel.walkingToVent;
+			var vesselInAnim = vessel.IsInTargetingAnimState() || vessel.inVent;
 
 				var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
 
@@ -163,7 +159,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			if (player.IsInTargetingAnimState() || player.inVent || player.walkingToVent)
+			if (player.IsInTargetingAnimState() || player.inVent)
 			{
 				return true;
 			}
@@ -188,7 +184,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			if (player.IsInTargetingAnimState() || player.inVent || player.walkingToVent)
+			if (player.IsInTargetingAnimState() || player.inVent)
 			{
 				return true;
 			}
@@ -284,7 +280,7 @@ public static class VesselMovementPatches
 			return true;
 		}
 
-		if (player.IsInTargetingAnimState() || player.inVent || player.inMovingPlat || player.onLadder || player.walkingToVent)
+		if (player.IsInTargetingAnimState() || player.inVent)
 		{
 			return true;
 		}

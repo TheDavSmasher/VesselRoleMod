@@ -180,10 +180,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 				if (!pm.Vessel.HasDied() &&
 					!pm.Vessel.Data.Disconnected &&
 					VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
-					(pm.Vessel.IsInTargetingAnimState() ||
-					 pm.Vessel.inMovingPlat ||
-					 pm.Vessel.onLadder ||
-					 pm.Vessel.walkingToVent)) // pm.Vessel.inVent
+					pm.Vessel.IsInTargetingAnimState()) // pm.Vessel.inVent
 				{
 					return;
 				}
