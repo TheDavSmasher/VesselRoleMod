@@ -92,22 +92,22 @@ public static class VesselMovementPatches
 			mod.Vessel != null &&
 			VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
 		{
-				if (TimeLordRewindSystem.IsRewinding)
-				{
-					return true;
-				}
+			if (TimeLordRewindSystem.IsRewinding)
+			{
+				return true;
+			}
 
-				var vessel = mod.Vessel;
+			var vessel = mod.Vessel;
 			var isVessel = player.PlayerId == mod.Vessel.PlayerId;
 
-				if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
-				{
-					return true;
-				}
+			if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+			{
+				return true;
+			}
 
 			var vesselInAnim = vessel.IsInTargetingAnimState() || vessel.inVent;
 
-				var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
+			var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
 
 			if (dir == Vector2.zero)
 			{
@@ -118,12 +118,12 @@ public static class VesselMovementPatches
 				AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir, stopIfZero: true);
 			}
 
-				var vesselPos = vessel.MyPhysics?.body != null
-					? vessel.MyPhysics.body.position
-					: (Vector2)vessel.transform.position;
-				var vesselVel = vessel.MyPhysics?.body != null
-					? vessel.MyPhysics.body.velocity
-					: Vector2.zero;
+			var vesselPos = vessel.MyPhysics?.body != null
+				? vessel.MyPhysics.body.position
+				: (Vector2)vessel.transform.position;
+			var vesselVel = vessel.MyPhysics?.body != null
+				? vessel.MyPhysics.body.velocity
+				: Vector2.zero;
 
 			SendVesselInputIfNeeded(mod.Target.PlayerId, isVessel, dir, vesselPos, vesselVel);
 
@@ -250,7 +250,7 @@ public static class VesselMovementPatches
 		if (player.AmOwner && VesselControlState.IsUsingState(player.PlayerId, out _))
 		{
 			direction = VesselControlState.GetFinalDirection(player.PlayerId);
-			}
+		}
 
 		return true;
 	}
