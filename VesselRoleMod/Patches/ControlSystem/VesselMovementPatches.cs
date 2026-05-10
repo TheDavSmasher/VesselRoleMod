@@ -109,13 +109,16 @@ public static class VesselMovementPatches
 
 			var dir = vesselInAnim ? Vector2.zero : GetNormalDirection();
 
-			if (dir == Vector2.zero)
+			if (vessel.MyPhysics != null)
 			{
-				AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, Vector2.zero, stopIfZero: true);
-			}
-			else
-			{
-				AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir, stopIfZero: true);
+				if (dir == Vector2.zero)
+				{
+					AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, Vector2.zero, stopIfZero: true);
+				}
+				else
+				{
+					AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir, stopIfZero: true);
+				}
 			}
 
 			var vesselPos = vessel.MyPhysics?.body != null
