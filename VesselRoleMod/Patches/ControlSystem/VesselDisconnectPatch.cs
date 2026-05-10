@@ -25,7 +25,7 @@ public static class VesselDisconnectPatch
 			var controller = MiscUtils.PlayerById(controllerId);
 			if (controller != null)
 			{
-				VesselRole.RpcGhostEndPossession(controller, player, "Handle Disconnect: Vessel");
+				VesselRole.RpcGhostEndPossession(controller, player);
 			}
 			else
 			{
@@ -40,7 +40,7 @@ public static class VesselDisconnectPatch
 
 		if (player.TryGetModifier<PoltergeistModifier>(out var mod2) && mod2.Vessel != null)
 		{
-			VesselRole.RpcGhostEndPossession(player, mod2.Vessel, "Handle Disconnect: Ghost");
+			VesselRole.RpcGhostEndPossession(player, mod2.Vessel);
 		}
 
 		if (player.TryGetModifier<VesselPossessedModifier>(out var mod3))

@@ -238,7 +238,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselEndPossession)]
-	public static void RpcGhostEndPossession(PlayerControl ghost, PlayerControl vessel, string trigger)
+	public static void RpcGhostEndPossession(PlayerControl ghost, PlayerControl vessel)
 	{
 		if (LobbyBehaviour.Instance)
 		{
@@ -247,7 +247,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
 		{
-			Error($"RpcEndPossess - Invalid poltergeist: {ghost.name} (no poltergeist modifier) [{trigger}]");
 			return;
 		}
 

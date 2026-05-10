@@ -118,7 +118,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 		if (Player.AmOwner)
 		{
-			VesselRole.RpcGhostEndPossession(Player, Vessel, "Poltegeist Meeting");
+			VesselRole.RpcGhostEndPossession(Player, Vessel);
 		}
 	}
 
@@ -136,7 +136,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 		if (Vessel.Data == null || Vessel.HasDied() || Vessel.Data.Disconnected || !Player.HasDied())
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel, "Poltergeist Update");
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
 			return;
 		}
 
@@ -190,7 +190,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 	{
 		if (Player.AmOwner)
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel, "Poltergeist Timer");
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
 		}
 	}
 
