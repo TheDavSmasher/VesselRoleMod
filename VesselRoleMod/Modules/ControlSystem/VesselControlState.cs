@@ -90,7 +90,6 @@ public static class VesselControlState
 	{
 		return IsUsingState(playerId1, out var pId2) && pId2 == playerId2;
 	}
-	#endregion
 
 	#region State Control Check
 	public static bool HasControl(byte playerId)
@@ -112,6 +111,8 @@ public static class VesselControlState
 
 		(InControl[playerId], InControl[againstId]) = (InControl[againstId], InControl[playerId]);
 	}
+	#endregion
+
 	#endregion
 
 	#region Direction
@@ -154,7 +155,7 @@ public static class VesselControlState
 	}
 
 	public static Vector2 GetFinalDirection(byte controllerId, byte controlledId)
-		{
+	{
 		if (CanShareControl)
 		{
 			return GetDirection(controllerId, controlledId);
