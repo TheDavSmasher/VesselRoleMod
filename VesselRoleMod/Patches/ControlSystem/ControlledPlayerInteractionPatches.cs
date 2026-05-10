@@ -53,8 +53,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
-				VesselControlState.IsControlling(controller.PlayerId, out _) &&
-				!VesselControlState.HasControlOver(localPlayer.PlayerId, controller.PlayerId))
+				VesselControlState.IsFullyControlled(localPlayer.PlayerId))
 			{
 				return false;
 			}
@@ -64,8 +63,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsControlled(controlled.PlayerId, out _) &&
-				VesselControlState.HasControlOver(localPlayer.PlayerId, controlled.PlayerId))
+				VesselControlState.IsFullyControlling(localPlayer.PlayerId))
 			{
 				var (interactable, interactablePos) = FindClosestInteractable(controlled);
 				if (interactable != null)
@@ -137,8 +135,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controller = possessedMod.Ghost;
 			if (controller != null && controller.HasDied() &&
-				VesselControlState.IsControlling(controller.PlayerId, out _) &&
-				!VesselControlState.HasControlOver(localPlayer.PlayerId, controller.PlayerId))
+				VesselControlState.IsFullyControlled(localPlayer.PlayerId))
 			{
 				useButton.currentTarget = null;
 				useButton.SetDisabled();
@@ -153,8 +150,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsControlled(controlled.PlayerId, out _) &&
-				VesselControlState.HasControlOver(localPlayer.PlayerId, controlled.PlayerId))
+				VesselControlState.IsFullyControlling(localPlayer.PlayerId))
 			{
 				isControlling = true;
 				controlledPlayer = controlled;

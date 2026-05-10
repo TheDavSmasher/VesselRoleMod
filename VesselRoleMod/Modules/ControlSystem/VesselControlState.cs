@@ -86,25 +86,31 @@ public static class VesselControlState
 		return IsControlled(playerId, out withId) || IsControlling(playerId, out withId);
 	}
 
-	public static bool IsUsingState(byte playerId1, byte playerId2)
-	{
-		return IsUsingState(playerId1, out var pId2) && pId2 == playerId2;
-	}
-
 	#region State Control Check
 	public static bool HasControl(byte playerId)
 	{
 		return InControl.TryGetValue(playerId, out bool has) && has;
 	}
 
-	public static bool HasControlOver(byte playerId, byte againstId)
+	public static bool IsFullyControlled(byte playerId)
 	{
-		return IsUsingState(playerId, againstId) && HasControl(playerId);
+		return IsControlled(playerId, out _) && !HasControl(playerId);
+	}
+
+	public static bool IsFullyControlling(byte playerId)
+	{
+		return IsControlling(playerId, out _) && HasControl(playerId);
+	}
+
+	public static bool IsUsingStateControl(byte playerId, out bool hasControl)
+	{
+		hasControl = HasControl(playerId);
+		return IsUsingState(playerId, out _);
 	}
 
 	public static void SwapControlOver(byte playerId, byte againstId)
 	{
-		if (!IsUsingState(playerId, againstId))
+		if (!IsUsingState(playerId, out var withId) || withId != againstId)
 		{
 			return;
 		}
@@ -160,7 +166,7 @@ public static class VesselControlState
 		{
 			return GetDirection(controllerId, controlledId);
 		}
-		if (HasControlOver(controllerId, controlledId))
+		if (HasControl(controllerId))
 		{
 			return GetForcedDirection(controlledId);
 		}

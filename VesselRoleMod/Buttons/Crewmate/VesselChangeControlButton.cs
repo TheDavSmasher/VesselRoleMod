@@ -27,9 +27,8 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 	{
 		base.FixedUpdate(playerControl);
 
-		if (VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out var toggleWithId))
+		if (VesselControlState.IsUsingStateControl(PlayerControl.LocalPlayer.PlayerId, out var hasControl))
 		{
-			var hasControl = VesselControlState.HasControlOver(PlayerControl.LocalPlayer.PlayerId, toggleWithId);
 			var asset = hasControl ? VesselCrewAssets.GiveControlSprite : VesselCrewAssets.TakeControlSprite;
 			var name = hasControl ? _ctrlGiveName : _ctrlTakeName;
 

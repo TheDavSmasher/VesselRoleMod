@@ -376,7 +376,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		if (mod.Vessel != vessel || !VesselControlState.HasControlOver(ghost.PlayerId, vessel.PlayerId))
+		if (!VesselControlState.IsFullyControlling(ghost.PlayerId))
 		{
 			return;
 		}
