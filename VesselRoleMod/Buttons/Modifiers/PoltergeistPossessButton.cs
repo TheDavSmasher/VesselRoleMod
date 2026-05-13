@@ -57,7 +57,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 
 	public override bool CanUse()
 	{
-		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is not PoltergeistModifier pm)
+		if (PlayerControl.LocalPlayer.GetModifier<VesselSeekingModifier>() is not VesselSeekingModifier pm)
 		{
 			return false;
 		}
