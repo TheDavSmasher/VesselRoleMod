@@ -11,6 +11,10 @@
     <PackageReference Include="TownOfUsMira" Version="1.5.9-sid" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>
+  </PropertyGroup>
+
   <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != ''">
       <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(AmongUs)/BepInEx/plugins/" UseSymboliclinksIfPossible="true"/>
   </Target>
