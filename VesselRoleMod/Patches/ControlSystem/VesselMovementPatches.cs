@@ -130,7 +130,7 @@ public static class VesselMovementPatches
 
 			SendVesselInputIfNeeded(mod.Target.PlayerId, isVessel, dir, vesselPos, vesselVel);
 
-			AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir, stopIfZero: true);
+			AdvancedMovementUtilities.ApplyControlledMovement(mod.Ghost.MyPhysics, dir, stopIfZero: true);
 			return false;
 		}
 
