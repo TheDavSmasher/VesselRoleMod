@@ -47,6 +47,8 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 	{
 		Visible = () => OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.Free
 	};
+
+	public bool NotifHasName => CanRejectPossession == VesselRejectionType.Free || CanSeeGhostName;
 }
 
 public enum VesselRejectionType
