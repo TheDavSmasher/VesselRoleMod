@@ -87,14 +87,14 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		}
 
 		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
-			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId).ToList();
+			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId);
 
 		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
 		{
-			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId)).ToList();
-		}
+			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId));
+		}		
 
-		if (deadPlayers.Count == 0)
+		if (!deadPlayers.Any())
 		{
 			return;
 		}
