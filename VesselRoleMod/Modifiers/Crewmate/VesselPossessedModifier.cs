@@ -52,7 +52,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 
 			if (Player.HasModifier<VesselAdorcismModifier>())
 			{
-				Player.RpcRemoveModifier<VesselAdorcismModifier>();
+				Player.RemoveModifier<VesselAdorcismModifier>();
 			}
 		}
 
