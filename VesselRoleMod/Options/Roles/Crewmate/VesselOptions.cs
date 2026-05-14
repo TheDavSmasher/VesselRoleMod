@@ -22,6 +22,8 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 	[ModdedNumberOption("VesselOptionPossessionDuration", 5f, 30f, 1f, MiraNumberSuffixes.Seconds)]
 	public float PossessionDuration { get; set; } = 15f;
 
+	[ModdedNumberOption("VesselOptionMinPossessionLength", 2f, 15f, 0.5f, MiraNumberSuffixes.Seconds)]
+	public float MinPossessionLength { get; set; } = 5f;
 
 
 	[ModdedToggleOption("VesselOptionImpostorsCanPossess")]

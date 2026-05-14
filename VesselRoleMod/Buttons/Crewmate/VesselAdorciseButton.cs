@@ -24,6 +24,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	public override Color TextOutlineColor => TownOfUsColors.Impostor;
 	public override float Cooldown => Math.Clamp(OptionGroupSingleton<VesselOptions>.Instance.AdorciseCooldown + MapCooldown, 5f, 120f);
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
+	public float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
 	public override float TriggerWindow => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.AdorciseSprite;
 
@@ -67,7 +68,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		}
 
 		return ((Timer <= 0 && !EffectActive && !WaitingOnTrigger) ||
-			(EffectActive && Timer <= EffectDuration - 5f) ||
+			(EffectActive && Timer <= EffectDuration - MinDuration) ||
 			(WaitingOnTrigger && Timer <= TriggerWindow - 2f));
 	}
 
