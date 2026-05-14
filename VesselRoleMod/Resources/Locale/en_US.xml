@@ -27,4 +27,6 @@
   <string name="VesselOptionCanRejectEnumBlacklistOnly">Through Blacklist</string>
   <string name="VesselOptionCanRejectEnumFree">Per Attempt</string>
   <string name="VesselOptionKnowsGhostName">Vessel knows their possessor's name</string>
+  <!--Notifications-->
+  <string name="PoltergeistControlNotif">You have possessed &lt;player&gt;!</string>
 </resources>
