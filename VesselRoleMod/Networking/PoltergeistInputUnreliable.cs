@@ -54,9 +54,9 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 
 	public override void Handle(PlayerControl sender, VesselInputPacket data)
 	{
-		var vesselPlayerInfo = GameData.Instance?.GetPlayerById(data.TargetId);
-		var vessel = vesselPlayerInfo?.Object;
-		if (vessel == null || sender == null)
+		var targetPlayerInfo = GameData.Instance?.GetPlayerById(data.TargetId);
+		var target = targetPlayerInfo?.Object;
+		if (target == null || sender == null)
 		{
 			return;
 		}
@@ -79,7 +79,7 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 		else
 		{
 			if (!VesselControlState.IsControlled(data.TargetId, out var ghostId) ||
-			ghostId != sender.PlayerId)
+				ghostId != sender.PlayerId)
 			{
 				return;
 			}
