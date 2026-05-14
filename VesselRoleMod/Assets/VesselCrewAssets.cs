@@ -1,16 +1,19 @@
 ﻿using MiraAPI.Utilities.Assets;
-using TownOfUs.Assets;
 using UnityEngine;
 
 namespace VesselRoleMod.Assets;
 
 public static class VesselCrewAssets
 {
-	public static LoadableAsset<Sprite> AdorciseSprite { get; } = TouCrewAssets.MediateSprite;
+	public static LoadableAsset<Sprite> AdorciseSprite { get; } =
+		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Vessel_Adorcise_Button.png");
 
-	public static LoadableAsset<Sprite> ExorciseSprite { get; } = TouCrewAssets.MediateSprite;
+	public static LoadableAsset<Sprite> ExorciseSprite { get; } =
+		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Vessel_Exorcise_Button.png");
 
-	public static LoadableAsset<Sprite> TakeControlSprite { get; } = TouCrewAssets.MediateSprite;
+	public static LoadableAsset<Sprite> TakeControlSprite { get; } =
+		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Vessel_Take_Control_Button.png");
 
-	public static LoadableAsset<Sprite> GiveControlSprite { get; } = TouCrewAssets.MediateSprite;
+	public static LoadableAsset<Sprite> GiveControlSprite { get; } =
+		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Vessel_Give_Control_Button.png");
 }
