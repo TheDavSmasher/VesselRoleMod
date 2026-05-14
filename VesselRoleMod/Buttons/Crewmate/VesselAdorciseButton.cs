@@ -9,6 +9,7 @@ using TownOfUs.Buttons;
 using TownOfUs.Modifiers;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
+using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
@@ -92,7 +93,17 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
 		{
 			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId));
-		}		
+		}
+
+		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostImpostors)
+		{
+			deadPlayers = deadPlayers.Where(x => !x.IsImpostor());
+		}
+
+		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostNeutrals)
+		{
+			deadPlayers = deadPlayers.Where(x => !x.IsNeutral());
+		}
 
 		if (!deadPlayers.Any())
 		{
