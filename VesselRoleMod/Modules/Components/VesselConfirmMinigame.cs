@@ -33,7 +33,7 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 	public GameObject Box;
 	public GameObject DenyButton;
 	public GameObject AcceptButton;
-	public TextMeshPro AcceptButtonText;
+	public TextMeshPro AcceptText;
 	private string GhostName;
 
 	private readonly Color _bgColor = new Color32(24, 0, 0, 215);
@@ -64,12 +64,12 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 		var status = transform.FindChild("Status");
 		TitleText = status.FindChildComponent<TextMeshPro>("Title");
 		RoleIcon = status.FindChildComponent<SpriteRenderer>("RoleImage");
-		PossessionText = status.FindChildComponent<TextMeshPro>("PossessionText");
+		PossessionText = status.FindChildComponent<TextMeshPro>("RetrainText");
 		Divider = status.FindChildObject("Divider");
 		Box = status.FindChildObject("Box");
 		DenyButton = status.FindChildObject("DenyButton");
 		AcceptButton = status.FindChildObject("AcceptButton");
-		AcceptButtonText = AcceptButton.GetComponent<TextMeshPro>();
+		AcceptText = AcceptButton.transform.FindChildComponent<TextMeshPro>("AcceptText");
 
 		TitleText.font = HudManager.Instance.TaskPanel.taskText.font;
 		TitleText.fontMaterial = HudManager.Instance.TaskPanel.taskText.fontMaterial;
@@ -78,13 +78,12 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 		PossessionText.font = HudManager.Instance.TaskPanel.taskText.font;
 		PossessionText.fontMaterial = HudManager.Instance.TaskPanel.taskText.fontMaterial;
 		PossessionText.text =
-			$"";
-		//  $"Are you sure you want to be retrained into {NewRole.GetRoleName()}?\nThis change is permanent.";
+			$"{GhostName} is trying to possess you. Do you accept?";
 
 		RoleIcon.sprite = VesselRoleIcons.Vessel.LoadAsset();
 		RoleIcon.SetSizeLimit(2.8f);
 
-		AcceptButtonText.text = $"Accept ({TimerString(MaxTime)})";
+		AcceptText.text = $"Accept ({TimerString(MaxTime)})";
 
 		TitleText.gameObject.SetActive(false);
 		RoleIcon.gameObject.SetActive(false);
@@ -110,7 +109,7 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 			TimerActive = false;
 		}
 
-		AcceptButtonText.text = $"Accept ({TimerString(Timer)})";
+		AcceptText.text = $"Accept ({TimerString(Timer)})";
 	}
 
 	public static VesselConfirmMinigame Create()
