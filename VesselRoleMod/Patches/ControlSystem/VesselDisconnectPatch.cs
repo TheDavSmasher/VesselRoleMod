@@ -3,6 +3,7 @@ using MiraAPI.Modifiers;
 using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.Components;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -35,6 +36,15 @@ public static class VesselDisconnectPatch
 				{
 					player.RemoveModifier(mod);
 				}
+			}
+		}
+
+		if (VesselControlState.IsControlling(player.PlayerId, out _))
+		{
+			if (Minigame.Instance && Minigame.Instance.TryCast<VesselConfirmMinigame>() is { } vcm &&
+				vcm.GhostId == player.PlayerId)
+			{
+				Minigame.Instance.Close();
 			}
 		}
 

@@ -35,6 +35,7 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 	public GameObject AcceptButton;
 	public TextMeshPro AcceptText;
 	private string GhostName;
+	public byte GhostId;
 
 	private readonly Color _bgColor = new Color32(24, 0, 0, 215);
 	private Action<bool> clickHandler;
@@ -117,9 +118,10 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 	}
 
 	[HideFromIl2Cpp]
-	public void Open(string name, Action<bool> onClick)
+	public void Open(byte id, string name, Action<bool> onClick)
 	{
 		clickHandler = onClick;
+		GhostId = id;
 		GhostName = name;
 
 		Coroutines.Start(CoOpen(this));

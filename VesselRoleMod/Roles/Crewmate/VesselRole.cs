@@ -189,6 +189,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		var confirmMenu = VesselConfirmMinigame.Create();
 		confirmMenu.Open(
+			ghost.PlayerId,
 			ghost.Data.PlayerName,
 			confirmation =>
 			{
