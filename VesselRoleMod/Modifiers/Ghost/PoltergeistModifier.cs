@@ -52,6 +52,13 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 		Player.RawSetAppearance(this);
 
+		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
+
+		if (button != null && !button.EffectActive && Player.AmOwner)
+		{
+			button.OnSuccess();
+		}
+
 		if (Minigame.Instance && Minigame.Instance.TryCast<HauntMenuMinigame>())
 		{
 			Minigame.Instance.Close();
