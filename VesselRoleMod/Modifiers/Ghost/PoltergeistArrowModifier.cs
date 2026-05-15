@@ -1,6 +1,7 @@
 ﻿using MiraAPI.GameOptions;
 using TownOfUs.Modules.RainbowMod;
 using UnityEngine;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Ghost;
@@ -15,6 +16,16 @@ public sealed class PoltergeistArrowModifier(PlayerControl owner, Color color)
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 
 	public override bool AutoStart => true;
+
+	public override void FixedUpdate()
+	{
+		TimerActive = true;
+		if (VesselControlState.IsPausingTimer(Owner.PlayerId))
+		{
+			TimerActive = false;
+		}
+		base.FixedUpdate();
+	}
 
 	public override void OnActivate()
 	{

@@ -13,6 +13,7 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -28,6 +29,18 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	public static float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
 	public override float TriggerWindow => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.AdorciseSprite;
+
+	public override void FixedUpdateHandler(PlayerControl playerControl)
+	{
+		TimerPaused = false;
+		if (PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>() &&
+			VesselControlState.IsPausingTimer(PlayerControl.LocalPlayer.PlayerId))
+		{
+			TimerPaused = true;
+		}
+
+		base.FixedUpdateHandler(playerControl);
+	}
 
 	public override void ClickHandler()
 	{

@@ -17,6 +17,17 @@ public sealed class VesselAdorcismModifier : TimedModifier
 	public override string ModifierName => "Vessel Adorcism";
 	public override bool HideOnUi => true;
 
+	public override void FixedUpdate()
+	{
+		TimerActive = true;
+		if (VesselControlState.IsPausingTimer(Player.PlayerId))
+		{
+			TimerActive = false;
+		}
+
+		base.FixedUpdate();
+	}
+
 	public override void OnActivate()
 	{
 		base.OnActivate();

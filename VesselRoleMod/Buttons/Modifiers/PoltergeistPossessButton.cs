@@ -45,10 +45,12 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public override void FixedUpdateHandler(PlayerControl playerControl)
 	{
 		TimerPaused = false;
-		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm &&
-			pm.Vessel != null &&
-			VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
-			VesselControlState.IsInInitialGrace(pm.Vessel.PlayerId))
+		if (PlayerControl.LocalPlayer.GetModifier<VesselSeekingModifier>() is { } vm &&
+			vm.Vessel != null &&
+			(VesselControlState.IsPausingTimer(vm.Vessel.PlayerId) ||
+			 vm is PoltergeistModifier pm &&
+			 VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
+			 VesselControlState.IsInInitialGrace(pm.Vessel.PlayerId)))
 		{
 			TimerPaused = true;
 		}
