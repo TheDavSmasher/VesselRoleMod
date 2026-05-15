@@ -9,6 +9,7 @@ using TownOfUs.Buttons;
 using TownOfUs.Modifiers;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
+using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
@@ -101,7 +102,8 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		}
 
 		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
-			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId);
+			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId &&
+						  (plr.Data.Role is IGhostRole { Caught: true } || plr.Data.Role is not IGhostRole));
 
 		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
 		{
