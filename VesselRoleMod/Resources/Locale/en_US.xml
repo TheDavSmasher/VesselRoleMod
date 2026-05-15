@@ -31,6 +31,7 @@
   <string name="VesselOptionMaxDecisionTime">Maximum time to reject</string>
   <!--Notifications-->
   <string name="PoltergeistControlNotif">You have possessed &lt;player&gt;!</string>
+  <string name="VesselRoleVesselIsDeciding">&lt;player&gt; is making a decision about your possession attempt...</string>
   <string name="VesselRoleVesselHasDenied">&lt;player&gt; has rejected your possession attempt!</string>
   <string name="VesselRoleYouDeniedPossession">You have rejected a possession attempt from &lt;player&gt;!</string>
 </resources>

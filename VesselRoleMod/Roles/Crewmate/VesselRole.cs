@@ -154,7 +154,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
+		if (ghost.GetModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
 		{
 			Error($"RpcPossess - Invalid poltergeist");
 			return;
@@ -182,21 +182,23 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		VesselControlState.SetTimerPaused(vessel.PlayerId);
 
-		if (!vessel.AmOwner)
+		if (vessel.AmOwner)
 		{
-			return;
+			var confirmMenu = VesselConfirmMinigame.Create();
+			confirmMenu.Open(
+				ghost.PlayerId,
+				ghost.Data.PlayerName,
+				confirmation =>
+				{
+					RpcGhostPossession(ghost, vessel, confirmation);
+					confirmMenu.Close();
+				}
+			);
 		}
-
-		var confirmMenu = VesselConfirmMinigame.Create();
-		confirmMenu.Open(
-			ghost.PlayerId,
-			ghost.Data.PlayerName,
-			confirmation =>
-			{
-				RpcGhostPossession(ghost, vessel, confirmation);
-				confirmMenu.Close();
-			}
-		);
+		else if (ghost.AmOwner)
+		{
+			mod.CreateNotification();
+		}
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselPossession)]
@@ -207,7 +209,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
+		if (ghost.GetModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
 		{
 			Error($"RpcPossess - Invalid poltergeist");
 			return;
@@ -220,6 +222,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			Error("RpcPossess - Invalid Vessel target");
 			return;
+		}
+
+		if (ghost.AmOwner)
+		{
+			mod.ClearNotifications();
 		}
 
 		if (accepted)
