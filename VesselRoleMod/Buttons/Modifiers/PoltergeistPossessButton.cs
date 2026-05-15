@@ -160,7 +160,8 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 				!plr.IsInTargetingAnimState() &&
 				!plr.GetModifiers<BaseModifier>().Any(x => x is IUncontrollable) &&
 				plr.HasModifier<VesselAdorcismModifier>() &&
-				validTargetIds.Contains(plr.PlayerId));
+				validTargetIds.Contains(plr.PlayerId) &&
+				!VesselControlState.IsPausingTimer(plr.PlayerId));
 	}
 
 	public override void SetOutline(bool active)
