@@ -5,6 +5,7 @@ using MiraAPI.Modifiers.Types;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -20,6 +21,8 @@ public sealed class VesselAdorcismModifier : TimedModifier
 	{
 		base.OnActivate();
 
+		VesselControlState.SetTimerActive(Player.PlayerId);
+
 		var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorciseStart, Player);
 		MiraEventManager.InvokeEvent(vesselAbilityEvent);
 	}
@@ -27,6 +30,8 @@ public sealed class VesselAdorcismModifier : TimedModifier
 	public override void OnDeactivate()
 	{
 		base.OnDeactivate();
+
+		VesselControlState.ClearTimer(Player.PlayerId);
 
 		if (!Player.HasModifier<VesselPossessedModifier>())
 		{

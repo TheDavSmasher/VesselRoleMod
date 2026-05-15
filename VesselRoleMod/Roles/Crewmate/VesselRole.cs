@@ -180,7 +180,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		// TODO: Pause Timers
+		VesselControlState.SetTimerPaused(vessel.PlayerId);
 
 		if (!vessel.AmOwner)
 		{
@@ -221,8 +221,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		// TODO: Unpause Timers
-
 		if (accepted)
 		{
 			GhostPossession(ghost, vessel);
@@ -235,6 +233,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 	private static void VesselRejection(PlayerControl ghost, PlayerControl vessel)
 	{
+		VesselControlState.SetTimerActive(vessel.PlayerId);
+
 		var text = vessel.AmOwner ?
 			TouLocale.GetParsed("VesselRoleYouDeniedPossession").Replace("<player>", ghost.Data.PlayerName) :
 			TouLocale.GetParsed("VesselRoleVesselHasDenied").Replace("<player>", vessel.Data.PlayerName);

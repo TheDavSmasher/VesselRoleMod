@@ -23,6 +23,8 @@ public static class VesselControlState
 
 	private static readonly Dictionary<byte, bool> InControl = new();
 
+	private static readonly Dictionary<byte, bool> TimerPaused = new();
+
 	private static readonly Dictionary<byte, Vector2> ControlledDirection = new();
 	private static readonly Dictionary<byte, Vector2> SelfDirection = new();
 
@@ -203,6 +205,26 @@ public static class VesselControlState
 	{
 		return GetControlElapsedSeconds(controlledId) < InitialControlSyncGraceSeconds;
 	}
+
+	public static void SetTimerActive(byte controlledId)
+	{
+		TimerPaused[controlledId] = false;
+	}
+
+	public static void SetTimerPaused(byte controlledId)
+	{
+		TimerPaused[controlledId] = true;
+	}
+
+	public static void ClearTimer(byte controlledId)
+	{
+		TimerPaused.Remove(controlledId);
+	}
+
+	public static bool IsPausingTimer(byte controlledId)
+	{
+		return TimerPaused.TryGetValue(controlledId, out var paused) && paused;
+	}
 	#endregion
 
 	#region Clearing
@@ -219,6 +241,8 @@ public static class VesselControlState
 		Controlling.Clear();
 
 		InControl.Clear();
+
+		TimerPaused.Clear();
 
 		ControlledDirection.Clear();
 		SelfDirection.Clear();
