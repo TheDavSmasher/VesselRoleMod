@@ -32,8 +32,10 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 	[ModdedToggleOption("VesselOptionNeutralsCanPossess")]
 	public bool CanHostNeutrals { get; set; } = true;
 
+	/*
 	[ModdedToggleOption("VesselOptionAllowSharedControl")]
 	public bool CanShareControl { get; set; } = true;
+	*/
 
 	public ModdedToggleOption KillingGhostsCanKill { get; set; } = new("VesselOptionGhostCanKill", true);
 

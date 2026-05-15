@@ -16,7 +16,7 @@ public static class VesselControlState
 	// During this grace window we avoid applying any victim movement input to prevent desync.
 	public const float InitialControlSyncGraceSeconds = 1.0f;
 
-	public static bool CanShareControl => OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
+	public static bool CanShareControl => false; // OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
 
 	private static readonly Dictionary<byte, byte> ControlledBy = new();
 	private static readonly Dictionary<byte, byte> Controlling = new();
