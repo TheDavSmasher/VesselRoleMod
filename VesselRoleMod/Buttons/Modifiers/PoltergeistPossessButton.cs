@@ -207,7 +207,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 			return;
 		}
 
-		VesselRole.RpcGhostPossession(PlayerControl.LocalPlayer, Target);
+		VesselRole.RpcGhostTryPossessing(PlayerControl.LocalPlayer, Target);
 	}
 
 	public void OnSuccess()

@@ -3,6 +3,7 @@ using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
+using MiraAPI.Utilities;
 using Reactor.Networking.Attributes;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Buttons.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.Components;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Patches.ControlSystem;
@@ -144,8 +146,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 	}
 
-	[MethodRpc((uint)VesselModRpc.VesselPossession)]
-	public static void RpcGhostPossession(PlayerControl ghost, PlayerControl vessel)
+	[MethodRpc((uint)VesselModRpc.VesselTryPossessing)]
+	public static void RpcGhostTryPossessing(PlayerControl ghost, PlayerControl vessel)
 	{
 		if (LobbyBehaviour.Instance)
 		{
@@ -172,6 +174,79 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
+		if (OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.Free)
+		{
+			GhostPossession(ghost, vessel);
+			return;
+		}
+
+		// TODO: Pause Timers
+
+		if (!vessel.AmOwner)
+		{
+			return;
+		}
+
+		var confirmMenu = VesselConfirmMinigame.Create();
+		confirmMenu.Open(
+			ghost.name,
+			confirmation =>
+			{
+				RpcGhostPossession(ghost, vessel, confirmation);
+				confirmMenu.Close();
+			}
+		);
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselPossession)]
+	private static void RpcGhostPossession(PlayerControl ghost, PlayerControl vessel, bool accepted)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(ghost);
+			return;
+		}
+		if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcPossess - Invalid poltergeist: {ghost.name} (no valid modifier)");
+			return;
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+		if (vessel.Data.Role is not VesselRole)
+		{
+			Error("RpcPossess - Invalid Vessel target");
+			return;
+		}
+
+		// TODO: Unpause Timers
+
+		if (accepted)
+		{
+			GhostPossession(ghost, vessel);
+		}
+		else
+		{
+			VesselRejection(ghost, vessel);
+		}
+	}
+
+	private static void VesselRejection(PlayerControl ghost, PlayerControl vessel)
+	{
+		var text = vessel.AmOwner ?
+			TouLocale.GetParsed("VesselRoleYouDeniedPossession").Replace("<player>", ghost.Data.PlayerName) :
+			TouLocale.GetParsed("VesselRoleVesselHasDenied").Replace("<player>", vessel.Data.PlayerName);
+
+		var notif1 = Helpers.CreateAndShowNotification(text, Color.white, new Vector3(0f, 1f, -20f),
+				spr: VesselRoleIcons.Vessel.LoadAsset());
+
+		notif1.AdjustNotification();
+	}
+
+	private static void GhostPossession(PlayerControl ghost, PlayerControl vessel)
+	{
 		var mod = new PoltergeistModifier(vessel);
 		ghost.AddModifier(mod);
 
