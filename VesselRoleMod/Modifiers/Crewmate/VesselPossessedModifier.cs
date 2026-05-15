@@ -93,7 +93,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 
 		if (_possessedNotification == null)
 		{
-			var ghostName = OptionGroupSingleton<VesselOptions>.Instance.NotifHasName ? Ghost.name :
+			var ghostName = OptionGroupSingleton<VesselOptions>.Instance.NotifHasName ? Ghost.Data.PlayerName :
 				Ghost?.Data?.Role is ITownOfUsRole touRole ? touRole.RoleName : "Poltergeist";
 			_possessedNotification = ControlledFeedbackUtilities.ShowControlledByNotification(
 				ghostName,

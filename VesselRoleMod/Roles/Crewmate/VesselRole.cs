@@ -91,7 +91,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (target.Data.Role is not VesselRole)
 		{
-			Error($"RpcSeekVessel - Invalid Vessel target: {target.name} (not a vessel)");
+			Error($"RpcSeekVessel - Invalid Vessel target");
 			return;
 		}
 
@@ -119,7 +119,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (target.Data.Role is not VesselRole)
 		{
-			Error($"RpcVesselClosed - Invalid Vessel target: {target.name} (not a vessel)");
+			Error($"RpcVesselClosed - Invalid Vessel target");
 			return;
 		}
 
@@ -129,7 +129,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else
 		{
-			Error($"RpcVesselClosed - Invalid ghost: {player.name} (no valid modifier)");
+			Error($"RpcVesselClosed - Invalid ghost");
 		}
 
 		if (player.AmOwner)
@@ -156,7 +156,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
-			Error($"RpcPossess - Invalid poltergeist: {ghost.name} (no valid modifier)");
+			Error($"RpcPossess - Invalid poltergeist");
 			return;
 		}
 		if (vessel == null || vessel.Data == null || vessel.HasDied())
@@ -189,7 +189,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		var confirmMenu = VesselConfirmMinigame.Create();
 		confirmMenu.Open(
-			ghost.name,
+			ghost.Data.PlayerName,
 			confirmation =>
 			{
 				RpcGhostPossession(ghost, vessel, confirmation);
@@ -208,7 +208,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
-			Error($"RpcPossess - Invalid poltergeist: {ghost.name} (no valid modifier)");
+			Error($"RpcPossess - Invalid poltergeist");
 			return;
 		}
 		if (vessel == null || vessel.Data == null || vessel.HasDied())
@@ -422,7 +422,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
 		{
-			Error($"RpcChangeControl - Invalid poltergeist: {ghost.name} (no poltergeist modifier)");
+			Error($"RpcChangeControl - Invalid poltergeist");
 			return;
 		}
 		if (vessel == null || vessel.Data == null || vessel.HasDied())
@@ -443,7 +443,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
 		{
-			Error($"RpcVesselInteraction - Invalid poltergeist: {ghost.name} (no poltergeist modifier)");
+			Error($"RpcVesselInteraction - Invalid poltergeist");
 			return;
 		}
 		if (vessel == null || vessel.Data == null || vessel.HasDied())
