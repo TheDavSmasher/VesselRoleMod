@@ -1,5 +1,6 @@
 ﻿using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.GameOptions;
+using MiraAPI.LocalSettings;
 using MiraAPI.Patches.Stubs;
 using Reactor.Utilities;
 using Reactor.Utilities.Attributes;
@@ -7,7 +8,9 @@ using Reactor.Utilities.Extensions;
 using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using TMPro;
+using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -30,15 +33,26 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 	public GameObject Box;
 	public GameObject DenyButton;
 	public GameObject AcceptButton;
+	public TextMeshPro AcceptButtonText;
 	private string GhostName;
 
 	private readonly Color _bgColor = new Color32(24, 0, 0, 215);
 	private Action<bool> clickHandler;
 
-	private float timeOpen;
-	private bool countdown;
+	private float Timer;
+	private bool TimerActive;
+
+	public string CooldownTimerFormatString =>
+		Timer <= 10f && LocalSettingsTabSingleton<TownOfUsLocalSettings>.Instance.PreciseCooldownsToggle.Value
+			? "0.0"
+			: "0";
 
 	private static float MaxTime => OptionGroupSingleton<VesselOptions>.Instance.MaxDecisionTime.Value;
+
+	private string TimerString(float time)
+	{
+		return time.ToString(CooldownTimerFormatString, NumberFormatInfo.InvariantInfo);
+	}
 
 	private void Awake()
 	{
@@ -55,6 +69,7 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 		Box = status.FindChildObject("Box");
 		DenyButton = status.FindChildObject("DenyButton");
 		AcceptButton = status.FindChildObject("AcceptButton");
+		AcceptButtonText = AcceptButton.GetComponent<TextMeshPro>();
 
 		TitleText.font = HudManager.Instance.TaskPanel.taskText.font;
 		TitleText.fontMaterial = HudManager.Instance.TaskPanel.taskText.fontMaterial;
@@ -67,8 +82,9 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 		//  $"Are you sure you want to be retrained into {NewRole.GetRoleName()}?\nThis change is permanent.";
 
 		RoleIcon.sprite = VesselRoleIcons.Vessel.LoadAsset();
-
 		RoleIcon.SetSizeLimit(2.8f);
+
+		AcceptButtonText.text = $"Accept ({TimerString(MaxTime)})";
 
 		TitleText.gameObject.SetActive(false);
 		RoleIcon.gameObject.SetActive(false);
@@ -81,18 +97,20 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 
 	public void FixedUpdate()
 	{
-		if (!countdown)
+		if (!TimerActive)
 		{
 			return;
 		}
 
-		timeOpen -= Time.deltaTime;
+		Timer -= Time.deltaTime;
 
-		if (timeOpen <= 0f)
+		if (Timer <= 0f)
 		{
 			clickHandler.Invoke(true);
-			countdown = false;
+			TimerActive = false;
 		}
+
+		AcceptButtonText.text = $"Accept ({TimerString(Timer)})";
 	}
 
 	public static VesselConfirmMinigame Create()
@@ -155,8 +173,8 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 		}));
 
 		TransType = TransitionType.Alpha;
-		timeOpen = MaxTime;
-		countdown = true;
+		Timer = MaxTime;
+		TimerActive = true;
 		Begin(null);
 	}
 }
