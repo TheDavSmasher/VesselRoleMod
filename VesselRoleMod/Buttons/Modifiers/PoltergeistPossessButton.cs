@@ -5,7 +5,6 @@ using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using System.Linq;
 using TownOfUs;
-using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Interfaces;
 using TownOfUs.Modifiers;
@@ -13,6 +12,7 @@ using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
@@ -31,7 +31,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public override float Cooldown => 0.01f;
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override ButtonLocation Location => ButtonLocation.BottomLeft;
-	public override LoadableAsset<Sprite> Sprite => TouAssets.BarryButtonSprite;
+	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.PossessButton;
 	public override bool UsableInDeath => true;
 
 	public override bool Enabled(RoleBehaviour? role)
@@ -164,6 +164,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		base.OnEffectEnd();
 
 		OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
+		OverrideSprite(VesselCrewAssets.PossessButton.LoadAsset());
 	}
 
 	protected override void OnClick()
@@ -187,6 +188,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 
 				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
 				OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
+				OverrideSprite(VesselCrewAssets.PossessButton.LoadAsset());
 				ResetCooldownAndOrEffect();
 				return;
 			}
@@ -199,6 +201,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 
 		VesselRole.RpcGhostPossession(PlayerControl.LocalPlayer, Target);
 		OverrideName(TouLocale.Get("VesselModGhostRelease", "Release"));
+		OverrideSprite(VesselCrewAssets.ReleaseButton.LoadAsset());
 		EffectActive = true;
 		Timer = EffectDuration;
 	}
