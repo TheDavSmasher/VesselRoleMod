@@ -56,6 +56,15 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		base.FixedUpdateHandler(playerControl);
 	}
 
+	public override void SetActive(bool visible, RoleBehaviour role)
+	{
+		if (!visible)
+		{
+			SetOutline(false);
+		}
+		base.SetActive(visible, role);
+	}
+
 	public override bool CanUse()
 	{
 		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
