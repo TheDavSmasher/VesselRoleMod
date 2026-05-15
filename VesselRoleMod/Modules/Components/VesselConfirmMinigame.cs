@@ -42,16 +42,11 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 	private float Timer;
 	private bool TimerActive;
 
-	public string CooldownTimerFormatString =>
-		Timer <= 10f && LocalSettingsTabSingleton<TownOfUsLocalSettings>.Instance.PreciseCooldownsToggle.Value
-			? "0.0"
-			: "0";
-
 	private static float MaxTime => OptionGroupSingleton<VesselOptions>.Instance.MaxDecisionTime.Value;
 
-	private string TimerString(float time)
+	private static string TimerString(float time)
 	{
-		return time.ToString(CooldownTimerFormatString, NumberFormatInfo.InvariantInfo);
+		return Math.Max(time, 0f).ToString("0", NumberFormatInfo.InvariantInfo);
 	}
 
 	private void Awake()
