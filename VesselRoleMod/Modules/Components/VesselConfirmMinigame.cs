@@ -1,4 +1,5 @@
 ﻿using Il2CppInterop.Runtime.Attributes;
+using MiraAPI.GameOptions;
 using MiraAPI.Patches.Stubs;
 using Reactor.Utilities;
 using Reactor.Utilities.Attributes;
@@ -12,6 +13,7 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using VesselRoleMod.Assets;
+using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modules.Components;
@@ -32,6 +34,11 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 
 	private readonly Color _bgColor = new Color32(24, 0, 0, 215);
 	private Action<bool> clickHandler;
+
+	private float timeOpen;
+	private bool countdown;
+
+	private static float MaxTime => OptionGroupSingleton<VesselOptions>.Instance.MaxDecisionTime.Value;
 
 	private void Awake()
 	{
@@ -70,6 +77,22 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 		Box.SetActive(false);
 		DenyButton.SetActive(false);
 		AcceptButton.SetActive(false);
+	}
+
+	public void FixedUpdate()
+	{
+		if (!countdown)
+		{
+			return;
+		}
+
+		timeOpen -= Time.deltaTime;
+
+		if (timeOpen <= 0f)
+		{
+			clickHandler.Invoke(true);
+			countdown = false;
+		}
 	}
 
 	public static VesselConfirmMinigame Create()
@@ -132,6 +155,8 @@ public sealed class VesselConfirmMinigame(IntPtr cppPtr) : Minigame(cppPtr)
 		}));
 
 		TransType = TransitionType.Alpha;
+		timeOpen = MaxTime;
+		countdown = true;
 		Begin(null);
 	}
 }

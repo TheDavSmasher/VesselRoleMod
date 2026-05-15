@@ -48,6 +48,12 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 		Visible = () => OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.Free
 	};
 
+	public ModdedNumberOption MaxDecisionTime { get; set; } =
+		new("VesselOptionMaxDecisionTime", 5f, 3f, 10f, 0.5f, MiraNumberSuffixes.Seconds)
+		{
+			Visible = () => OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession == VesselRejectionType.Free
+		};
+
 	public bool NotifHasName => CanRejectPossession == VesselRejectionType.Free || CanSeeGhostName;
 }
 
