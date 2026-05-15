@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
+using UnityEngine;
 
 namespace VesselRoleMod.Utilities;
 
@@ -31,5 +32,15 @@ public static class Extensions
 		return role.IsImpostor() ||
 			   (alignment == RoleAlignment.NeutralKilling) ||
 			   (alignment == RoleAlignment.CrewmateKilling);
+	}
+
+	public static GameObject FindChildObject(this Transform transform, string n)
+	{
+		return transform.FindChild(n).gameObject;
+	}
+
+	public static T FindChildComponent<T>(this Transform transform, string n)
+	{
+		return transform.FindChildObject(n).GetComponent<T>();
 	}
 }
