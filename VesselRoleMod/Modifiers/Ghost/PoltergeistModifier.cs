@@ -4,12 +4,9 @@ using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
-using TownOfUs.Options;
 using TownOfUs.Patches;
-using TownOfUs.Roles.Crewmate;
-using TownOfUs.Roles.Neutral;
+using TownOfUs.Roles;
 using TownOfUs.Utilities;
-using TownOfUs.Utilities.Appearances;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Modifiers;
@@ -19,7 +16,7 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel), IVisualAppearance, IVesselModifier
+public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel), IVesselModifier
 {
 	public override string ModifierName => "Ghost Possessor";
 	public PlayerControl Target => Vessel;
@@ -27,14 +24,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 
 	private LobbyNotificationMessage? controllerNotification;
-
-	public VisualAppearance? GetVisualAppearance()
-	{
-		var vesselAppearance = Vessel.GetDefaultAppearance();
-		var appearance = Player.GetDefaultAppearance();
-		appearance.Speed = vesselAppearance.Speed;
-		return appearance;
-	}
 
 	public bool CanKill()
 	{
@@ -50,7 +39,9 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			return;
 		}
 
-		Player.RawSetAppearance(this);
+		SetVisibility(false);
+		SetGhostVisibility(false);
+		Player.gameObject.layer = LayerMask.NameToLayer("Players");
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
 
@@ -90,7 +81,9 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			return;
 		}
 
-		Player.ResetAppearance();
+		SetVisibility(true);
+		SetGhostVisibility(true);
+		Player.gameObject.layer = LayerMask.NameToLayer("Ghost");
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
 
@@ -117,6 +110,57 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			}
 		}
 		catch { /* ignored */ }
+	}
+
+	private static void SetGhostVisibility(bool visible)
+	{
+		foreach (var player in PlayerControl.AllPlayerControls)
+		{
+			if (player.AmOwner)
+			{
+				continue;
+			}
+
+			if (!player.Data.IsDead)
+			{
+				continue;
+			}
+
+			if (player.Data.Role is IGhostRole { GhostActive: true })
+			{
+				continue;
+			}
+
+			var bodyForms = player.gameObject.transform.GetChild(1).gameObject;
+
+			foreach (var form in bodyForms.GetAllChildren())
+			{
+				if (form.activeSelf)
+				{
+					form.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
+				}
+			}
+
+			player.Visible = visible;
+			player.cosmetics.gameObject.SetActive(visible);
+			player.gameObject.transform.GetChild(3).gameObject.SetActive(visible);
+			foreach (var visibilityItem in player.visibilityItems)
+			{
+				visibilityItem.Visible = visible;
+			}
+		}
+	}
+
+	private void SetVisibility(bool visible)
+	{
+		var alpha = visible ? 1f : 0.5f;
+		var hatAlpha = visible ? 0.5f : 0.25f;
+
+		var bodySprite = Player.cosmetics.currentBodySprite.BodySprite;
+		bodySprite.color = bodySprite.color.SetAlpha(alpha);
+		Player.cosmetics.skin.layer.color = Player.cosmetics.skin.layer.color.SetAlpha(alpha);
+		Player.cosmetics.ToggleNameVisible(visible);
+		Player.SetHatAndVisorAlpha(hatAlpha);
 	}
 
 	public override void OnMeetingStart()
@@ -147,50 +191,9 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			return;
 		}
 
+		SetGhostVisibility(false);
+
 		base.FixedUpdate();
-
-		if (!OptionGroupSingleton<PostmortemOptions>.Instance.TheDeadKnow)
-		{
-			return;
-		}
-
-		foreach (var player in PlayerControl.AllPlayerControls)
-		{
-			if (player.AmOwner)
-			{
-				continue;
-			}
-
-			if (!player.Data.IsDead)
-			{
-				continue;
-			}
-
-			switch (player.Data.Role)
-			{
-				case SpectreRole { Caught: false }:
-				case HaunterRole { Caught: false }:
-					continue;
-			}
-
-			var bodyForms = player.gameObject.transform.GetChild(1).gameObject;
-
-			foreach (var form in bodyForms.GetAllChildren())
-			{
-				if (form.activeSelf)
-				{
-					form.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
-				}
-			}
-
-			if (player.cosmetics.HasPetEquipped())
-			{
-				player.cosmetics.CurrentPet.Visible = false;
-			}
-
-			player.cosmetics.gameObject.SetActive(false);
-			player.gameObject.transform.GetChild(3).gameObject.SetActive(false);
-		}
 	}
 
 	public override void OnTimerComplete()
