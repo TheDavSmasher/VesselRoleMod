@@ -412,7 +412,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			}
 		}
 
-		mod.ClearNotifications();
+		mod.ClearNotification();
 
 		if (!VesselControlState.CanShareControl && (ghost != null && ghost.AmOwner || vessel != null && vessel.AmOwner))
 		{

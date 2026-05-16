@@ -7,4 +7,8 @@ public interface IVesselModifier
 	public PlayerControl Ghost { get; }
 
 	public PlayerControl Target { get; }
+
+	public void CreateNotification();
+
+	public void ClearNotification();
 }

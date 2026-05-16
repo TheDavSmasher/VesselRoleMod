@@ -84,7 +84,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 		ModifierComponent?.RemoveModifier(this);
 	}
 
-	private void CreateNotification()
+	public void CreateNotification()
 	{
 		if (Player == null || !Player.AmOwner || PlayerControl.LocalPlayer == null)
 		{

@@ -221,7 +221,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 	}
 
-	public void ClearNotifications()
+	public void ClearNotification()
 	{
 		if (controllerNotification != null && controllerNotification.gameObject != null)
 		{
