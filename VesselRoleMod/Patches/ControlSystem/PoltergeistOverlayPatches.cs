@@ -14,6 +14,7 @@ using TownOfUs.Modifiers;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Game.Universal;
 using TownOfUs.Modifiers.Impostor;
+using TownOfUs.Modifiers.Impostor.Herbalist;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules;
 using TownOfUs.Options;
@@ -301,6 +302,47 @@ public static class PoltergeistOverlayPatches
 		if (__instance is MedicShieldModifier medicMod)
 		{
 			medicMod.MedicShield?.SetActive(false);
+		}
+	}
+
+	[HarmonyPatch(typeof(HerbalistProtectionModifier), nameof(HerbalistProtectionModifier.Update))]
+	[HarmonyPatch(typeof(WardenFortifiedModifier), nameof(WardenFortifiedModifier.Update))]
+	[HarmonyPatch(typeof(ClericBarrierModifier), nameof(ClericBarrierModifier.Update))]
+	[HarmonyPatch(typeof(MagicMirrorModifier), nameof(MagicMirrorModifier.Update))]
+	[HarmonyPostfix]
+	public static void VisionModifiersUpdatePostfix(TimedModifier __instance)
+	{
+		if (!IsLocalPoltergistToBlock())
+		{
+			return;
+		}
+
+		if (__instance is GuardianAngelProtectModifier protectMod)
+		{
+			for (var i = protectMod.Player.currentRoleAnimations.Count - 1; i >= 0; i--)
+			{
+				if (protectMod.Player.currentRoleAnimations[i] != null && protectMod.Player.currentRoleAnimations[i].effectType ==
+					RoleEffectAnimation.EffectType.ProtectLoop)
+				{
+					protectMod.Player.currentRoleAnimations[i].gameObject.SetActive(false);
+				}
+			}
+		}
+		if (__instance is WardenFortifiedModifier fortMod)
+		{
+			fortMod.WardenFort?.SetActive(false);
+		}
+		if (__instance is HerbalistProtectionModifier herbMod)
+		{
+			herbMod.ClericBarrier?.SetActive(false);
+		}
+		if (__instance is ClericBarrierModifier clericMod)
+		{
+			clericMod.ClericBarrier?.SetActive(false);
+		}
+		if (__instance is MagicMirrorModifier mirrorMod)
+		{
+			mirrorMod.MedicShield?.SetActive(false);
 		}
 	}
 
