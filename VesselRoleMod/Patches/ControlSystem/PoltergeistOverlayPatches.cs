@@ -3,6 +3,7 @@ using HarmonyLib;
 using MiraAPI.GameOptions;
 using MiraAPI.LocalSettings;
 using MiraAPI.Modifiers;
+using MiraAPI.Modifiers.Types;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using System.Collections.Generic;
@@ -13,7 +14,6 @@ using TownOfUs.Modifiers;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Game.Universal;
 using TownOfUs.Modifiers.Impostor;
-using TownOfUs.Modifiers.Impostor.Herbalist;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules;
 using TownOfUs.Options;
@@ -275,16 +275,11 @@ public static class PoltergeistOverlayPatches
 		}
 	}
 
-	[HarmonyPatch(typeof(GuardianAngelProtectModifier), nameof(GuardianAngelProtectModifier.FixedUpdate))]
-	[HarmonyPatch(typeof(HerbalistProtectionModifier), nameof(HerbalistProtectionModifier.FixedUpdate))]
-	[HarmonyPatch(typeof(WardenFortifiedModifier), nameof(WardenFortifiedModifier.FixedUpdate))]
-	[HarmonyPatch(typeof(ClericBarrierModifier), nameof(ClericBarrierModifier.FixedUpdate))]
 	[HarmonyPatch(typeof(EclipsalBlindModifier), nameof(EclipsalBlindModifier.FixedUpdate))]
-	[HarmonyPatch(typeof(MagicMirrorModifier), nameof(MagicMirrorModifier.FixedUpdate))]
 	[HarmonyPatch(typeof(MedicShieldModifier), nameof(MedicShieldModifier.FixedUpdate))]
 	[HarmonyPatch(typeof(SwoopModifier), nameof(SwoopModifier.FixedUpdate))]
 	[HarmonyPostfix]
-	public static void VisionModifiersFixedUpdatePostfix(BaseModifier __instance)
+	public static void VisionModifiersFixedUpdatePostfix(TimedModifier __instance)
 	{
 		if (!IsLocalPoltergistToBlock())
 		{
@@ -303,38 +298,10 @@ public static class PoltergeistOverlayPatches
 			swoopMod.Player.RawSetAppearance(appearance);
 		}
 
-		if (__instance is GuardianAngelProtectModifier protectMod)
-		{
-			for (var i = protectMod.Player.currentRoleAnimations.Count - 1; i >= 0; i--)
-			{
-				if (protectMod.Player.currentRoleAnimations[i] != null && protectMod.Player.currentRoleAnimations[i].effectType ==
-					RoleEffectAnimation.EffectType.ProtectLoop)
-				{
-					protectMod.Player.currentRoleAnimations[i].gameObject.SetActive(false);
-				}
-			}
-		}
-		if (__instance is WardenFortifiedModifier fortMod)
-		{
-			fortMod.WardenFort?.SetActive(false);
-		}
-		if (__instance is HerbalistProtectionModifier herbMod)
-		{
-			herbMod.ClericBarrier?.SetActive(false);
-		}
-		if (__instance is ClericBarrierModifier clericMod)
-		{
-			clericMod.ClericBarrier?.SetActive(false);
-		}
-		if (__instance is MagicMirrorModifier mirrorMod)
-		{
-			mirrorMod.MedicShield?.SetActive(false);
-		}
 		if (__instance is MedicShieldModifier medicMod)
 		{
 			medicMod.MedicShield?.SetActive(false);
 		}
-		
 	}
 
 	[HarmonyPatch(typeof(Bomb), nameof(Bomb.BombShowTeammate))]
