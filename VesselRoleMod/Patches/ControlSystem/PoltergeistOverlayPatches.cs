@@ -10,8 +10,10 @@ using System.Linq;
 using TownOfUs;
 using TownOfUs.Extensions;
 using TownOfUs.Modifiers;
+using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Game.Universal;
 using TownOfUs.Modifiers.Impostor;
+using TownOfUs.Modifiers.Impostor.Herbalist;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules;
 using TownOfUs.Options;
@@ -26,6 +28,34 @@ namespace VesselRoleMod.Patches.ControlSystem;
 [HarmonyPatch]
 public static class PoltergeistOverlayPatches
 {
+	private static bool IsLocalPoltergistToBlock()
+	{
+		var local = PlayerControl.LocalPlayer;
+		if (local == null)
+		{
+			return false;
+		}
+
+		if (MeetingHud.Instance)
+		{
+			return false;
+		}
+
+		if (!local.TryGetModifier<DeathHandlerModifier>(out var deathHandler) ||
+			deathHandler.DiedThisRound || TutorialManager.InstanceExists ||
+			!OptionGroupSingleton<GeneralOptions>.Instance.TheDeadKnow)
+		{
+			return false;
+		}
+
+		if (!local.TryGetModifier<PoltergeistModifier>(out var mod))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	private static readonly Dictionary<byte, Vector3> _colorBlindBasePos = new();
 
 	[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -33,30 +63,14 @@ public static class PoltergeistOverlayPatches
 	[HarmonyPostfix]
 	public static void GhostHudManagerUpdatePostfix()
 	{
+		if (!IsLocalPoltergistToBlock())
+		{
+			return;
+		}
+
 		var local = PlayerControl.LocalPlayer;
-		if (local == null)
-		{
-			return;
-		}
-
-		if (MeetingHud.Instance)
-		{
-			return;
-		}
-
 		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
 		var taskOpt = OptionGroupSingleton<TaskTrackingOptions>.Instance;
-
-		if (!PlayerControl.LocalPlayer.TryGetModifier<DeathHandlerModifier>(out var deathHandler) ||
-			deathHandler.DiedThisRound || TutorialManager.InstanceExists || !genOpt.TheDeadKnow)
-		{
-			return;
-		}
-
-		if (!local.TryGetModifier<PoltergeistModifier>(out var mod))
-		{
-			return;
-		}
 
 		static PlayerControl GetDisguiseTargetOrSelf(PlayerControl player)
 		{
@@ -258,5 +272,67 @@ public static class PoltergeistOverlayPatches
 			player.cosmetics.colorBlindText.transform.localPosition =
 					string.IsNullOrEmpty(diedR1Text) ? cbBase : cbBase + cbOffset;
 		}
+	}
+
+	[HarmonyPatch(typeof(GuardianAngelProtectModifier), nameof(GuardianAngelProtectModifier.FixedUpdate))]
+	[HarmonyPatch(typeof(HerbalistProtectionModifier), nameof(HerbalistProtectionModifier.FixedUpdate))]
+	[HarmonyPatch(typeof(WardenFortifiedModifier), nameof(WardenFortifiedModifier.FixedUpdate))]
+	[HarmonyPatch(typeof(ClericBarrierModifier), nameof(ClericBarrierModifier.FixedUpdate))]
+	[HarmonyPatch(typeof(EclipsalBlindModifier), nameof(EclipsalBlindModifier.FixedUpdate))]
+	[HarmonyPatch(typeof(MagicMirrorModifier), nameof(MagicMirrorModifier.FixedUpdate))]
+	[HarmonyPatch(typeof(MedicShieldModifier), nameof(MedicShieldModifier.FixedUpdate))]
+	[HarmonyPatch(typeof(SwoopModifier), nameof(SwoopModifier.FixedUpdate))]
+	[HarmonyPostfix]
+	public static void VisionModifiersFixedUpdatePostfix(BaseModifier __instance)
+	{
+		if (!IsLocalPoltergistToBlock())
+		{
+			return;
+		}
+
+		if (__instance is EclipsalBlindModifier blindMod && ! PlayerControl.LocalPlayer.IsImpostorAligned())
+		{
+			blindMod.Player.cosmetics.currentBodySprite.BodySprite.material.SetColor(ShaderID.VisorColor, Color.black);
+			blindMod.EclipseBack?.SetActive(!blindMod.Player.IsVisibleToOthers());
+		}
+		if (__instance is SwoopModifier swoopMod && !PlayerControl.LocalPlayer.IsImpostorAligned())
+		{
+			var appearance = swoopMod.GetVisualAppearance();
+			appearance.RendererColor = Color.clear;
+			swoopMod.Player.RawSetAppearance(appearance);
+		}
+
+		if (__instance is GuardianAngelProtectModifier protectMod)
+		{
+			for (var i = protectMod.Player.currentRoleAnimations.Count - 1; i >= 0; i--)
+			{
+				if (protectMod.Player.currentRoleAnimations[i] != null && protectMod.Player.currentRoleAnimations[i].effectType ==
+					RoleEffectAnimation.EffectType.ProtectLoop)
+				{
+					protectMod.Player.currentRoleAnimations[i].gameObject.SetActive(false);
+				}
+			}
+		}
+		if (__instance is WardenFortifiedModifier fortMod)
+		{
+			fortMod.WardenFort?.SetActive(false);
+		}
+		if (__instance is HerbalistProtectionModifier herbMod)
+		{
+			herbMod.ClericBarrier?.SetActive(false);
+		}
+		if (__instance is ClericBarrierModifier clericMod)
+		{
+			clericMod.ClericBarrier?.SetActive(false);
+		}
+		if (__instance is MagicMirrorModifier mirrorMod)
+		{
+			mirrorMod.MedicShield?.SetActive(false);
+		}
+		if (__instance is MedicShieldModifier medicMod)
+		{
+			medicMod.MedicShield?.SetActive(false);
+		}
+		
 	}
 }
