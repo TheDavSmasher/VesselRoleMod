@@ -337,9 +337,9 @@ public static class PoltergeistOverlayPatches
 		
 	}
 
-	[HarmonyPatch(typeof(Bomb), nameof(Bomb.BombShowTeammate), MethodType.Enumerator)]
+	[HarmonyPatch(typeof(Bomb), nameof(Bomb.BombShowTeammate))]
 	[HarmonyPrefix]
-	public static bool BombShowTeammatePrefix([HarmonyArgument(0)] PlayerControl player)
+	public static bool BombShowTeammatePrefix(PlayerControl player)
 	{
 		if (player.HasModifier<PoltergeistModifier>() && !player.IsImpostorAligned())
 		{
@@ -350,7 +350,7 @@ public static class PoltergeistOverlayPatches
 
 	[HarmonyPatch(typeof(EscapistRole), nameof(EscapistRole.FixedUpdate))]
 	[HarmonyPostfix]
-	public static void EscapisFixedUpdatePostfix(EscapistRole __instance)
+	public static void EscapistFixedUpdatePostfix(EscapistRole __instance)
 	{
 		if (!IsLocalPoltergistToBlock() || __instance.Player.IsImpostorAligned())
 		{
