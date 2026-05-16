@@ -17,6 +17,7 @@ using TownOfUs.Modifiers.Impostor.Herbalist;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules;
 using TownOfUs.Options;
+using TownOfUs.Roles.Impostor;
 using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using TownOfUs.Utilities.Appearances;
@@ -334,5 +335,28 @@ public static class PoltergeistOverlayPatches
 			medicMod.MedicShield?.SetActive(false);
 		}
 		
+	}
+
+	[HarmonyPatch(typeof(Bomb), nameof(Bomb.BombShowTeammate), MethodType.Enumerator)]
+	[HarmonyPrefix]
+	public static bool BombShowTeammatePrefix([HarmonyArgument(0)] PlayerControl player)
+	{
+		if (player.HasModifier<PoltergeistModifier>() && !player.IsImpostorAligned())
+		{
+			return false;
+		}
+		return true;
+	}
+
+	[HarmonyPatch(typeof(EscapistRole), nameof(EscapistRole.FixedUpdate))]
+	[HarmonyPostfix]
+	public static void EscapisFixedUpdatePostfix(EscapistRole __instance)
+	{
+		if (!IsLocalPoltergistToBlock() || __instance.Player.IsImpostorAligned())
+		{
+			return;
+		}
+
+		__instance.EscapeMark?.SetActive(false);
 	}
 }
