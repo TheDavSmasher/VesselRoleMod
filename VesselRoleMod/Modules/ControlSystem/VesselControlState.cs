@@ -1,7 +1,5 @@
-﻿using MiraAPI.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modules.ControlSystem;
 
@@ -144,29 +142,24 @@ public static class VesselControlState
 		return SelfDirection.TryGetValue(controllerId, out var dir) ? dir : Vector2.zero;
 	}
 
-	public static Vector2 GetDirection(byte controllerId, byte controlledId)
-	{
-		return ((GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2).normalized;
-	}
-
-	public static Vector2 GetFinalDirection(byte playerId)
+	public static Vector2 GetDirection(byte playerId)
 	{
 		if (IsControlled(playerId, out var controllerId))
 		{
-			return GetFinalDirection(controllerId, playerId);
+			return GetDirection(controllerId, playerId);
 		}
 		if (IsControlling(playerId, out var controlledId))
 		{
-			return GetFinalDirection(playerId, controlledId);
+			return GetDirection(playerId, controlledId);
 		}
 		return Vector2.zero;
 	}
 
-	public static Vector2 GetFinalDirection(byte controllerId, byte controlledId)
+	public static Vector2 GetDirection(byte controllerId, byte controlledId)
 	{
 		if (CanShareControl)
 		{
-			return GetDirection(controllerId, controlledId);
+			return ((GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2).normalized;
 		}
 		if (HasControl(controllerId))
 		{

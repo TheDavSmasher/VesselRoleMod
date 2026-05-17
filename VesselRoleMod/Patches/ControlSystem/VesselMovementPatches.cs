@@ -146,7 +146,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir = VesselControlState.GetFinalDirection(player.PlayerId, vesselId);
+			Vector2 dir = VesselControlState.GetDirection(player.PlayerId, vesselId);
 
 			ApplyAllDataTo(__instance, vesselId, dir);
 			return false;
@@ -171,7 +171,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir = VesselControlState.GetFinalDirection(ghostId, player.PlayerId);
+			Vector2 dir = VesselControlState.GetDirection(ghostId, player.PlayerId);
 
 			ApplyAllDataTo(__instance, player.PlayerId, dir);
 			return false;
@@ -196,7 +196,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir = VesselControlState.GetFinalDirection(player.PlayerId);
+			Vector2 dir = VesselControlState.GetDirection(player.PlayerId);
 
 			ApplyAllDataTo(__instance, player.PlayerId, dir);
 			return false;
@@ -256,7 +256,7 @@ public static class VesselMovementPatches
 
 		if (player.AmOwner && VesselControlState.IsUsingState(player.PlayerId, out _))
 		{
-			direction = VesselControlState.GetFinalDirection(player.PlayerId);
+			direction = VesselControlState.GetDirection(player.PlayerId);
 		}
 
 		return true;
