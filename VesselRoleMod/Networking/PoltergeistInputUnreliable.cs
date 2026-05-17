@@ -31,7 +31,6 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 	: PlayerCustomRpc<VesselRoleModPlugin, VesselInputPacket>(plugin, id)
 {
 	public override RpcLocalHandling LocalHandling => RpcLocalHandling.Before;
-	public override SendOption SendOption => (SendOption)1;
 
 	public override void Write(MessageWriter writer, VesselInputPacket data)
 	{
