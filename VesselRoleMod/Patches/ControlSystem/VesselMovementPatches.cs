@@ -86,8 +86,8 @@ public static class VesselMovementPatches
 		}
 
 
-		if (player == PlayerControl.LocalPlayer &&
-			PlayerControl.LocalPlayer != null &&
+		if (player.AmOwner &&
+			PlayerControl.LocalPlayer &&
 			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod &&
 			mod.Vessel != null &&
 			VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
