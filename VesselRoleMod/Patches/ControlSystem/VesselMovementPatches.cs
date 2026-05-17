@@ -109,32 +109,21 @@ public static class VesselMovementPatches
 
 			var dir = GetNormalDirection();
 
-			if (vessel.MyPhysics != null)
+			if (vesselInAnim)
 			{
-				if (vesselInAnim)
-				{
-					vessel.MyPhysics.HandleAnimation(false);
-				}
-				else if (dir == Vector2.zero)
-				{
-					AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, Vector2.zero, stopIfZero: true);
-				}
-				else
-				{
-					AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir, stopIfZero: true);
-				}
+				vessel.MyPhysics?.HandleAnimation(false);
+			}
+			else
+			{
+				AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir);
 			}
 
-			var vesselPos = vessel.MyPhysics?.body != null
-				? vessel.MyPhysics.body.position
-				: (Vector2)vessel.transform.position;
-			var vesselVel = vessel.MyPhysics?.body != null
-				? vessel.MyPhysics.body.velocity
-				: Vector2.zero;
+			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
+			var vesselVel = vessel.MyPhysics?.body.velocity ?? Vector2.zero;
 
 			SendVesselInputIfNeeded(mod.Target.PlayerId, isVessel, dir, vesselPos, vesselVel);
 
-			AdvancedMovementUtilities.ApplyControlledMovement(mod.Ghost.MyPhysics, dir, stopIfZero: true);
+			AdvancedMovementUtilities.ApplyControlledMovement(mod.Ghost.MyPhysics, dir);
 			return false;
 		}
 
@@ -210,14 +199,7 @@ public static class VesselMovementPatches
 		Vector2 pos = VesselControlState.GetPosition(vesselId);
 		Vector2 vel = VesselControlState.GetVelocity(vesselId);
 
-		if (dir == Vector2.zero)
-		{
-			AdvancedMovementUtilities.ApplyControlledMovement(__instance, Vector2.zero, stopIfZero: true);
-		}
-		else
-		{
-			AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir, stopIfZero: true);
-		}
+		AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir);
 
 		if (pos != Vector2.zero)
 		{
