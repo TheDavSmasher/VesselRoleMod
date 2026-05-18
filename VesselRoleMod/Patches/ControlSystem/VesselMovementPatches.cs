@@ -98,9 +98,7 @@ public static class VesselMovementPatches
 			}
 
 			var vessel = mod.Vessel;
-			var isVessel = player.PlayerId == mod.Vessel.PlayerId;
-
-			if (vessel == null || vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+			if (vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
 			{
 				return true;
 			}
@@ -109,22 +107,10 @@ public static class VesselMovementPatches
 
 			var dir = GetNormalDirection();
 
-			if (vesselInAnim)
-			{
-				vessel.MyPhysics?.HandleAnimation(false);
-			}
-			else
-			{
-				AdvancedMovementUtilities.ApplyControlledMovement(vessel.MyPhysics, dir);
-			}
-
+			var vesselVel = vesselInAnim ? Vector2.zero : vessel.MyPhysics.TrueSpeed * dir;
 			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
-			var vesselVel = vessel.MyPhysics?.body.velocity ?? Vector2.zero;
 
-			SendVesselInputIfNeeded(mod.Target.PlayerId, isVessel, dir, vesselPos, vesselVel);
-
-			AdvancedMovementUtilities.ApplyControlledMovement(mod.Ghost.MyPhysics, dir);
-			return false;
+			SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir, vesselPos, vesselVel);
 		}
 
 		// player is player ghost
@@ -217,7 +203,12 @@ public static class VesselMovementPatches
 
 		if (__instance.body != null && vel != Vector2.zero)
 		{
-			__instance.body.velocity = vel;
+			var currentVel = __instance.body.velocity;
+			var delta = vel - currentVel;
+			if (delta.magnitude > 0.5f)
+			{
+				__instance.body.velocity = vel;
+			}
 		}
 	}
 
