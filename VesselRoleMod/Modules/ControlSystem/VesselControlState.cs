@@ -221,13 +221,6 @@ public static class VesselControlState
 	#endregion
 
 	#region Clearing
-
-	public static void ClearMovementState(byte controlledId)
-	{
-		ControlledPosition[controlledId] = Vector2.zero;
-		ControlledVelocity[controlledId] = Vector2.zero;
-	}
-
 	public static void ClearAll()
 	{
 		ControlledBy.Clear();

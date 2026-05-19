@@ -107,7 +107,8 @@ public static class VesselMovementPatches
 
 			var dir = GetNormalDirection();
 
-			var vesselVel = vesselInAnim ? Vector2.zero : vessel.MyPhysics.TrueSpeed * dir;
+			var vesselVel = !vesselInAnim ? vessel.MyPhysics.TrueSpeed * dir 
+				: vessel.MyPhysics?.body.velocity ?? Vector2.zero;
 			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
 
 			SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir, vesselPos, vesselVel);
@@ -135,12 +136,6 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			if (player.onLadder || player.inMovingPlat)
-			{
-				VesselControlState.ClearMovementState(player.PlayerId);
-				return true;
-			}
-
 			if (player.IsInTargetingAnimState() || player.inVent)
 			{
 				return true;
@@ -157,12 +152,6 @@ public static class VesselMovementPatches
 		{
 			if (TimeLordRewindSystem.IsRewinding)
 			{
-				return true;
-			}
-
-			if (player.onLadder || player.inMovingPlat)
-			{
-				VesselControlState.ClearMovementState(player.PlayerId);
 				return true;
 			}
 
