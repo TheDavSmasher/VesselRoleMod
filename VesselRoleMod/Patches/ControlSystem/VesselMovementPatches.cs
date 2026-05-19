@@ -245,12 +245,7 @@ public static class VesselMovementPatches
 		}
 
 		var player = __instance.myPlayer;
-		if (!VesselControlState.IsUsingStateControl(player.PlayerId, out var hasControl))
-		{
-			return true;
-		}
-
-		if (hasControl)
+		if (!VesselControlState.IsUsingState(player.PlayerId, out _))
 		{
 			return true;
 		}
