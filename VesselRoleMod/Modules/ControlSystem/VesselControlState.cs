@@ -102,12 +102,6 @@ public static class VesselControlState
 		return IsControlling(playerId, out _) && HasControl(playerId);
 	}
 
-	public static bool IsUsingStateControl(byte playerId, out bool hasControl)
-	{
-		hasControl = HasControl(playerId);
-		return IsUsingState(playerId, out _);
-	}
-
 	public static void SwapControlOver(byte playerId, byte againstId)
 	{
 		if (!IsUsingState(playerId, out var withId) || withId != againstId)
