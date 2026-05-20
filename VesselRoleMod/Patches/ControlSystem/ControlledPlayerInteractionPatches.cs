@@ -98,11 +98,11 @@ public static class ControlledPlayerInteractionPatches
 		return true;
 	}
 
-		/// <summary>
-		/// Allow UseButton to show as usable when puppeteer/parasite can interact with something
-		/// This runs after SetTarget to override the target with the controlled player's interactables
-		/// </summary>
-		[HarmonyPatch(typeof(UseButton), nameof(UseButton.SetTarget))]
+	/// <summary>
+	/// Allow UseButton to show as usable when puppeteer/parasite can interact with something
+	/// This runs after SetTarget to override the target with the controlled player's interactables
+	/// </summary>
+	[HarmonyPatch(typeof(UseButton), nameof(UseButton.SetTarget))]
 	[HarmonyPriority(Priority.Last)]
 	[HarmonyPostfix]
 	public static void UseButtonSetTargetPostfix(UseButton __instance)

@@ -27,6 +27,7 @@ using TownOfUs.Utilities;
 using TownOfUs.Utilities.Appearances;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -434,7 +435,7 @@ public static class PoltergeistOverlayPatches
 			}
 
 			var show = false;
-			var bodyForms = player.gameObject.transform.GetChild(1).gameObject;
+			var bodyForms = player.gameObject.transform.FindChildObject("BodyForms");
 
 			foreach (var form in bodyForms.GetAllChildren())
 			{
@@ -450,7 +451,7 @@ public static class PoltergeistOverlayPatches
 			}
 
 			player.cosmetics.gameObject.SetActive(show);
-			player.gameObject.transform.GetChild(3).gameObject.SetActive(show);
+			player.gameObject.transform.FindChildObject("Names").SetActive(show);
 		}
 	}
 }
