@@ -2,8 +2,8 @@
 <resources>
   <string name="VesselRole">Vessel</string>
   <!-- Descriptions -->
-  <string name="VesselRoleIntroBlurb">Allow ghosts to possess you to gain their information.</string>
-  <string name="VesselRoleTabDescription">Open yourself to be possessed by the ghosts of dead players and find a way to learn from their actions</string>
+  <string name="VesselRoleIntroBlurb">Allow ghosts to control you.</string>
+  <string name="VesselRoleTabDescription">Allow dead players to control and guide you.</string>
   <string name="VesselRoleWikiDescription">The Vessel is a Crewmate Support that can allow the dead to transfer their knowledge by controlling the Vessel.</string>
   <!-- Buttons -->
   <string name="VesselRoleAdorcise">Adorcise</string>
