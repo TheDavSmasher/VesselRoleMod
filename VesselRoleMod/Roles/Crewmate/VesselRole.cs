@@ -242,6 +242,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	{
 		VesselControlState.SetTimerActive(vessel.PlayerId);
 
+		if (!ghost.AmOwner && !vessel.AmOwner)
+		{
+			return;
+		}
+
 		var text = vessel.AmOwner ?
 			TouLocale.GetParsed("VesselRoleYouDeniedPossession").Replace("<player>", ghost.Data.PlayerName) :
 			TouLocale.GetParsed("VesselRoleVesselHasDenied").Replace("<player>", vessel.Data.PlayerName);
