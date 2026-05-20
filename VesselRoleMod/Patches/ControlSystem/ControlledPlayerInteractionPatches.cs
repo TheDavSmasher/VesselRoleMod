@@ -64,11 +64,45 @@ public static class ControlledPlayerInteractionPatches
 		return true;
 	}
 
-	/// <summary>
-	/// Allow UseButton to show as usable when puppeteer/parasite can interact with something
-	/// This runs after SetTarget to override the target with the controlled player's interactables
-	/// </summary>
-	[HarmonyPatch(typeof(UseButton), nameof(UseButton.SetTarget))]
+	[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CanPet))]
+	[HarmonyPrefix]
+	public static bool PetButtonCanPetPrefix(PlayerControl __instance, ref bool __result)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			return true;
+		}
+
+		if (__instance.TryGetModifier<VesselPossessedModifier>(out var vesselMod) && vesselMod.Ghost != null)
+		{
+			var controller = vesselMod.Ghost;
+			if (controller != null && controller.HasDied() &&
+				VesselControlState.IsFullyControlling(controller.PlayerId))
+			{
+				__result = false;
+				return false;
+			}
+		}
+
+		if (__instance.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
+		{
+			var controlled = poltergeistMod.Vessel;
+			if (controlled != null && !controlled.HasDied() &&
+				VesselControlState.IsFullyControlling(controlled.PlayerId))
+			{
+				__result = false;
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+		/// <summary>
+		/// Allow UseButton to show as usable when puppeteer/parasite can interact with something
+		/// This runs after SetTarget to override the target with the controlled player's interactables
+		/// </summary>
+		[HarmonyPatch(typeof(UseButton), nameof(UseButton.SetTarget))]
 	[HarmonyPriority(Priority.Last)]
 	[HarmonyPostfix]
 	public static void UseButtonSetTargetPostfix(UseButton __instance)
