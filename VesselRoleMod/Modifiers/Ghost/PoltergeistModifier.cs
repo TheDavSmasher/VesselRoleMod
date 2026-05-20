@@ -5,7 +5,6 @@ using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Patches;
-using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
@@ -40,7 +39,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 
 		SetVisibility(false);
-		SetGhostVisibility(false);
 		Player.gameObject.layer = LayerMask.NameToLayer("Players");
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
@@ -82,7 +80,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 
 		SetVisibility(true);
-		SetGhostVisibility(true);
 		Player.gameObject.layer = LayerMask.NameToLayer("Ghost");
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
@@ -110,45 +107,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			}
 		}
 		catch { /* ignored */ }
-	}
-
-	private static void SetGhostVisibility(bool visible)
-	{
-		foreach (var player in PlayerControl.AllPlayerControls)
-		{
-			if (player.AmOwner)
-			{
-				continue;
-			}
-
-			if (!player.Data.IsDead)
-			{
-				continue;
-			}
-
-			if (player.Data.Role is IGhostRole { GhostActive: true })
-			{
-				continue;
-			}
-
-			var bodyForms = player.gameObject.transform.GetChild(1).gameObject;
-
-			foreach (var form in bodyForms.GetAllChildren())
-			{
-				if (form.activeSelf)
-				{
-					form.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
-				}
-			}
-
-			player.Visible = visible;
-			player.cosmetics.gameObject.SetActive(visible);
-			player.gameObject.transform.GetChild(3).gameObject.SetActive(visible);
-			foreach (var visibilityItem in player.visibilityItems)
-			{
-				visibilityItem.Visible = visible;
-			}
-		}
 	}
 
 	private void SetVisibility(bool visible)
@@ -190,8 +148,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
 			return;
 		}
-
-		SetGhostVisibility(false);
 
 		base.FixedUpdate();
 	}

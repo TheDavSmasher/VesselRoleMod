@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using HarmonyLib;
+using InnerNet;
 using MiraAPI.GameOptions;
 using MiraAPI.LocalSettings;
 using MiraAPI.Modifiers;
@@ -18,6 +19,8 @@ using TownOfUs.Modifiers.Impostor.Herbalist;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules;
 using TownOfUs.Options;
+using TownOfUs.Patches;
+using TownOfUs.Roles.Crewmate;
 using TownOfUs.Roles.Impostor;
 using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
@@ -43,9 +46,7 @@ public static class PoltergeistOverlayPatches
 			return false;
 		}
 
-		if (!local.TryGetModifier<DeathHandlerModifier>(out var deathHandler) ||
-			deathHandler.DiedThisRound || TutorialManager.InstanceExists ||
-			!OptionGroupSingleton<GeneralOptions>.Instance.TheDeadKnow)
+		if (!local.Data.IsDead || !OptionGroupSingleton<GeneralOptions>.Instance.TheDeadKnow)
 		{
 			return false;
 		}
@@ -71,6 +72,12 @@ public static class PoltergeistOverlayPatches
 		}
 
 		var local = PlayerControl.LocalPlayer;
+		if (!local.TryGetModifier<DeathHandlerModifier>(out var deathHandler) || deathHandler.DiedThisRound ||
+			!TutorialManager.InstanceExists)
+		{
+			return;
+		}
+
 		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
 		var taskOpt = OptionGroupSingleton<TaskTrackingOptions>.Instance;
 
@@ -367,5 +374,59 @@ public static class PoltergeistOverlayPatches
 		}
 
 		__instance.EscapeMark?.SetActive(false);
+	}
+
+	[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+	[HarmonyPostfix]
+	public static void PoltergeistHideGhosts()
+	{
+		if (AmongUsClient.Instance.GameState != InnerNetClient.GameStates.Started)
+		{
+			return;
+		}
+
+		if (!IsLocalPoltergistToBlock())
+		{
+			return;
+		}
+
+		foreach (var player in PlayerControl.AllPlayerControls)
+		{
+			if (player.AmOwner)
+			{
+				continue;
+			}
+
+			if (!player.Data.IsDead)
+			{
+				continue;
+			}
+
+			switch (player.Data.Role)
+			{
+				case SpectreRole { Caught: false }:
+				case HaunterRole { Caught: false }:
+					continue;
+			}
+
+			var show = LocalSettingsTabSingleton<TownOfUsLocalSettings>.Instance.DeadSeeGhostsToggle.Value;
+			var bodyForms = player.gameObject.transform.GetChild(1).gameObject;
+
+			foreach (var form in bodyForms.GetAllChildren())
+			{
+				if (form.activeSelf)
+				{
+					form.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, show ? 1f : 0f);
+				}
+			}
+
+			if (player.cosmetics.HasPetEquipped())
+			{
+				player.cosmetics.CurrentPet.Visible = show;
+			}
+
+			player.cosmetics.gameObject.SetActive(show);
+			player.gameObject.transform.GetChild(3).gameObject.SetActive(show);
+		}
 	}
 }
