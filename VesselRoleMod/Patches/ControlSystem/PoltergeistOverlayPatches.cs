@@ -387,6 +387,7 @@ public static class PoltergeistOverlayPatches
 	}
 
 	[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+	[HarmonyPriority(Priority.Last)]
 	[HarmonyPostfix]
 	public static void PoltergeistHideGhosts()
 	{
