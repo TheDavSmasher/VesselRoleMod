@@ -1,56 +1,29 @@
 ﻿using HarmonyLib;
-using MiraAPI.Modifiers;
-using System.Collections.Generic;
-using System.Reflection;
-using TownOfUs.Utilities;
-using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modules.ControlSystem;
-using Object = Il2CppSystem.Object;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
 [HarmonyPatch]
 public static class ControlledCanUsePatches
 {
-	public static IEnumerable<MethodBase> TargetMethods()
+	[HarmonyPatch(typeof(Console), nameof(Console.FindTask))]
+	[HarmonyPrefix]
+	public static bool ConsoleFindTaskPrefix(PlayerControl pc, ref PlayerTask __result)
 	{
-		yield return AccessTools.Method(typeof(Console), nameof(Console.CanUse));
-		yield return AccessTools.Method(typeof(Ladder), nameof(Ladder.CanUse));
-		yield return AccessTools.Method(typeof(PlatformConsole), nameof(PlatformConsole.CanUse));
-		yield return AccessTools.Method(typeof(OpenDoorConsole), nameof(OpenDoorConsole.CanUse));
-		yield return AccessTools.Method(typeof(DoorConsole), nameof(DoorConsole.CanUse));
-		yield return AccessTools.Method(typeof(ZiplineConsole), nameof(ZiplineConsole.CanUse));
-		yield return AccessTools.Method(typeof(DeconControl), nameof(DeconControl.CanUse));
-	}
-
-	[HarmonyPostfix]
-	public static void CanUsePostfixPatch(
-		Object __instance,
-		[HarmonyArgument(0)] NetworkedPlayerInfo pc,
-		[HarmonyArgument(1)] ref bool canUse,
-		[HarmonyArgument(2)] ref bool couldUse)
-	{
-		if (pc == null || pc.Object == null)
+		if (pc == null)
 		{
-			return;
+			return true;
 		}
 
-		var player = pc.Object;
-
-		var isVessel = player.HasModifier<VesselPossessedModifier>() &&
-					   VesselControlState.IsFullyControlled(player.PlayerId);
-
-		if (!isVessel)
+		if (pc.HasModifierOfType<IVesselModifier>() &&
+			!VesselControlState.HasControl(pc.PlayerId))
 		{
-			return;
+			__result = null!;
+			return false;
 		}
 
-		if (player.IsInTargetingAnimState())
-		{
-			return;
-		}
-
-		canUse = true;
-		couldUse = true;
+		return true;
 	}
 }
