@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using VesselRoleMod.Modifiers;
-using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -17,8 +16,7 @@ public static class ControlledCanUsePatches
 			return true;
 		}
 
-		if (pc.HasModifierOfType<IVesselModifier>() &&
-			!VesselControlState.HasControl(pc.PlayerId))
+		if (pc.HasModifierOfType<IVesselModifier>())
 		{
 			__result = null!;
 			return false;
