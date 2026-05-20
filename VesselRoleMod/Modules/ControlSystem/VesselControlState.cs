@@ -92,11 +92,6 @@ public static class VesselControlState
 		return InControl.TryGetValue(playerId, out bool has) && has;
 	}
 
-	public static bool IsFullyControlled(byte playerId)
-	{
-		return IsControlled(playerId, out _) && !HasControl(playerId);
-	}
-
 	public static bool IsFullyControlling(byte playerId)
 	{
 		return IsControlling(playerId, out byte otherId) && !HasControl(otherId);

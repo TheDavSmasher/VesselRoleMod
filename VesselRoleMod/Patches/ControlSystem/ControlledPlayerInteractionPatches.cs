@@ -40,7 +40,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
-				VesselControlState.IsFullyControlled(localPlayer.PlayerId))
+				VesselControlState.IsFullyControlling(controller.PlayerId))
 			{
 				return false;
 			}
@@ -122,7 +122,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controller = possessedMod.Ghost;
 			if (controller != null && controller.HasDied() &&
-				VesselControlState.IsFullyControlled(localPlayer.PlayerId))
+				VesselControlState.IsFullyControlling(controller.PlayerId))
 			{
 				ClearInteractableOutlines();
 				useButton.currentTarget = null;
