@@ -99,7 +99,7 @@ public static class VesselControlState
 
 	public static bool IsFullyControlling(byte playerId)
 	{
-		return IsControlling(playerId, out _) && HasControl(playerId);
+		return IsControlling(playerId, out byte otherId) && !HasControl(otherId);
 	}
 
 	public static void SwapControlOver(byte playerId, byte againstId)
