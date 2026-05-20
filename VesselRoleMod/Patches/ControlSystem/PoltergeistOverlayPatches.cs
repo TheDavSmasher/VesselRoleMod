@@ -33,32 +33,6 @@ namespace VesselRoleMod.Patches.ControlSystem;
 [HarmonyPatch]
 public static class PoltergeistOverlayPatches
 {
-	private static bool IsLocalPoltergistToBlock()
-	{
-		var local = PlayerControl.LocalPlayer;
-		if (local == null)
-		{
-			return false;
-		}
-
-		if (MeetingHud.Instance)
-		{
-			return false;
-		}
-
-		if (!local.Data.IsDead || !OptionGroupSingleton<GeneralOptions>.Instance.TheDeadKnow)
-		{
-			return false;
-		}
-
-		if (!local.TryGetModifier<PoltergeistModifier>(out var mod))
-		{
-			return false;
-		}
-
-		return true;
-	}
-
 	private static readonly Dictionary<byte, Vector3> _colorBlindBasePos = new();
 
 	[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -66,20 +40,21 @@ public static class PoltergeistOverlayPatches
 	[HarmonyPostfix]
 	public static void GhostHudManagerUpdatePostfix()
 	{
-		if (!IsLocalPoltergistToBlock())
-		{
-			return;
-		}
-
 		var local = PlayerControl.LocalPlayer;
-		if (!local.TryGetModifier<DeathHandlerModifier>(out var deathHandler) || deathHandler.DiedThisRound ||
+		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
+		var taskOpt = OptionGroupSingleton<TaskTrackingOptions>.Instance;
+
+		if (!local.HasDied() || !genOpt.TheDeadKnow || MeetingHud.Instance ||
+			!local.TryGetModifier<DeathHandlerModifier>(out var deathHandler) || deathHandler.DiedThisRound ||
 			!TutorialManager.InstanceExists)
 		{
 			return;
 		}
 
-		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
-		var taskOpt = OptionGroupSingleton<TaskTrackingOptions>.Instance;
+		if (!local.HasModifier<PoltergeistModifier>())
+		{
+			return;
+		}
 
 		static PlayerControl GetDisguiseTargetOrSelf(PlayerControl player)
 		{
@@ -289,7 +264,15 @@ public static class PoltergeistOverlayPatches
 	[HarmonyPostfix]
 	public static void VisionModifiersFixedUpdatePostfix(TimedModifier __instance)
 	{
-		if (!IsLocalPoltergistToBlock())
+		var local = PlayerControl.LocalPlayer;
+		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
+
+		if (!local.Data.IsDead || !genOpt.TheDeadKnow || MeetingHud.Instance)
+		{
+			return;
+		}
+
+		if (!local.HasModifier<PoltergeistModifier>())
 		{
 			return;
 		}
@@ -319,7 +302,15 @@ public static class PoltergeistOverlayPatches
 	[HarmonyPostfix]
 	public static void VisionModifiersUpdatePostfix(TimedModifier __instance)
 	{
-		if (!IsLocalPoltergistToBlock())
+		var local = PlayerControl.LocalPlayer;
+		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
+
+		if (!local.Data.IsDead || !genOpt.TheDeadKnow || MeetingHud.Instance)
+		{
+			return;
+		}
+
+		if (!local.HasModifier<PoltergeistModifier>())
 		{
 			return;
 		}
@@ -368,7 +359,20 @@ public static class PoltergeistOverlayPatches
 	[HarmonyPostfix]
 	public static void EscapistFixedUpdatePostfix(EscapistRole __instance)
 	{
-		if (!IsLocalPoltergistToBlock() || __instance.Player.IsImpostorAligned())
+		var local = PlayerControl.LocalPlayer;
+		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
+
+		if (!local.Data.IsDead || !genOpt.TheDeadKnow || MeetingHud.Instance)
+		{
+			return;
+		}
+
+		if (!local.HasModifier<PoltergeistModifier>())
+		{
+			return;
+		}
+
+		if (__instance.Player.IsImpostorAligned())
 		{
 			return;
 		}
@@ -385,7 +389,22 @@ public static class PoltergeistOverlayPatches
 			return;
 		}
 
-		if (!IsLocalPoltergistToBlock())
+		if (!PlayerControl.LocalPlayer.Data.IsDead)
+		{
+			return;
+		}
+
+		if (MeetingHud.Instance)
+		{
+			return;
+		}
+
+		if (!OptionGroupSingleton<PostmortemOptions>.Instance.TheDeadKnow)
+		{
+			return;
+		}
+
+		if (!PlayerControl.LocalPlayer.HasModifier<PoltergeistModifier>())
 		{
 			return;
 		}
@@ -409,7 +428,7 @@ public static class PoltergeistOverlayPatches
 					continue;
 			}
 
-			var show = LocalSettingsTabSingleton<TownOfUsLocalSettings>.Instance.DeadSeeGhostsToggle.Value;
+			var show = false;
 			var bodyForms = player.gameObject.transform.GetChild(1).gameObject;
 
 			foreach (var form in bodyForms.GetAllChildren())
