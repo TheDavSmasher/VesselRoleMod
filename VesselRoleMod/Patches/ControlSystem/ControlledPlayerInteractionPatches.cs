@@ -23,19 +23,6 @@ public static class ControlledPlayerInteractionPatches
 	private const float UpdateThrottle = 0.1f;
 	private static float _lastUpdateTime;
 
-	private static void RefreshInteractablesCache()
-	{
-		_cachedInteractables = new List<IUsable>();
-		var allUsables = UnityObject.FindObjectsOfType<MonoBehaviour>();
-		foreach (var obj in allUsables)
-		{
-			if (obj.TryCast<IUsable>() is { } usable && usable.TryCast<Vent>() == null)
-			{
-				_cachedInteractables.Add(usable);
-			}
-		}
-		_lastCacheRefresh = Time.time;
-	}
 	/// <summary>
 	/// Allow UseButton to work for poltergeist when controlling a vessel
 	/// </summary>
@@ -209,20 +196,16 @@ public static class ControlledPlayerInteractionPatches
 	/// Find the closest interactable object near a player
 	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
 	/// </summary>
-	private static (IUsable? interactable, Vector2 position) FindClosestInteractable(PlayerControl player)
+	public static (IUsable? interactable, Vector2 position) FindClosestInteractable(PlayerControl player, Vector2? position = null)
 	{
 		if (player == null || player.Collider == null)
 		{
 			return (null, Vector2.zero);
 		}
 
-		// Refresh cache periodically or if it's null
-		if (_cachedInteractables == null || Time.time - _lastCacheRefresh > CacheRefreshInterval)
-		{
-			RefreshInteractablesCache();
-		}
+		var cachedInteractables = GetCachedInteractables();
 
-		if (_cachedInteractables == null || _cachedInteractables.Count == 0)
+		if (cachedInteractables == null || cachedInteractables.Count == 0)
 		{
 			return (null, Vector2.zero);
 		}
@@ -230,11 +213,11 @@ public static class ControlledPlayerInteractionPatches
 		var closestDistance = float.MaxValue;
 		IUsable? closestInteractable = null;
 		Vector2 closestPosition = Vector2.zero;
-		var playerPos = (Vector2)player.transform.position;
+		Vector2 usePosition = position ?? (Vector2)player.transform.position;
 
 		const float maxCheckDistance = 5f;
 
-		foreach (var usable in _cachedInteractables)
+		foreach (var usable in cachedInteractables)
 		{
 			if (usable == null)
 			{
@@ -248,7 +231,7 @@ public static class ControlledPlayerInteractionPatches
 			}
 
 			var objPos = (Vector2)obj.transform.position;
-			var distance = Vector2.Distance(playerPos, objPos);
+			var distance = Vector2.Distance(usePosition, objPos);
 			if (distance > maxCheckDistance || distance > usable.UsableDistance)
 			{
 				continue;
@@ -274,14 +257,28 @@ public static class ControlledPlayerInteractionPatches
 	}
 
 	/// <summary>
-	/// Public accessor for cached interactables (used by PuppeteerRole/ParasiteRole RPC handlers)
+	/// Public accessor for cached interactables (used by VesselRole RPC handler)
 	/// </summary>
-	public static List<IUsable>? GetCachedInteractables()
+	public static List<IUsable> GetCachedInteractables()
 	{
 		if (_cachedInteractables == null || Time.time - _lastCacheRefresh > CacheRefreshInterval)
 		{
-			RefreshInteractablesCache();
+			_cachedInteractables = GetInteractablesList();
 		}
-		return _cachedInteractables;
+		return _cachedInteractables!;
+	}
+
+	public static List<IUsable> GetInteractablesList()
+	{
+		var result = new List<IUsable>();
+		var allUsables = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
+		foreach (var obj in allUsables)
+		{
+			if (obj.TryCast<IUsable>() is { } usable && usable.TryCast<Vent>() == null)
+			{
+				result.Add(usable);
+			}
+		}
+		return result;
 	}
 }
