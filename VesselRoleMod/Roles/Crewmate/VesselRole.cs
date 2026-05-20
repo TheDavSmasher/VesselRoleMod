@@ -286,9 +286,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			vessel.MyPhysics.ExitAllVents();
 		}
 
+		var pos = (Vector2)vessel.transform.position;
 		if (vessel.AmOwner)
 		{
-			var pos = (Vector2)vessel.transform.position;
 			if (vessel.NetTransform != null)
 			{
 				try
@@ -310,12 +310,22 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			NetTransformBacklogUtils.FlushBacklog(vessel);
 		}
 
+		if (ghost.NetTransform != null)
+		{
+			try
+			{
+				ghost.NetTransform.SnapTo(pos);
+			}
+			catch
+			{
+				// ignored
+			}
+		}
+
 		if (ghost.AmOwner)
 		{
 			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
-
-			// TODO: Make Ghost snap to vessel position at all times
 		}
 		else if (vessel.AmOwner)
 		{
