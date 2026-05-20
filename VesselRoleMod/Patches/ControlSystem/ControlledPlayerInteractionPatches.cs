@@ -124,6 +124,7 @@ public static class ControlledPlayerInteractionPatches
 			if (controller != null && controller.HasDied() &&
 				VesselControlState.IsFullyControlled(localPlayer.PlayerId))
 			{
+				ClearInteractableOutlines();
 				useButton.currentTarget = null;
 				useButton.SetDisabled();
 			}
@@ -149,7 +150,7 @@ public static class ControlledPlayerInteractionPatches
 			return;
 		}
 
-		var (usable, _) = FindClosestInteractable(controlledPlayer);
+		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: true);
 		if (usable != null)
 		{
 			useButton.currentTarget = usable;
@@ -192,11 +193,24 @@ public static class ControlledPlayerInteractionPatches
 		}
 	}
 
+	public static void ClearInteractableOutlines()
+	{
+		var cachedInteractables = GetCachedInteractables();
+		foreach (var usable in cachedInteractables)
+		{
+			usable.SetOutline(false, false);
+		}
+	}
+
 	/// <summary>
 	/// Find the closest interactable object near a player
 	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
 	/// </summary>
-	public static (IUsable? interactable, Vector2 position) FindClosestInteractable(PlayerControl player, Vector2? position = null)
+	public static (IUsable? interactable, Vector2 position) FindClosestInteractable(
+		PlayerControl player,
+		Vector2? position = null,
+		bool setOutlines = false
+		)
 	{
 		if (player == null || player.Collider == null)
 		{
@@ -232,15 +246,15 @@ public static class ControlledPlayerInteractionPatches
 
 			var objPos = (Vector2)obj.transform.position;
 			var distance = Vector2.Distance(usePosition, objPos);
-			if (distance > maxCheckDistance || distance > usable.UsableDistance)
+
+			usable.CanUse(player.Data, out bool canUse, out bool couldUse);		
+
+			if (setOutlines)
 			{
-				continue;
+				usable.SetOutline(couldUse && distance <= maxCheckDistance, false);
 			}
 
-			// Check if player can use this
-			bool canUse;
-			usable.CanUse(player.Data, out canUse, out _);
-			if (!canUse)
+			if (!canUse || distance > maxCheckDistance || distance > usable.UsableDistance)
 			{
 				continue;
 			}
@@ -251,6 +265,11 @@ public static class ControlledPlayerInteractionPatches
 				closestInteractable = usable;
 				closestPosition = objPos;
 			}
+		}
+
+		if (setOutlines)
+		{
+			closestInteractable?.SetOutline(true, true);
 		}
 
 		return (closestInteractable, closestPosition);
