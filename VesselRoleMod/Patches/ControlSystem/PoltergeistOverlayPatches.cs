@@ -359,6 +359,11 @@ public static class PoltergeistOverlayPatches
 	[HarmonyPostfix]
 	public static void EscapistFixedUpdatePostfix(EscapistRole __instance)
 	{
+		if (AmongUsClient.Instance.GameState != InnerNetClient.GameStates.Started)
+		{
+			return;
+		}
+
 		var local = PlayerControl.LocalPlayer;
 		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
 
