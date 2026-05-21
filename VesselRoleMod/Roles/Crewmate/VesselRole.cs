@@ -346,6 +346,12 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
+
+		GhostEndPossession(ghost, vessel);
+	}
+
+	public static void GhostEndPossession(PlayerControl ghost, PlayerControl vessel)
+	{
 		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
 		{
 			return;
