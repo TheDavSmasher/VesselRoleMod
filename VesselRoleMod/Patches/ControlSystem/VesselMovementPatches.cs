@@ -107,7 +107,7 @@ public static class VesselMovementPatches
 
 			var dir = GetNormalDirection();
 
-			var vesselVel = !vesselInAnim ? vessel.MyPhysics.TrueSpeed * dir 
+			var vesselVel = !vesselInAnim ? vessel.MyPhysics.TrueSpeed * dir
 				: vessel.MyPhysics?.body.velocity ?? Vector2.zero;
 			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
 
@@ -203,29 +203,6 @@ public static class VesselMovementPatches
 				__instance.body.velocity = Vector2.zero;
 			}
 		}
-	}
-
-	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.SetNormalizedVelocity))]
-	[HarmonyPrefix]
-	public static bool SetNormalizedVelocityPrefix(PlayerPhysics __instance, ref Vector2 direction)
-	{
-		var player = __instance.myPlayer;
-		if (player == null || !player.HasModifierOfType<IVesselModifier>())
-		{
-			return true;
-		}
-
-		if (TimeLordRewindSystem.IsRewinding)
-		{
-			return true;
-		}
-
-		if (player.AmOwner && VesselControlState.IsUsingState(player.PlayerId, out _))
-		{
-			direction = VesselControlState.GetDirection(player.PlayerId);
-		}
-
-		return true;
 	}
 
 	[HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.FixedUpdate))]
