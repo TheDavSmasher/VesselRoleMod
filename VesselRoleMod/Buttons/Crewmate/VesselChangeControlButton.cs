@@ -21,7 +21,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;
 	public override float InitialCooldown => 0.01f;
 	public override float Cooldown => 0.01f;
-	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.GiveControlSprite;
+	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.GhostControlSprite;
 
 	protected override void FixedUpdate(PlayerControl playerControl)
 	{
@@ -30,7 +30,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 		if (VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out bool isVessel))
 		{
 			var hasControl = VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId);
-			var asset = hasControl ? VesselCrewAssets.GiveControlSprite : VesselCrewAssets.TakeControlSprite;
+			var asset = hasControl == isVessel ? VesselCrewAssets.VesselControlSprite : VesselCrewAssets.GhostControlSprite;
 			var name = hasControl ? _ctrlGiveName : _ctrlTakeName;
 
 			OverrideSprite(asset.LoadAsset());
