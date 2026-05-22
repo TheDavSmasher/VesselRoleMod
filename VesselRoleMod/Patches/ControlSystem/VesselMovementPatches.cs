@@ -85,7 +85,6 @@ public static class VesselMovementPatches
 			}
 		}
 
-
 		if (player.AmOwner &&
 			PlayerControl.LocalPlayer &&
 			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod &&
@@ -107,8 +106,9 @@ public static class VesselMovementPatches
 
 			var dir = GetNormalDirection();
 
-			var vesselVel = !vesselInAnim ? vessel.MyPhysics.TrueSpeed * dir
-				: vessel.MyPhysics?.body.velocity ?? Vector2.zero;
+			var vesselVel = vesselInAnim && vessel.MyPhysics != null
+				? vessel.MyPhysics.body.velocity
+				: Vector2.zero;
 			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
 
 			SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir, vesselPos, vesselVel);
@@ -170,8 +170,19 @@ public static class VesselMovementPatches
 		Vector2 vel = VesselControlState.GetVelocity(vesselId);
 
 		__instance.HandleAnimation(__instance.myPlayer.Data.IsDead);
-		__instance.SetNormalizedVelocity(dir);
-		// __instance.body.velocity = dir * __instance.TrueSpeed;
+
+		if (__instance.body != null)
+		{
+			if (vel == Vector2.zero)
+			{
+				__instance.SetNormalizedVelocity(dir);
+				// __instance.body.velocity = dir * __instance.TrueSpeed;
+			}
+			else
+			{
+				__instance.body.velocity = vel;
+			}
+		}
 
 		if (pos != Vector2.zero)
 		{
@@ -184,23 +195,6 @@ public static class VesselMovementPatches
 				{
 					__instance.body.position = pos;
 				}
-			}
-		}
-
-		if (__instance.body != null)
-		{
-			if (vel != Vector2.zero)
-			{
-				var currentVel = __instance.body.velocity;
-				var delta = vel - currentVel;
-				if (delta.magnitude > 0.5f)
-				{
-					__instance.body.velocity = vel;
-				}
-			}
-			else
-			{
-				__instance.body.velocity = Vector2.zero;
 			}
 		}
 	}
