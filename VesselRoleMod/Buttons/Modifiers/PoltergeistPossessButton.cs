@@ -5,7 +5,6 @@ using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using System.Linq;
 using TownOfUs;
-using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Interfaces;
 using TownOfUs.Modifiers;
@@ -13,6 +12,7 @@ using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
@@ -32,7 +32,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public static float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
 	public override ButtonLocation Location => ButtonLocation.BottomLeft;
-	public override LoadableAsset<Sprite> Sprite => TouAssets.BarryButtonSprite;
+	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.PossessButton;
 	public override bool UsableInDeath => true;
 
 	public override bool Enabled(RoleBehaviour? role)
@@ -182,6 +182,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		}
 
 		OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
+		OverrideSprite(VesselCrewAssets.PossessButton.LoadAsset());
 	}
 
 	protected override void OnClick()
@@ -219,6 +220,7 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 	public void OnSuccess()
 	{
 		OverrideName(TouLocale.Get("VesselModGhostRelease", "Release"));
+		OverrideSprite(VesselCrewAssets.ReleaseButton.LoadAsset());
 		EffectActive = true;
 		Timer = EffectDuration;
 	}
