@@ -122,9 +122,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir = VesselControlState.GetDirection(player.PlayerId, vesselId);
-
-			ApplyAllDataTo(__instance, vesselId, dir);
+			ApplyAllDataTo(__instance, vesselId);
 			return false;
 		}
 
@@ -141,9 +139,7 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir = VesselControlState.GetDirection(ghostId, player.PlayerId);
-
-			ApplyAllDataTo(__instance, player.PlayerId, dir);
+			ApplyAllDataTo(__instance, player.PlayerId);
 			return false;
 		}
 
@@ -160,22 +156,22 @@ public static class VesselMovementPatches
 				return true;
 			}
 
-			Vector2 dir = VesselControlState.GetDirection(player.PlayerId);
-
-			ApplyAllDataTo(__instance, player.PlayerId, dir);
+			ApplyAllDataTo(__instance, player.PlayerId);
 			return false;
 		}
 
 		return true;
 	}
 
-	private static void ApplyAllDataTo(PlayerPhysics __instance, byte vesselId, Vector2 dir)
+	private static void ApplyAllDataTo(PlayerPhysics __instance, byte vesselId)
 	{
+		Vector2 dir = VesselControlState.GetDirection(vesselId);
 		Vector2 pos = VesselControlState.GetPosition(vesselId);
 		Vector2 vel = VesselControlState.GetVelocity(vesselId);
 
 		__instance.HandleAnimation(__instance.myPlayer.Data.IsDead);
 		__instance.SetNormalizedVelocity(dir);
+		// __instance.body.velocity = dir * __instance.TrueSpeed;
 
 		if (pos != Vector2.zero)
 		{
