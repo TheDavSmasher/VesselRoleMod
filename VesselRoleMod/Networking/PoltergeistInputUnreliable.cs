@@ -5,6 +5,7 @@ using Reactor.Networking.Rpc;
 using TownOfUs.Modules;
 using UnityEngine;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Networking;
 
@@ -39,7 +40,7 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 	{
 		var playerId = reader.ReadByte();
 		var fromV = reader.ReadBoolean();
-		var dir = reader.ReadVector2();
+		var dir = reader.ReadVector2().ApplyDeadzone();
 		return new VesselInputPacket(playerId, fromV, dir);
 	}
 
