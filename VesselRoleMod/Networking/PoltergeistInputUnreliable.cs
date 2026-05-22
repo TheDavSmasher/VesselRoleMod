@@ -65,15 +65,16 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 			return;
 		}
 
+		byte vesselId;
 		if (data.FromVessel)
 		{
-			if (!VesselControlState.IsControlling(data.TargetId, out var vesselId) ||
+			if (!VesselControlState.IsControlling(data.TargetId, out vesselId) ||
 				vesselId != sender.PlayerId)
 			{
 				return;
 			}
 			VesselControlState.SetSelfDirection(data.TargetId, data.Direction);
-			VesselControlState.SetMovementState(vesselId, data.Position, data.Velocity);
+			
 		}
 		else
 		{
@@ -82,9 +83,9 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 			{
 				return;
 			}
-
+			vesselId = data.TargetId;
 			VesselControlState.SetForcedDirection(data.TargetId, data.Direction);
-			VesselControlState.SetMovementState(data.TargetId, data.Position, data.Velocity);
 		}
+		VesselControlState.SetMovementState(vesselId, data.Position, data.Velocity);
 	}
 }
