@@ -50,7 +50,8 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsFullyControlling(localPlayer.PlayerId))
+				VesselControlState.IsFullyControlling(localPlayer.PlayerId) &&
+				!__instance.isCoolingDown)
 			{
 				var (interactable, interactablePos) = FindClosestInteractable(controlled);
 				if (interactable != null)
@@ -185,45 +186,24 @@ public static class ControlledPlayerInteractionPatches
 		}
 
 		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: true);
+		useButton.currentTarget = usable;
 		if (usable != null)
 		{
-			useButton.currentTarget = usable;
 			useButton.SetEnabled();
-			ForceUseButtonVisualEnabled(useButton);
+			if (usable.TryCast<IUsableCoolDown>() is { } usableCoolDown)
+			{
+				useButton.SetCoolDown(usableCoolDown.CoolDown, usableCoolDown.MaxCoolDown);
+			}
+			else
+			{
+				useButton.ResetCoolDown();
+			}
+			useButton.SetCooldownFill(usable.PercentCool);
 		}
 		else
 		{
-			useButton.currentTarget = null;
 			useButton.SetDisabled();
-		}
-	}
-
-
-	private static void ForceUseButtonVisualEnabled(UseButton useButton)
-	{
-		try
-		{
-			var renderers = useButton.GetComponentsInChildren<SpriteRenderer>(true);
-			foreach (var sr in renderers)
-			{
-				if (sr == null) continue;
-				sr.color = Palette.EnabledColor;
-				if (sr.material != null)
-				{
-					sr.material.SetFloat("_Desat", 0f);
-				}
-			}
-
-			var tmps = useButton.GetComponentsInChildren<TMPro.TMP_Text>(true);
-			foreach (var tmp in tmps)
-			{
-				if (tmp == null) continue;
-				tmp.color = Palette.EnabledColor;
-			}
-		}
-		catch
-		{
-			// Ignore
+			useButton.ResetCoolDown();
 		}
 	}
 
