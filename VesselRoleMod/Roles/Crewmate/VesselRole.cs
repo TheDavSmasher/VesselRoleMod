@@ -512,14 +512,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else if (interactable.TryCast<ZiplineConsole>() is { } ziplineConsole)
 		{
-			if (AmongUsClient.Instance == null || !AmongUsClient.Instance.AmHost)
+			if (!player.AmOwner)
 			{
 				return;
 			}
-			if (ziplineConsole.zipline != null)
-			{
-				player.CheckUseZipline(player, ziplineConsole.zipline, ziplineConsole.atTop);
-			}
+			ziplineConsole.zipline?.Use(ziplineConsole.atTop, ziplineConsole);
 		}
 		else if (interactable.TryCast<OpenDoorConsole>() is { } openDoorConsole)
 		{
