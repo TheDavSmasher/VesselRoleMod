@@ -174,7 +174,8 @@ public static class VesselMovementPatches
 		Vector2 pos = VesselControlState.GetPosition(vesselId);
 		Vector2 vel = VesselControlState.GetVelocity(vesselId);
 
-		AdvancedMovementUtilities.ApplyControlledMovement(__instance, dir);
+		__instance.HandleAnimation(__instance.myPlayer.Data.IsDead);
+		__instance.SetNormalizedVelocity(dir);
 
 		if (pos != Vector2.zero)
 		{
@@ -190,13 +191,20 @@ public static class VesselMovementPatches
 			}
 		}
 
-		if (__instance.body != null && vel != Vector2.zero)
+		if (__instance.body != null)
 		{
-			var currentVel = __instance.body.velocity;
-			var delta = vel - currentVel;
-			if (delta.magnitude > 0.5f)
+			if (vel != Vector2.zero)
 			{
-				__instance.body.velocity = vel;
+				var currentVel = __instance.body.velocity;
+				var delta = vel - currentVel;
+				if (delta.magnitude > 0.5f)
+				{
+					__instance.body.velocity = vel;
+				}
+			}
+			else
+			{
+				__instance.body.velocity = Vector2.zero;
 			}
 		}
 	}
