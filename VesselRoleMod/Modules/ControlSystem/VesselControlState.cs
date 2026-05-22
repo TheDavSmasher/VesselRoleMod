@@ -28,6 +28,8 @@ public static class VesselControlState
 
 	private static readonly Dictionary<byte, Vector2> ControlledPosition = new();
 
+	private static readonly Dictionary<byte, bool> ControlledInAnim = new();
+
 	private static readonly Dictionary<byte, Vector2> ControlledVelocity = new();
 
 	private static readonly Dictionary<byte, float> ControlledSince = new();
@@ -46,6 +48,8 @@ public static class VesselControlState
 
 		ControlledPosition[controlledId] = Vector2.zero;
 
+		ControlledInAnim[controlledId] = false;
+
 		ControlledVelocity[controlledId] = Vector2.zero;
 
 		ControlledSince[controlledId] = Time.time;
@@ -63,6 +67,8 @@ public static class VesselControlState
 		SelfDirection.Remove(controllerId);
 
 		ControlledPosition.Remove(controlledId);
+
+		ControlledInAnim.Remove(controlledId);
 
 		ControlledVelocity.Remove(controlledId);
 
@@ -159,9 +165,10 @@ public static class VesselControlState
 	#endregion
 
 	#region Movement State
-	public static void SetMovementState(byte controlledId, Vector2 position, Vector2 velocity)
+	public static void SetMovementState(byte controlledId, Vector2 position, bool inAnim, Vector2 velocity)
 	{
 		ControlledPosition[controlledId] = position;
+		ControlledInAnim[controlledId] = inAnim;
 		ControlledVelocity[controlledId] = velocity;
 	}
 
@@ -170,11 +177,15 @@ public static class VesselControlState
 		return ControlledPosition.TryGetValue(controlledId, out var pos) ? pos : Vector2.zero;
 	}
 
+	public static bool IsInAnim(byte controlledId)
+	{
+		return ControlledInAnim.TryGetValue(controlledId, out var val) && val;
+	}
+
 	public static Vector2 GetVelocity(byte controlledId)
 	{
 		return ControlledVelocity.TryGetValue(controlledId, out var vel) ? vel : Vector2.zero;
 	}
-
 	#endregion
 
 	#region Time
@@ -223,6 +234,8 @@ public static class VesselControlState
 		SelfDirection.Clear();
 
 		ControlledPosition.Clear();
+
+		ControlledInAnim.Clear();
 
 		ControlledVelocity.Clear();
 

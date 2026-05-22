@@ -26,7 +26,7 @@ public static class VesselMovementPatches
 	private static readonly Dictionary<byte, Vector2> _lastSentVel = new();
 	private static readonly Dictionary<byte, float> _lastSentAt = new();
 
-	private static void SendVesselInputIfNeeded(byte targetId, bool fromVessel, Vector2 dir, Vector2 position, Vector2 velocity)
+	private static void SendVesselInputIfNeeded(byte targetId, bool fromVessel, Vector2 dir, Vector2 position, bool inAnim, Vector2 velocity)
 	{
 		if (PlayerControl.LocalPlayer == null)
 		{
@@ -60,7 +60,7 @@ public static class VesselMovementPatches
 
 		Rpc<VesselInputUnreliableRpc>.Instance.Send(
 			PlayerControl.LocalPlayer,
-			new VesselInputPacket(targetId, fromVessel, dir, position, velocity));
+			new VesselInputPacket(targetId, fromVessel, dir, position, inAnim, velocity));
 	}
 
 	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.FixedUpdate))]
@@ -111,7 +111,7 @@ public static class VesselMovementPatches
 				: Vector2.zero;
 			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
 
-			SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir, vesselPos, vesselVel);
+			SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir, vesselPos, vesselInAnim, vesselVel);
 		}
 
 		// player is player ghost
@@ -168,19 +168,20 @@ public static class VesselMovementPatches
 		Vector2 dir = VesselControlState.GetDirection(vesselId);
 		Vector2 pos = VesselControlState.GetPosition(vesselId);
 		Vector2 vel = VesselControlState.GetVelocity(vesselId);
+		bool inAnim = VesselControlState.IsInAnim(vesselId);
 
 		__instance.HandleAnimation(__instance.myPlayer.Data.IsDead);
 
 		if (__instance.body != null)
 		{
-			if (vel == Vector2.zero)
+			if (inAnim)
 			{
-				__instance.SetNormalizedVelocity(dir);
-				// __instance.body.velocity = dir * __instance.TrueSpeed;
+				__instance.body.velocity = vel;
 			}
 			else
 			{
-				__instance.body.velocity = vel;
+				__instance.SetNormalizedVelocity(dir);
+				// __instance.body.velocity = dir * __instance.TrueSpeed;
 			}
 		}
 
