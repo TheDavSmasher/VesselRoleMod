@@ -161,7 +161,7 @@ public static class VesselControlState
 	{
 		if (CanShareControl)
 		{
-			return ((GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2).normalized;
+			return Vector2.ClampMagnitude(GetSelfDirection(controllerId) + GetForcedDirection(controlledId), 1f);
 		}
 		if (HasControl(controllerId))
 		{
