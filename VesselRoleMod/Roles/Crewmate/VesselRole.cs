@@ -503,7 +503,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		if (interactable.TryCast<Ladder>() is { } ladder)
 		{
-			if (!player.AmOwner)
+			if (!player.AmOwner || ladder.IsCoolingDown())
 			{
 				return;
 			}
@@ -512,11 +512,12 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else if (interactable.TryCast<ZiplineConsole>() is { } ziplineConsole)
 		{
-			if (!player.AmOwner)
+			if (!player.AmOwner || ziplineConsole.IsCoolingDown())
 			{
 				return;
 			}
-			ziplineConsole.zipline?.Use(ziplineConsole.atTop, ziplineConsole);
+			ziplineConsole.zipline.Use(ziplineConsole.atTop, ziplineConsole);
+			ziplineConsole.CoolDown = ziplineConsole.MaxCoolDown;
 		}
 		else if (interactable.TryCast<OpenDoorConsole>() is { } openDoorConsole)
 		{
