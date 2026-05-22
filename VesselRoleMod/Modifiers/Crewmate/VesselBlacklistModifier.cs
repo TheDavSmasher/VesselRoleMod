@@ -33,7 +33,7 @@ public sealed class VesselBlacklistModifier : BaseModifier
 				Color.white,
 				Color.white)
 			{
-				Position = new Vector3(-0.40f, 0f, -3f)
+				Position = new Vector3(-0.40f, 0f, 0f)
 			};
 		}
 	}
