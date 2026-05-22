@@ -29,7 +29,9 @@ public sealed class VesselBlacklistModifier : BaseModifier
 				MeetingAbilityType.Toggle,
 				VesselModAssets.VesselBlockedSprite,
 				VesselModAssets.VesselUnblockedSprite,
-				IsExempt)
+				IsExempt,
+				Color.white,
+				Color.white)
 			{
 				Position = new Vector3(-0.40f, 0f, -3f)
 			};
