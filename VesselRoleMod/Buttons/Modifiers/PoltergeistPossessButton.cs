@@ -22,7 +22,7 @@ using static Reactor.Utilities.Extensions.UnityExtensions;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerControl>
+public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerControl>, IAftermathablePlayerButton
 {
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;
@@ -221,5 +221,16 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		OverrideName(TouLocale.Get("VesselModGhostRelease", "Release"));
 		EffectActive = true;
 		Timer = EffectDuration;
+	}
+
+	public void AftermathHandler()
+	{
+		if (!EffectActive)
+		{
+			Info("Aftermath handling when not possessing");
+			return;
+		}
+
+		ResetCooldownAndOrEffect();
 	}
 }
