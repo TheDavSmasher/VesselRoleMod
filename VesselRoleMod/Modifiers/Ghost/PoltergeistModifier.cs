@@ -17,6 +17,9 @@ namespace VesselRoleMod.Modifiers.Ghost;
 
 public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel), IVesselModifier
 {
+	private static readonly int PlayerLayer = LayerMask.NameToLayer("Players");
+	private static readonly int GhostLayer = LayerMask.NameToLayer("Ghost");
+
 	public override string ModifierName => "Ghost Possessor";
 	public PlayerControl Target => Vessel;
 	public PlayerControl Ghost => Player;
@@ -39,7 +42,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 
 		SetVisibility(false);
-		Player.gameObject.layer = LayerMask.NameToLayer("Players");
+		Player.gameObject.layer = PlayerLayer;
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
 
@@ -80,7 +83,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		}
 
 		SetVisibility(true);
-		Player.gameObject.layer = LayerMask.NameToLayer("Ghost");
+		Player.gameObject.layer = GhostLayer;
 
 		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
 
@@ -147,6 +150,16 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 		{
 			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
 			return;
+		}
+
+		var vesselInAnim = Vessel.IsInTargetingAnimState() || Vessel.inVent;
+		if (vesselInAnim && Player.gameObject.layer == PlayerLayer)
+		{
+			Player.gameObject.layer = GhostLayer;
+		}
+		else if (!vesselInAnim && Player.gameObject.layer == GhostLayer)
+		{
+			Player.gameObject.layer = PlayerLayer;
 		}
 
 		base.FixedUpdate();
