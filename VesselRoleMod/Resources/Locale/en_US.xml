@@ -23,6 +23,7 @@
   <string name="VesselOptionNeutralsCanPossess">Neutral ghosts can possess</string>
   <string name="VesselOptionAllowSharedControl">Vessel and Ghost share control</string>
   <string name="VesselOptionGhostCanKill">Killing ghosts can kill through Vessel</string>
+  <string name="VesselOptionGhostCanVent">Venting ghosts can vent when possessing</string>
   <string name="VesselOptionCanReject">Vessel can reject possession attempts</string>
   <string name="VesselOptionCanRejectEnumNone">None</string>
   <string name="VesselOptionCanRejectEnumBlacklistOnly">Through Blacklist</string>

@@ -39,6 +39,9 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 
 	// public ModdedToggleOption KillingInvestigative shenanigans
 
+	[ModdedToggleOption("VesselOptionGhostCanVent")]
+	public bool VentingGhostsCanVent { get; set; } = false;
+
 	public ModdedEnumOption<VesselRejectionType> CanRejectPossession { get; set; } =
 		new("VesselOptionCanReject", VesselRejectionType.None,
 			["VesselOptionCanRejectEnumNone", "VesselOptionCanRejectEnumBlacklistOnly", "VesselOptionCanRejectEnumFree"]);
