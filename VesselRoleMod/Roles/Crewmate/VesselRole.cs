@@ -391,7 +391,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 					}
 					else
 					{
-						NetTransformBacklogUtils.FlushBacklog(vessel);
+						NetTransformBacklogUtils.FlushAndSnap(vessel);
 					}
 				}
 				catch
