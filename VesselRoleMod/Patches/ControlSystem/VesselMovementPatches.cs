@@ -9,6 +9,7 @@ using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
+using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -117,31 +118,36 @@ public static class VesselMovementPatches
 		if (player.AmOwner &&
 			PlayerControl.LocalPlayer &&
 			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod &&
-			mod.Vessel != null &&
-			VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
+			mod.Vessel != null)
 		{
 			if (TimeLordRewindSystem.IsRewinding)
 			{
 				return true;
 			}
 
-			var vessel = mod.Vessel;
-			if (vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+			if (VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
 			{
-				return true;
+				var vessel = mod.Vessel;
+				if (vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+				{
+					return true;
+				}
+
+				var dir = GetNormalDirection();
+
+				SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir);
 			}
+			if (mod is VesselPossessedModifier && player.Data.Role is VesselRole)
+			{
+				var vesselInAnim = player.IsInTargetingAnimState() || player.inVent;
 
-			var vesselInAnim = vessel.IsInTargetingAnimState() || vessel.inVent;
+				var vesselVel = vesselInAnim && player.MyPhysics != null
+					? player.MyPhysics.body.velocity
+					: Vector2.zero;
+				var vesselPos = player.MyPhysics?.body.position ?? player.transform.position;
 
-			var dir = GetNormalDirection();
-
-			var vesselVel = vesselInAnim && vessel.MyPhysics != null
-				? vessel.MyPhysics.body.velocity
-				: Vector2.zero;
-			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
-
-			SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir);
-			SendVesselStateIfNeeded(vessel.PlayerId, vesselPos, vesselInAnim, vesselVel);
+				SendVesselStateIfNeeded(player.PlayerId, vesselPos, vesselInAnim, vesselVel);
+			}
 		}
 
 		// player is player ghost
