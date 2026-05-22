@@ -18,8 +18,8 @@ public static class VesselCrewAssets
 		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Vessel_Release_Button.png", 440f);
 
 	public static LoadableAsset<Sprite> VesselControlSprite { get; } =
-		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Vessel_Control_Button.png", 550f);
+		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Vessel_Control_Button.png", 600f);
 
 	public static LoadableAsset<Sprite> GhostControlSprite { get; } =
-		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Ghost_Control_Button.png", 550f);
+		new LoadableResourceAsset("VesselRoleMod.Resources.Buttons.Ghost_Control_Button.png", 600f);
 }
