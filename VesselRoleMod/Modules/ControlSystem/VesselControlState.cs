@@ -87,9 +87,10 @@ public static class VesselControlState
 		return Controlling.TryGetValue(controllerId, out controlledId);
 	}
 
-	public static bool IsUsingState(byte playerId, out byte withId)
+	public static bool IsUsingState(byte playerId, out byte withId, out bool isControlled)
 	{
-		return IsControlled(playerId, out withId) || IsControlling(playerId, out withId);
+		isControlled = IsControlled(playerId, out withId);
+		return isControlled || IsControlling(playerId, out withId);
 	}
 
 	#region State Control Check
@@ -105,7 +106,7 @@ public static class VesselControlState
 
 	public static void SwapControlOver(byte playerId, byte againstId)
 	{
-		if (!IsUsingState(playerId, out var withId) || withId != againstId)
+		if (!IsUsingState(playerId, out var withId, out _) || withId != againstId)
 		{
 			return;
 		}
