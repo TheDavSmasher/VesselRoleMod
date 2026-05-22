@@ -1,9 +1,7 @@
-﻿using MiraAPI.Hud;
-using MiraAPI.Modifiers;
+﻿using MiraAPI.Modifiers;
 using MiraAPI.Roles;
 using System;
 using System.Linq;
-using TownOfUs.Buttons;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -41,7 +39,7 @@ public static class Extensions
 	{
 		return role.CanVent ||
 			   role is ICustomRole custom && custom.Configuration.CanUseVent ||
-			   CustomButtonSingleton<FakeVentButton>.Instance.Show ||
+			   role is EngineerRole ||
 			   role.Player.HasModifier<BaseModifier>(x => x.CanVent() == true);
 	}
 
