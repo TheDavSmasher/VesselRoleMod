@@ -18,7 +18,7 @@
   <string name="VesselOptionAdorciseCooldown">Adorcise Cooldown</string>
   <string name="VesselOptionAdorciseWindow">Window to accept possessions</string>
   <string name="VesselOptionPossessionDuration">Duration of a Possession</string>
-  <string name ="VesselOptionMinPossessionLength">Minimum Duration of Possession</string>
+  <string name="VesselOptionMinPossessionLength">Minimum Duration of Possession</string>
   <string name="VesselOptionImpostorsCanPossess">Impostor ghosts can possess</string>
   <string name="VesselOptionNeutralsCanPossess">Neutral ghosts can possess</string>
   <string name="VesselOptionAllowSharedControl">Vessel and Ghost share control</string>

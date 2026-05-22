@@ -5,27 +5,22 @@ using Reactor.Networking.Rpc;
 using TownOfUs.Modules;
 using UnityEngine;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Networking;
 
 internal readonly struct VesselInputPacket
 {
-	public VesselInputPacket(byte targetId, bool fromVessel, Vector2 direction, Vector2 position, bool inAnim, Vector2 velocity)
+	public VesselInputPacket(byte targetId, bool fromVessel, Vector2 direction)
 	{
 		TargetId = targetId;
 		FromVessel = fromVessel;
 		Direction = direction;
-		Position = position;
-		InAnim = inAnim;
-		Velocity = velocity;
 	}
 
 	public byte TargetId { get; }
 	public bool FromVessel { get; }
 	public Vector2 Direction { get; }
-	public Vector2 Position { get; }
-	public bool InAnim { get; }
-	public Vector2 Velocity { get; }
 }
 
 [RegisterCustomRpc((uint)VesselModInternalRpc.VesselInputUnreliable)]
@@ -39,20 +34,14 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 		writer.Write(data.TargetId);
 		writer.Write(data.FromVessel);
 		writer.Write(data.Direction);
-		writer.Write(data.Position);
-		writer.Write(data.InAnim);
-		writer.Write(data.Velocity);
 	}
 
 	public override VesselInputPacket Read(MessageReader reader)
 	{
 		var playerId = reader.ReadByte();
 		var fromV = reader.ReadBoolean();
-		var dir = reader.ReadVector2();
-		var pos = reader.ReadVector2();
-		var anim = reader.ReadBoolean();
-		var vel = reader.ReadVector2();
-		return new VesselInputPacket(playerId, fromV, dir, pos, anim, vel);
+		var dir = reader.ReadVector2().ApplyDeadzone();
+		return new VesselInputPacket(playerId, fromV, dir);
 	}
 
 	public override void Handle(PlayerControl sender, VesselInputPacket data)
@@ -69,10 +58,9 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 			return;
 		}
 
-		byte vesselId;
 		if (data.FromVessel)
 		{
-			if (!VesselControlState.IsControlling(data.TargetId, out vesselId) ||
+			if (!VesselControlState.IsControlling(data.TargetId, out var vesselId) ||
 				vesselId != sender.PlayerId)
 			{
 				return;
@@ -87,9 +75,7 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 			{
 				return;
 			}
-			vesselId = data.TargetId;
 			VesselControlState.SetForcedDirection(data.TargetId, data.Direction);
 		}
-		VesselControlState.SetMovementState(vesselId, data.Position, data.InAnim, data.Velocity);
 	}
 }

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using MiraAPI.GameOptions;
+using System.Collections.Generic;
 using UnityEngine;
+using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modules.ControlSystem;
 
@@ -14,7 +16,7 @@ public static class VesselControlState
 	// During this grace window we avoid applying any victim movement input to prevent desync.
 	public const float InitialControlSyncGraceSeconds = 1.0f;
 
-	public static bool CanShareControl => false; // OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
+	public static bool CanShareControl => OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
 
 	private static readonly Dictionary<byte, byte> ControlledBy = new();
 	private static readonly Dictionary<byte, byte> Controlling = new();
@@ -104,6 +106,11 @@ public static class VesselControlState
 		return IsControlling(playerId, out byte otherId) && !HasControl(otherId);
 	}
 
+	public static bool IsControllingActionable(byte playerId)
+	{
+		return IsControlling(playerId, out _) && HasControl(playerId);
+	}
+
 	public static void SwapControlOver(byte playerId, byte againstId)
 	{
 		if (!IsUsingState(playerId, out var withId, out _) || withId != againstId)
@@ -155,7 +162,7 @@ public static class VesselControlState
 	{
 		if (CanShareControl)
 		{
-			return ((GetSelfDirection(controllerId) + GetForcedDirection(controlledId)) / 2).normalized;
+			return Vector2.ClampMagnitude(GetSelfDirection(controllerId) + GetForcedDirection(controlledId), 1f);
 		}
 		if (HasControl(controllerId))
 		{

@@ -9,6 +9,7 @@ using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
+using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -24,9 +25,11 @@ public static class VesselMovementPatches
 	private static readonly Dictionary<byte, Vector2> _lastSentDir = new();
 	private static readonly Dictionary<byte, Vector2> _lastSentPos = new();
 	private static readonly Dictionary<byte, Vector2> _lastSentVel = new();
-	private static readonly Dictionary<byte, float> _lastSentAt = new();
+	private static readonly Dictionary<byte, float> _lastSentDirAt = new();
+	private static readonly Dictionary<byte, float> _lastSentStateAt = new();
 
-	private static void SendVesselInputIfNeeded(byte targetId, bool fromVessel, Vector2 dir, Vector2 position, bool inAnim, Vector2 velocity)
+
+	private static void SendVesselInputIfNeeded(byte targetId, bool fromVessel, Vector2 dir)
 	{
 		if (PlayerControl.LocalPlayer == null)
 		{
@@ -37,15 +40,11 @@ public static class VesselMovementPatches
 		var shouldSend = true;
 
 		if (_lastSentDir.TryGetValue(targetId, out var lastDir) &&
-			_lastSentPos.TryGetValue(targetId, out var lastPos) &&
-			_lastSentVel.TryGetValue(targetId, out var lastVel) &&
-			_lastSentAt.TryGetValue(targetId, out var lastAt))
+			_lastSentDirAt.TryGetValue(targetId, out var lastAt))
 		{
 			var dirChanged = (dir - lastDir).sqrMagnitude > MovementChangeEpsilonSqr;
-			var posChanged = (position - lastPos).sqrMagnitude > MovementChangeEpsilonSqr;
-			var velChanged = (velocity - lastVel).sqrMagnitude > MovementChangeEpsilonSqr;
 			var keepAliveDue = (now - lastAt) >= MovementKeepAliveSeconds;
-			shouldSend = dirChanged || posChanged || velChanged || keepAliveDue;
+			shouldSend = dirChanged || keepAliveDue;
 		}
 
 		if (!shouldSend)
@@ -54,13 +53,44 @@ public static class VesselMovementPatches
 		}
 
 		_lastSentDir[targetId] = dir;
-		_lastSentPos[targetId] = position;
-		_lastSentVel[targetId] = velocity;
-		_lastSentAt[targetId] = now;
+		_lastSentDirAt[targetId] = now;
 
 		Rpc<VesselInputUnreliableRpc>.Instance.Send(
 			PlayerControl.LocalPlayer,
-			new VesselInputPacket(targetId, fromVessel, dir, position, inAnim, velocity));
+			new VesselInputPacket(targetId, fromVessel, dir));
+	}
+
+	private static void SendVesselStateIfNeeded(byte vesselId, Vector2 position, bool inAnim, Vector2 velocity)
+	{
+		if (PlayerControl.LocalPlayer == null)
+		{
+			return;
+		}
+
+		var now = Time.time;
+		var shouldSend = true;
+
+		if (_lastSentPos.TryGetValue(vesselId, out var lastPos) &&
+			_lastSentVel.TryGetValue(vesselId, out var lastVel) &&
+			_lastSentStateAt.TryGetValue(vesselId, out var lastAt))
+		{
+			var posChanged = (position - lastPos).sqrMagnitude > MovementChangeEpsilonSqr;
+			var velChanged = (velocity - lastVel).sqrMagnitude > MovementChangeEpsilonSqr;
+			var keepAliveDue = (now - lastAt) >= MovementKeepAliveSeconds;
+			shouldSend = posChanged || velChanged || keepAliveDue;
+		}
+
+		if (!shouldSend)
+		{
+			return;
+		}
+
+		_lastSentPos[vesselId] = position;
+		_lastSentVel[vesselId] = velocity;
+
+		Rpc<VesselStateUnreliableRpc>.Instance.Send(
+			PlayerControl.LocalPlayer,
+			new VesselStatePacket(vesselId, position, inAnim, velocity));
 	}
 
 	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.FixedUpdate))]
@@ -88,30 +118,36 @@ public static class VesselMovementPatches
 		if (player.AmOwner &&
 			PlayerControl.LocalPlayer &&
 			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod &&
-			mod.Vessel != null &&
-			VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
+			mod.Vessel != null)
 		{
 			if (TimeLordRewindSystem.IsRewinding)
 			{
 				return true;
 			}
 
-			var vessel = mod.Vessel;
-			if (vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+			if (VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
 			{
-				return true;
+				var vessel = mod.Vessel;
+				if (vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
+				{
+					return true;
+				}
+
+				var dir = GetNormalDirection();
+
+				SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir);
 			}
+			if (mod is VesselPossessedModifier && player.Data.Role is VesselRole)
+			{
+				var vesselInAnim = player.IsInTargetingAnimState() || player.inVent;
 
-			var vesselInAnim = vessel.IsInTargetingAnimState() || vessel.inVent;
+				var vesselVel = vesselInAnim && player.MyPhysics != null
+					? player.MyPhysics.body.velocity
+					: Vector2.zero;
+				var vesselPos = player.MyPhysics?.body.position ?? player.transform.position;
 
-			var dir = GetNormalDirection();
-
-			var vesselVel = vesselInAnim && vessel.MyPhysics != null
-				? vessel.MyPhysics.body.velocity
-				: Vector2.zero;
-			var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
-
-			SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir, vesselPos, vesselInAnim, vesselVel);
+				SendVesselStateIfNeeded(player.PlayerId, vesselPos, vesselInAnim, vesselVel);
+			}
 		}
 
 		// player is player ghost
