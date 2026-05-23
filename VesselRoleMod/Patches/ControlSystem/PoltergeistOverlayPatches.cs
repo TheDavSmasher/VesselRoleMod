@@ -41,6 +41,19 @@ public static class PoltergeistOverlayPatches
 	[HarmonyPostfix]
 	public static void GhostHudManagerUpdatePostfix()
 	{
+		if (!PlayerControl.LocalPlayer || !PlayerControl.LocalPlayer.Data)
+		{
+			return;
+		}
+
+		if (PlayerControl.LocalPlayer.Data.Role == null ||
+			!ShipStatus.Instance ||
+			(AmongUsClient.Instance.GameState != InnerNetClient.GameStates.Started &&
+			 !TutorialManager.InstanceExists))
+		{
+			return;
+		}
+
 		var local = PlayerControl.LocalPlayer;
 		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
 		var taskOpt = OptionGroupSingleton<TaskTrackingOptions>.Instance;
