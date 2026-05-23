@@ -167,7 +167,7 @@ public sealed class PoltergeistVentButton : TownOfUsTargetButton<Vent>
 			return;
 		}
 
-		_ = Vent.currentVent.CanUse(true, out var couldUse);
+		_ = Vent.currentVent.CanUse(Vessel, true, out var couldUse);
 		Vent.currentVent.SetButtons(false);
 
 		if (!couldUse)

@@ -28,7 +28,7 @@ public static class VesselRoleUtils
 			{
 				foreach (var usable2 in array.Where(x => x.TryCast<Vent>() != null).Select(x => x.TryCast<Vent>()!))
 				{
-					float num4 = usable2.CanUse(forVenting, out bool flag4);
+					float num4 = usable2.CanUse(playerControl, forVenting, out bool flag4);
 					if (flag4 && num4 < num3)
 					{
 						list.Add(usable2);
@@ -41,11 +41,10 @@ public static class VesselRoleUtils
 		return vent;
 	}
 
-	public static float CanUse(this Vent vent, bool toVent, out bool couldUse)
+	public static float CanUse(this Vent vent, PlayerControl player, bool toVent, out bool couldUse)
 	{
-		PlayerControl player = PlayerControl.LocalPlayer;
 		float num = float.MaxValue;
-		couldUse = !toVent || !player.MustCleanVent(vent.Id) || Vent.currentVent == vent;
+		couldUse = !toVent || !PlayerControl.LocalPlayer.MustCleanVent(vent.Id) || Vent.currentVent == vent;
 
 		var @event = new PlayerCanUseEvent(vent.Cast<IUsable>());
 		MiraEventManager.InvokeEvent(@event);
@@ -55,6 +54,7 @@ public static class VesselRoleUtils
 			couldUse = false;
 			return num;
 		}
+
 		ISystemType systemType;
 		if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Ventilation, out systemType))
 		{
@@ -64,13 +64,17 @@ public static class VesselRoleUtils
 				couldUse = false;
 			}
 		}
+
 		if (couldUse)
 		{
 			Vector3 center = player.Collider.bounds.center;
 			Vector3 position = vent.transform.position;
 			num = Vector2.Distance(center, position);
-			couldUse &= (num <= vent.UsableDistance && !PhysicsHelpers.AnythingBetween(player.Collider, center, position, Constants.ShipOnlyMask, false));
+			couldUse &= (num <= vent.UsableDistance &&
+						 !PhysicsHelpers.AnythingBetween(player.Collider, center, position, Constants.ShipOnlyMask,
+							 false));
 		}
+
 		return num;
 	}
 }
