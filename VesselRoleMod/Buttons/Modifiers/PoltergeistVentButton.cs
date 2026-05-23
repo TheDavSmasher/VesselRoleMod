@@ -30,7 +30,7 @@ public sealed class PoltergeistVentButton : TownOfUsTargetButton<Vent>
 		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown : 0.001f;
 	public override float EffectDuration => Role is EngineerRole
 		? CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration : 0f;
-	public override LoadableAsset<Sprite> Sprite => TouAssets.VentSprite;
+	public override LoadableAsset<Sprite> Sprite => TouCrewAssets.EngiVentSprite;
 	public override Color TextOutlineColor => VesselRoleModColors.Vessel;
 
 	private static RoleBehaviour Role => PlayerControl.LocalPlayer.GetRoleWhenAlive();
