@@ -10,21 +10,22 @@ public static class VesselRoleUtils
 {
 	public static Vent? GetClosestUsableVent(this PlayerControl playerControl, bool forVenting)
 	{
-		Vector2 truePosition = playerControl.GetTruePosition();
+		var local = PlayerControl.LocalPlayer;
+		Vector2 truePosition = local.GetTruePosition();
 		var flag2 = !forVenting ||
 			!playerControl.Data.IsDead &&
 			playerControl.CanMove;
-		int num2 = Physics2D.OverlapCircleNonAlloc(truePosition, playerControl.MaxReportDistance,
-			playerControl.hitBuffer, Constants.Usables);
+		int num2 = Physics2D.OverlapCircleNonAlloc(truePosition, local.MaxReportDistance,
+			local.hitBuffer, Constants.Usables);
 		float num3 = float.MaxValue;
 		List<Vent> list = new List<Vent>();
 		for (int i = 0; i < num2; i++)
 		{
-			Collider2D collider2D = playerControl.hitBuffer[i];
-			if (!playerControl.cache.TryGetValue(collider2D, out var array))
+			Collider2D collider2D = local.hitBuffer[i];
+			if (!local.cache.TryGetValue(collider2D, out var array))
 			{
-				playerControl.cache[collider2D] = collider2D.GetComponents<IUsable>().ToArray();
-				array = playerControl.cache[collider2D];
+				local.cache[collider2D] = collider2D.GetComponents<IUsable>().ToArray();
+				array = local.cache[collider2D];
 			}
 
 			if (array != null && (flag2 || playerControl.inVent))
@@ -72,11 +73,12 @@ public static class VesselRoleUtils
 
 		if (couldUse)
 		{
-			Vector3 center = player.Collider.bounds.center;
+			var local = PlayerControl.LocalPlayer;
+			Vector3 center = local.Collider.bounds.center;
 			Vector3 position = vent.transform.position;
 			num = Vector2.Distance(center, position);
 			couldUse &= (num <= vent.UsableDistance &&
-						 !PhysicsHelpers.AnythingBetween(player.Collider, center, position, Constants.ShipOnlyMask,
+						 !PhysicsHelpers.AnythingBetween(local.Collider, center, position, Constants.ShipOnlyMask,
 							 false));
 		}
 
