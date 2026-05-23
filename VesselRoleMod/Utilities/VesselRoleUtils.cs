@@ -26,7 +26,7 @@ public static class VesselRoleUtils
 			{
 				foreach (var usable2 in array.Where(x => x.TryCast<Vent>() != null).Select(x => x.TryCast<Vent>()!))
 				{
-					float num4 = usable2.CanUse(playerControl, forVenting, out bool flag4);
+					float num4 = usable2.CanUse(forVenting, out bool flag4);
 					if (flag4 && num4 < num3)
 					{
 						list.Add(usable2);
@@ -39,8 +39,9 @@ public static class VesselRoleUtils
 		return vent;
 	}
 
-	public static float CanUse(this Vent vent, PlayerControl player, bool toVent, out bool couldUse)
+	public static float CanUse(this Vent vent, bool toVent, out bool couldUse)
 	{
+		PlayerControl player = PlayerControl.LocalPlayer;
 		float num = float.MaxValue;
 		couldUse = !toVent || !player.MustCleanVent(vent.Id) || Vent.currentVent == vent;
 
