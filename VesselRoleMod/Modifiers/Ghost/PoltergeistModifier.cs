@@ -2,6 +2,7 @@
 using MiraAPI.Hud;
 using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
+using TownOfUs.Buttons;
 using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Patches;
@@ -80,6 +81,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			}
 		}
 		catch { /* ignored */ }
+
+		CustomButtonSingleton<FakeVentButton>.Instance.Show = false;
 	}
 
 	public override void OnDeactivate()
@@ -117,6 +120,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			}
 		}
 		catch { /* ignored */ }
+
+		CustomButtonSingleton<FakeVentButton>.Instance.Show = true;
 	}
 
 	private void SetVisibility(bool visible)
