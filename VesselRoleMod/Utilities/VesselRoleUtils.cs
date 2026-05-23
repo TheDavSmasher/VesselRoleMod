@@ -12,7 +12,8 @@ public static class VesselRoleUtils
 	{
 		Vector2 truePosition = playerControl.GetTruePosition();
 		var flag2 = (playerControl.CanMove || playerControl.inVent || !forVenting);
-		int num2 = Physics2D.OverlapCircleNonAlloc(truePosition, playerControl.MaxReportDistance, playerControl.hitBuffer, Constants.Usables);
+		int num2 = Physics2D.OverlapCircleNonAlloc(truePosition, playerControl.MaxReportDistance,
+			playerControl.hitBuffer, Constants.Usables);
 		float num3 = float.MaxValue;
 		List<Vent> list = new List<Vent>();
 		for (int i = 0; i < num2; i++)
@@ -20,9 +21,10 @@ public static class VesselRoleUtils
 			Collider2D collider2D = playerControl.hitBuffer[i];
 			if (!playerControl.cache.TryGetValue(collider2D, out var array))
 			{
-				array = playerControl.cache[collider2D];
+				continue;
 			}
-			if (array != null && flag2)
+
+			if (flag2)
 			{
 				foreach (var usable2 in array.Where(x => x.TryCast<Vent>() != null).Select(x => x.TryCast<Vent>()!))
 				{
