@@ -126,4 +126,101 @@ public static class PoltergeistAnimationPatches
 			__instance.lastUsedConsole.SetDestinationCooldown();
 		}
 	}
+
+	[HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
+	public static void VesselEnterVentPostfix(Vent __instance, PlayerControl pc)
+	{
+		if (pc.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+			mod.Ghost != null)
+		{
+			Vent.currentVent = __instance;
+			ConsoleJoystick.SetMode_Vent();
+		}
+	}
+
+	[HarmonyPatch]
+	public static class PhysicsEnterVentPatch
+	{
+		public static MethodBase TargetMethod()
+		{
+			return Helpers.GetStateMachineMoveNext<PlayerPhysics>(nameof(PlayerPhysics.CoEnterVent))!;
+		}
+
+		public static void Postfix(Il2CppObjectBase __instance, bool __result)
+		{
+			if (__result)
+			{
+				return;
+			}
+
+			var wrapper = new StateMachineWrapper<PlayerPhysics>(__instance);
+
+			var id = wrapper.GetParameter<int>("id");
+			var physics = wrapper.Instance;
+			var player = physics.myPlayer;
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null && mod.Ghost.AmOwner)
+			{
+				VentilationSystem.Update(VentilationSystem.Operation.Enter, id);
+			}	
+		}
+	}
+
+	[HarmonyPatch]
+	public static class PhysicsExitVentPatch
+	{
+		public static MethodBase TargetMethod()
+		{
+			return Helpers.GetStateMachineMoveNext<PlayerPhysics>(nameof(PlayerPhysics.CoExitVent))!;
+		}
+
+		public static void Postfix(Il2CppObjectBase __instance, bool __result)
+		{
+			if (__result)
+			{
+				return;
+			}
+
+			var wrapper = new StateMachineWrapper<PlayerPhysics>(__instance);
+
+			var id = wrapper.GetParameter<int>("id");
+			var physics = wrapper.Instance;
+			var player = physics.myPlayer;
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null && mod.Ghost.AmOwner)
+			{
+				VentilationSystem.Update(VentilationSystem.Operation.Exit, id);
+			}
+		}
+	}
+
+	[HarmonyPatch]
+	public static class VentExitVesselPatch
+	{
+		public static MethodBase TargetMethod()
+		{
+			return Helpers.GetStateMachineMoveNext<Vent>(nameof(Vent.ExitVent))!;
+		}
+
+		public static void Postfix(Il2CppObjectBase __instance)
+		{
+			var wrapper = new StateMachineWrapper<Vent>(__instance);
+
+			var player = wrapper.GetParameter<PlayerControl>("pc");
+
+			if (wrapper.GetState() != 0)
+			{
+				return;
+			}
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null && mod.Ghost.AmOwner)
+			{
+				Vent.currentVent = null;
+				ConsoleJoystick.SetMode_Gameplay();
+			}
+		}
+	}
 }
