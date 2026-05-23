@@ -11,7 +11,9 @@ public static class VesselRoleUtils
 	public static Vent? GetClosestUsableVent(this PlayerControl playerControl, bool forVenting)
 	{
 		Vector2 truePosition = playerControl.GetTruePosition();
-		var flag2 = (playerControl.CanMove || playerControl.inVent || !forVenting);
+		var flag2 = !forVenting ||
+			!playerControl.Data.IsDead &&
+			playerControl.CanMove;
 		int num2 = Physics2D.OverlapCircleNonAlloc(truePosition, playerControl.MaxReportDistance,
 			playerControl.hitBuffer, Constants.Usables);
 		float num3 = float.MaxValue;
@@ -21,10 +23,11 @@ public static class VesselRoleUtils
 			Collider2D collider2D = playerControl.hitBuffer[i];
 			if (!playerControl.cache.TryGetValue(collider2D, out var array))
 			{
-				continue;
+				playerControl.cache[collider2D] = collider2D.GetComponents<IUsable>().ToArray();
+				array = playerControl.cache[collider2D];
 			}
 
-			if (flag2)
+			if (array != null && (flag2 || playerControl.inVent))
 			{
 				foreach (var usable2 in array.Where(x => x.TryCast<Vent>() != null).Select(x => x.TryCast<Vent>()!))
 				{
@@ -32,6 +35,7 @@ public static class VesselRoleUtils
 					if (flag4 && num4 < num3)
 					{
 						list.Add(usable2);
+						num3 = num4;
 					}
 				}
 			}
@@ -44,7 +48,9 @@ public static class VesselRoleUtils
 	public static float CanUse(this Vent vent, PlayerControl player, bool toVent, out bool couldUse)
 	{
 		float num = float.MaxValue;
-		couldUse = !toVent || !PlayerControl.LocalPlayer.MustCleanVent(vent.Id) || Vent.currentVent == vent;
+		couldUse = !toVent ||
+			Vent.currentVent == vent ||
+			(player.CanMove || player.inVent);
 
 		var @event = new PlayerCanUseEvent(vent.Cast<IUsable>());
 		MiraEventManager.InvokeEvent(@event);
@@ -55,8 +61,7 @@ public static class VesselRoleUtils
 			return num;
 		}
 
-		ISystemType systemType;
-		if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Ventilation, out systemType))
+		if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Ventilation, out ISystemType systemType))
 		{
 			var ventilationSystem = systemType.TryCast<VentilationSystem>();
 			if (ventilationSystem != null && ventilationSystem.IsVentCurrentlyBeingCleaned(vent.Id))
