@@ -13,7 +13,7 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 {
 	public override string Name => "Kill";
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
-	public override float EffectDuration => PlayerControl.LocalPlayer.GetKillCooldown();
+	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 
 	protected override bool CanUseAbility()
@@ -36,6 +36,15 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 	public void SetDiseasedTimer(float multiplier)
 	{
 		SetTimer(Cooldown * multiplier);
+	}
+
+	public override void SetActive(bool visible, RoleBehaviour role)
+	{
+		if (visible)
+		{
+			SetTimer(InitialCooldown);
+		}
+		base.SetActive(visible, role);
 	}
 
 	protected override void OnClick()
