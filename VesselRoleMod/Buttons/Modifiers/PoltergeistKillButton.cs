@@ -5,10 +5,11 @@ using TownOfUs.Buttons;
 using TownOfUs.Networking;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers.Ghost;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistKillButton : PoltergeistTargetButton<PlayerControl>, IDiseaseableButton, IKillButton
+public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistModifier, PlayerControl>, IDiseaseableButton, IKillButton
 {
 	public override string Name => "Kill";
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;

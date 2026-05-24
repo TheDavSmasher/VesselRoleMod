@@ -4,7 +4,6 @@ using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using System.Linq;
-using TownOfUs;
 using TownOfUs.Buttons;
 using TownOfUs.Interfaces;
 using TownOfUs.Modifiers;
@@ -18,29 +17,17 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
-using static Reactor.Utilities.Extensions.UnityExtensions;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerControl>, IAftermathablePlayerButton
+public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSeekingModifier, PlayerControl>, IAftermathablePlayerButton
 {
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;
-	public override Color TextOutlineColor => TownOfUsColors.ButtonBarry;
-	public override float InitialCooldown => 0.01f;
-	public override float Cooldown => 0.01f;
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public static float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
 	public override ButtonLocation Location => ButtonLocation.BottomLeft;
 	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.PossessButton;
-	public override bool UsableInDeath => true;
-
-	public override bool Enabled(RoleBehaviour? role)
-	{
-		return PlayerControl.LocalPlayer != null &&
-			   PlayerControl.LocalPlayer.Data.IsDead &&
-			   PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>();
-	}
 
 	public override void FixedUpdateHandler(PlayerControl playerControl)
 	{
@@ -56,15 +43,6 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 		}
 
 		base.FixedUpdateHandler(playerControl);
-	}
-
-	public override void SetActive(bool visible, RoleBehaviour role)
-	{
-		if (!visible)
-		{
-			SetOutline(false);
-		}
-		base.SetActive(visible, role);
 	}
 
 	public override bool CanUse()
@@ -162,14 +140,6 @@ public sealed class PoltergeistPossessButton : TownOfUsTargetButton<PlayerContro
 				plr.HasModifier<VesselAdorcismModifier>() &&
 				validTargetIds.Contains(plr.PlayerId) &&
 				!VesselControlState.IsPausingTimer(plr.PlayerId));
-	}
-
-	public override void SetOutline(bool active)
-	{
-		if (Target != null && PlayerControl.LocalPlayer.HasDied())
-		{
-			Target.cosmetics.currentBodySprite.BodySprite.SetOutline(active ? VesselRoleModColors.Vessel : null);
-		}
 	}
 
 	public override void OnEffectEnd()

@@ -15,7 +15,8 @@ using VesselRoleMod.Roles.Crewmate;
 namespace VesselRoleMod.Buttons.Modifiers;
 
 [MiraIgnore]
-public abstract class PoltergeistTargetButton<TTarget> : TownOfUsTargetButton<TTarget> where TTarget : MonoBehaviour
+public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTargetButton<TTarget> where TModifier : VesselSeekingModifier
+																								  where TTarget : MonoBehaviour
 {
 	public override bool UsableInDeath => true;
 	public override float InitialCooldown => 0.001f;
@@ -24,7 +25,7 @@ public abstract class PoltergeistTargetButton<TTarget> : TownOfUsTargetButton<TT
 	public override Color TextOutlineColor => VesselRoleModColors.Vessel;
 
 	protected static RoleBehaviour Role => PlayerControl.LocalPlayer.GetRoleWhenAlive();
-	protected static PoltergeistModifier? Modifier => PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>();
+	protected static TModifier? Modifier => PlayerControl.LocalPlayer.GetModifier<TModifier>();
 	protected static PlayerControl? Vessel => Modifier?.Vessel;
 
 	public override bool Enabled(RoleBehaviour? role)
@@ -36,7 +37,16 @@ public abstract class PoltergeistTargetButton<TTarget> : TownOfUsTargetButton<TT
 			   CanUseAbility();
 	}
 
-	protected abstract bool CanUseAbility();
+	protected virtual bool CanUseAbility() => true;
+
+	public override void SetActive(bool visible, RoleBehaviour role)
+	{
+		if (!visible)
+		{
+			SetOutline(false);
+		}
+		base.SetActive(visible, role);
+	}
 
 	public override void SetOutline(bool active)
 	{

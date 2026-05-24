@@ -14,11 +14,12 @@ using TownOfUs.Roles.Impostor;
 using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistVentButton : PoltergeistTargetButton<Vent>
+public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistModifier, Vent>
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
