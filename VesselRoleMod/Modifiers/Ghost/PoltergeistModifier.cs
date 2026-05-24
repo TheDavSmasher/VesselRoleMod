@@ -33,14 +33,12 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 	public bool CanKill()
 	{
 		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill &&
-			   Vessel.Data.Role is VesselRole &&
 			   Role.HasKillingAbility();
 	}
 
 	public override bool? CanVent()
 	{
 		return OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent &&
-			   Vessel.Data.Role is VesselRole &&
 			   Role.HasVentingAbility();
 	}
 

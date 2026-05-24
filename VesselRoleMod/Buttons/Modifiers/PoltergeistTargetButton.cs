@@ -4,6 +4,7 @@ using TownOfUs.Buttons;
 using TownOfUs.Modules;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
@@ -22,6 +23,7 @@ public abstract class PoltergeistTargetButton<T> : TownOfUsTargetButton<T> where
 	{
 		return PlayerControl.LocalPlayer != null &&
 			   PlayerControl.LocalPlayer.Data.IsDead &&
+			   Vessel?.Data.Role is VesselRole &&
 			   Modifier != null &&
 			   CanUseAbility();
 	}
