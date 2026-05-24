@@ -30,12 +30,11 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 	public override void FixedUpdateHandler(PlayerControl playerControl)
 	{
 		TimerPaused = false;
-		if (PlayerControl.LocalPlayer.GetModifier<VesselSeekingModifier>() is { } vm &&
-			vm.Vessel != null &&
-			(VesselControlState.IsPausingTimer(vm.Vessel.PlayerId) ||
-			 vm is PoltergeistModifier pm &&
-			 VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
-			 VesselControlState.IsInInitialGrace(pm.Vessel.PlayerId)))
+		if (Modifier != null && Vessel != null &&
+			(VesselControlState.IsPausingTimer(Vessel.PlayerId) ||
+			 Modifier is PoltergeistModifier &&
+			 VesselControlState.IsControlled(Vessel.PlayerId, out _) &&
+			 VesselControlState.IsInInitialGrace(Vessel.PlayerId)))
 		{
 			TimerPaused = true;
 		}
@@ -50,15 +49,14 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 
 	public override PlayerControl? GetTarget()
 	{
-		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
+		if (Modifier == null)
 		{
 			return null;
 		}
 
-		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm &&
-			pm.Vessel != null)
+		if (Modifier is PoltergeistModifier && Vessel != null)
 		{
-			return pm.Vessel;
+			return Vessel;
 		}
 
 		var validTargetIds = PlayerControl.LocalPlayer.GetModifiers<ValidAdorcismGhostModifier>().Select(m => m.Vessel.PlayerId);
@@ -78,9 +76,9 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 	{
 		base.OnEffectEnd();
 
-		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm)
+		if (Modifier is PoltergeistModifier)
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel!);
 		}
 
 		OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
@@ -89,19 +87,19 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 
 	protected override void OnClick()
 	{
-		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
+		if (Modifier == null)
 		{
 			return;
 		}
 
-		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm)
+		if (Modifier is PoltergeistModifier)
 		{
-			if (pm.Vessel != null)
+			if (Vessel != null)
 			{
-				if (!pm.Vessel.HasDied() &&
-					!pm.Vessel.Data.Disconnected &&
-					VesselControlState.IsControlled(pm.Vessel.PlayerId, out _) &&
-					pm.Vessel.IsInTargetingAnimState()) // pm.Vessel.inVent
+				if (!Vessel.HasDied() &&
+					!Vessel.Data.Disconnected &&
+					VesselControlState.IsControlled(Vessel.PlayerId, out _) &&
+					Vessel.IsInTargetingAnimState()) // pm.Vessel.inVent
 				{
 					return;
 				}
