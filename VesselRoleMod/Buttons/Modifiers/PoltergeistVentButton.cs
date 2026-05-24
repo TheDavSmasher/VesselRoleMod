@@ -23,9 +23,11 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<Vent>
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
 	public override float Cooldown => Role is EngineerRole
-		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown : 0.001f;
+		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown
+		: base.Cooldown;
 	public override float EffectDuration => Role is EngineerRole
-		? CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration : 0f;
+		? CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration
+		: base.EffectDuration;
 	public override LoadableAsset<Sprite> Sprite => TouCrewAssets.EngiVentSprite;
 
 	protected override bool CanUseAbility()
@@ -36,14 +38,6 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<Vent>
 	public override Vent? GetTarget()
 	{
 		return Vessel?.GetClosestUsableVent(true);
-	}
-
-	public override void SetOutline(bool active)
-	{
-		if (Target != null && PlayerControl.LocalPlayer.HasDied())
-		{
-			Target.SetOutline(active, true, VesselRoleModColors.Vessel);
-		}
 	}
 
 	public override bool CanUse()

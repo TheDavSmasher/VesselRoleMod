@@ -1,6 +1,5 @@
 ﻿using MiraAPI.Keybinds;
 using MiraAPI.Utilities.Assets;
-using Reactor.Utilities.Extensions;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Networking;
@@ -13,7 +12,6 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PlayerContro
 {
 	public override string Name => "Kill";
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
-	public override float Cooldown => 0.001f;
 	public override float EffectDuration => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 
@@ -37,14 +35,6 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PlayerContro
 	public void SetDiseasedTimer(float multiplier)
 	{
 		SetTimer(Cooldown * multiplier);
-	}
-
-	public override void SetOutline(bool active)
-	{
-		if (Target != null && PlayerControl.LocalPlayer.HasDied())
-		{
-			Target.cosmetics.currentBodySprite.BodySprite.SetOutline(active ? VesselRoleModColors.Vessel : null);
-		}
 	}
 
 	protected override void OnClick()
