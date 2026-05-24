@@ -48,17 +48,6 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 		return Timer <= EffectDuration - MinDuration;
 	}
 
-	public override void ClickHandler()
-	{
-		if (!CanClick())
-		{
-			return;
-		}
-
-		OnClick();
-		Button?.SetDisabled();
-	}
-
 	public override PlayerControl? GetTarget()
 	{
 		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())

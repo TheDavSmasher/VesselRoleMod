@@ -103,4 +103,30 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 
 		return base.CanUse();
 	}
+
+	public override void ClickHandler()
+	{
+		if (!CanClick())
+		{
+			return;
+		}
+
+		OnClick();
+		Button?.SetDisabled(); // Note: not in base.ClickHandler
+
+		if (EffectActive) // Note: not in base.ClickHandler
+		{
+			Timer = Cooldown;
+			EffectActive = false;
+		}
+		else if (HasEffect)
+		{
+			EffectActive = true;
+			Timer = EffectDuration;
+		}
+		else
+		{
+			Timer = Cooldown;
+		}
+	}
 }

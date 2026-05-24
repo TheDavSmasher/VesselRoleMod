@@ -19,7 +19,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
-	public override float Cooldown => Role is EngineerRole
+	public override float Cooldown => Role is EngineerRole && Vessel != null && !Vessel.inVent
 		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown
 		: base.Cooldown;
 	public override float EffectDuration => Role is EngineerRole
@@ -40,31 +40,6 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 	public override bool CanUse()
 	{
 		return base.CanUse() || Vessel!.inVent;
-	}
-
-	public override void ClickHandler()
-	{
-		if (!CanUse())
-		{
-			return;
-		}
-
-		OnClick();
-		Button?.SetDisabled();
-		if (EffectActive)
-		{
-			Timer = Cooldown;
-			EffectActive = false;
-		}
-		else if (HasEffect)
-		{
-			EffectActive = true;
-			Timer = EffectDuration;
-		}
-		else
-		{
-			Timer = !Vessel!.inVent ? 0.001f : Cooldown;
-		}
 	}
 
 	protected override void OnClick()
