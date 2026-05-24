@@ -10,38 +10,27 @@ using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
 using TownOfUs.Modifiers;
 using TownOfUs.Modifiers.Neutral;
-using TownOfUs.Modules;
 using TownOfUs.Roles.Impostor;
 using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using UnityEngine;
-using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistVentButton : TownOfUsTargetButton<Vent>
+public sealed class PoltergeistVentButton : PoltergeistTargetButton<Vent>
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
-	public override bool UsableInDeath => true;
 	public override BaseKeybind Keybind => Keybinds.VentAction;
-	public override float InitialCooldown => 0.001f;
 	public override float Cooldown => Role is EngineerRole
 		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown : 0.001f;
 	public override float EffectDuration => Role is EngineerRole
 		? CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration : 0f;
 	public override LoadableAsset<Sprite> Sprite => TouCrewAssets.EngiVentSprite;
-	public override Color TextOutlineColor => VesselRoleModColors.Vessel;
 
-	private static RoleBehaviour Role => PlayerControl.LocalPlayer.GetRoleWhenAlive();
-	private static PlayerControl? Vessel => PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>()?.Vessel;
-
-	public override bool Enabled(RoleBehaviour? role)
+	protected override bool CanUseAbility()
 	{
-		return PlayerControl.LocalPlayer != null &&
-			   PlayerControl.LocalPlayer.Data.IsDead &&
-			   PlayerControl.LocalPlayer.TryGetModifier<PoltergeistModifier>(out var mod) &&
-			   mod.CanVent() == true;
+		return Modifier!.CanVent() == true;
 	}
 
 	public override Vent? GetTarget()

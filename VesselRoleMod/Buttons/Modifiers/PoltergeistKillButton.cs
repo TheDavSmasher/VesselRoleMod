@@ -1,5 +1,4 @@
 ﻿using MiraAPI.Keybinds;
-using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Assets;
@@ -7,28 +6,20 @@ using TownOfUs.Buttons;
 using TownOfUs.Networking;
 using TownOfUs.Utilities;
 using UnityEngine;
-using VesselRoleMod.Modifiers.Ghost;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>, IDiseaseableButton, IKillButton
+public sealed class PoltergeistKillButton : PoltergeistTargetButton<PlayerControl>, IDiseaseableButton, IKillButton
 {
 	public override string Name => "Kill";
-	public override bool UsableInDeath => true;
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
-	public override float InitialCooldown => 0.01f;
-	public override float Cooldown => 0.01f;
+	public override float Cooldown => 0.001f;
 	public override float EffectDuration => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 
-	private static PlayerControl? Vessel => PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>()?.Vessel;
-
-	public override bool Enabled(RoleBehaviour? role)
+	protected override bool CanUseAbility()
 	{
-		return PlayerControl.LocalPlayer != null &&
-			   PlayerControl.LocalPlayer.Data.IsDead &&
-			   PlayerControl.LocalPlayer.TryGetModifier<PoltergeistModifier>(out var mod) &&
-			   mod.CanKill();
+		return Modifier!.CanKill();
 	}
 
 	public override PlayerControl? GetTarget()
