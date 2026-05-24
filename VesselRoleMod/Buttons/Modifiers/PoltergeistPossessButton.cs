@@ -22,6 +22,7 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 {
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;
+	public override bool HasEffect => EffectActive;
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public static float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
 	public override ButtonLocation Location => ButtonLocation.BottomLeft;
