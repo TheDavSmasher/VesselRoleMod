@@ -99,6 +99,10 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
 				return false;
 			}
+			if (Vessel.IsInTargetingAnimState())
+			{
+				return false;
+			}
 		}
 
 		return base.CanUse();

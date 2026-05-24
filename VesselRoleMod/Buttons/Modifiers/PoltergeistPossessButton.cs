@@ -87,11 +87,6 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 
 	protected override void OnClick()
 	{
-		if (Modifier == null)
-		{
-			return;
-		}
-
 		if (Modifier is PoltergeistModifier)
 		{
 			if (Vessel != null)
@@ -109,7 +104,7 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 			}
 		}
 
-		if (Target == null || Target.Data.Role is not VesselRole)
+		if (Target!.Data.Role is not VesselRole)
 		{
 			return;
 		}

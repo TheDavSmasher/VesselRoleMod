@@ -49,13 +49,8 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 
 	protected override void OnClick()
 	{
-		if (Target == null)
-		{
-			return;
-		}
-
 		PlayerControl.LocalPlayer.RpcFramedMurder(
-			Target,
+			Target!,
 			Vessel!,
 			causeOfDeath: "VesselPossession");
 	}
