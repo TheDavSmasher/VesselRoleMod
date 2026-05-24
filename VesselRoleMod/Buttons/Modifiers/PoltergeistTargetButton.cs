@@ -84,20 +84,19 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 
 	public override bool CanUse()
 	{
-		if (Modifier == null || Vessel == null)
+		if (Modifier == null)
 		{
 			return false;
 		}
 
-		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm && // Use Modifier.
-			pm.Vessel != null)
+		if (Modifier is PoltergeistModifier && Vessel != null)
 		{
-			if (pm.Vessel.Data == null ||
-				pm.Vessel.HasDied() ||
-				pm.Vessel.Data.Disconnected ||
-				!VesselControlState.IsControlled(pm.Vessel.PlayerId, out _))
+			if (Vessel.Data == null ||
+				Vessel.HasDied() ||
+				Vessel.Data.Disconnected ||
+				!VesselControlState.IsControlled(Vessel.PlayerId, out _))
 			{
-				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
 				return false;
 			}
 		}
