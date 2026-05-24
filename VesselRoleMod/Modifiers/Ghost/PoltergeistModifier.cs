@@ -28,18 +28,20 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 	private LobbyNotificationMessage? controllerNotification;
 
+	public RoleBehaviour Role => Player.GetRoleWhenAlive();
+
 	public bool CanKill()
 	{
 		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill &&
 			   Vessel.Data.Role is VesselRole &&
-			   Player.GetRoleWhenAlive().HasKillingAbility();
+			   Role.HasKillingAbility();
 	}
 
 	public override bool? CanVent()
 	{
 		return OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent &&
 			   Vessel.Data.Role is VesselRole &&
-			   Player.GetRoleWhenAlive().HasVentingAbility();
+			   Role.HasVentingAbility();
 	}
 
 	public override void OnActivate()
