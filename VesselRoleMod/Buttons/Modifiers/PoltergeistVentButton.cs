@@ -2,14 +2,10 @@
 using MiraAPI.Events.Vanilla.Usables;
 using MiraAPI.Hud;
 using MiraAPI.Keybinds;
-using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
-using System.Linq;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
-using TownOfUs.Modifiers;
-using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Roles.Impostor;
 using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
@@ -43,32 +39,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 
 	public override bool CanUse()
 	{
-		var newTarget = GetTarget();
-		if (newTarget != Target)
-		{
-			Target?.SetOutline(false, false);
-		}
-
-		Target = IsTargetValid(newTarget) ? newTarget : null;
-		SetOutline(true);
-
-		if (HudManager.Instance.Chat.IsOpenOrOpening || MeetingHud.Instance)
-		{
-			return false;
-		}
-
-		if (PlayerControl.LocalPlayer.HasModifier<GlitchHackedModifier>() || PlayerControl.LocalPlayer
-				.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
-		{
-			return false;
-		}
-
-		if (Vessel == null)
-		{
-			return false;
-		}
-
-		return (Timer <= 0 && !Vessel.inVent && Target != null) || Vessel.inVent;
+		return base.CanUse() || Vessel!.inVent;
 	}
 
 	public override void ClickHandler()

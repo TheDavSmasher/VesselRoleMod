@@ -10,6 +10,7 @@ using TownOfUs.Roles.Other;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Buttons.Modifiers;
@@ -77,5 +78,30 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 		}
 
 		return base.IsTargetValid(target);
+	}
+
+	public override bool IsEffectCancellable() => true;
+
+	public override bool CanUse()
+	{
+		if (Modifier == null || Vessel == null)
+		{
+			return false;
+		}
+
+		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm && // Use Modifier.
+			pm.Vessel != null)
+		{
+			if (pm.Vessel.Data == null ||
+				pm.Vessel.HasDied() ||
+				pm.Vessel.Data.Disconnected ||
+				!VesselControlState.IsControlled(pm.Vessel.PlayerId, out _))
+			{
+				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
+				return false;
+			}
+		}
+
+		return base.CanUse();
 	}
 }

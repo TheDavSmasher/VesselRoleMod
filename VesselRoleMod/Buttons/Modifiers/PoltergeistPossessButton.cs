@@ -6,8 +6,6 @@ using MiraAPI.Utilities.Assets;
 using System.Linq;
 using TownOfUs.Buttons;
 using TownOfUs.Interfaces;
-using TownOfUs.Modifiers;
-using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -45,64 +43,9 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 		base.FixedUpdateHandler(playerControl);
 	}
 
-	public override bool CanUse()
+	public override bool IsEffectCancellable()
 	{
-		if (!PlayerControl.LocalPlayer.HasModifier<VesselSeekingModifier>())
-		{
-			return false;
-		}
-
-		if (PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>() is PoltergeistModifier pm &&
-			pm.Vessel != null)
-		{
-			if (pm.Vessel.Data == null ||
-				pm.Vessel.HasDied() ||
-				pm.Vessel.Data.Disconnected ||
-				!VesselControlState.IsControlled(pm.Vessel.PlayerId, out _))
-			{
-				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, pm.Vessel);
-				return false;
-			}
-		}
-
-		if (TimeLordRewindSystem.IsRewinding)
-		{
-			return false;
-		}
-
-		if (!PlayerControl.LocalPlayer.HasDied())
-		{
-			return false;
-		}
-
-		if (HudManager.Instance.Chat.IsOpenOrOpening || MeetingHud.Instance)
-		{
-			return false;
-		}
-
-		if (!PlayerControl.LocalPlayer.CanMove ||
-			PlayerControl.LocalPlayer.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
-		{
-			return false;
-		}
-
-		var newTarget = GetTarget();
-		if (newTarget != Target)
-		{
-			SetOutline(false);
-		}
-
-		Target = IsTargetValid(newTarget) ? newTarget : null;
-		SetOutline(true);
-
-		return Target != null &&
-			((EffectActive && Timer <= EffectDuration - MinDuration) ||
-			(!EffectActive && Timer <= 0));
-	}
-
-	public override bool CanClick()
-	{
-		return (!EffectActive && Timer <= 0 || EffectActive) && CanUse() && Target != null;
+		return Timer <= EffectDuration - MinDuration;
 	}
 
 	public override void ClickHandler()
