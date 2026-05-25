@@ -228,14 +228,14 @@ public static class PoltergeistAnimationPatches
 			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
 				mod.Ghost != null)
 			{
+				if (mod.Vessel.AmOwner || mod.Ghost.AmOwner)
+				{
+					Vent.currentVent.SetButtons(false);
+				}
 				if (mod.Ghost.AmOwner)
 				{
 					Vent.currentVent = null;
 					ConsoleJoystick.SetMode_Gameplay();
-				}
-				else if (mod.Vessel.AmOwner)
-				{
-					Vent.currentVent.SetButtons(false);
 				}				
 			}
 		}
