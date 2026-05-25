@@ -11,6 +11,7 @@ using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
@@ -34,6 +35,17 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 
 	public override Vent? GetTarget()
 	{
+		if (Vessel != null && Vessel.inVent)
+		{
+			return Vent.currentVent;
+		}
+
+		if (!VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out _) ||
+			!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
+		{
+			return null;
+		}
+
 		return Vessel?.GetClosestUsableVent(true);
 	}
 
