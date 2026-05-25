@@ -128,6 +128,7 @@ public static class PoltergeistAnimationPatches
 	}
 
 	[HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
+	[HarmonyPostfix]
 	public static void VesselEnterVentPostfix(Vent __instance, PlayerControl pc)
 	{
 		if (pc.TryGetModifier<VesselPossessedModifier>(out var mod) &&
@@ -163,7 +164,7 @@ public static class PoltergeistAnimationPatches
 				mod.Ghost != null && mod.Ghost.AmOwner)
 			{
 				VentilationSystem.Update(VentilationSystem.Operation.Enter, id);
-			}	
+			}
 		}
 	}
 
