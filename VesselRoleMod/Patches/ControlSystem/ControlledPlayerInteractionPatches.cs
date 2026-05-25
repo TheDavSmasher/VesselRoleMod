@@ -5,10 +5,13 @@ using MiraAPI.Modifiers;
 using System.Collections.Generic;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
+using Reactor.Utilities.Extensions;
 using UnityObject = UnityEngine.Object;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -453,5 +456,40 @@ public static class ControlledPlayerInteractionPatches
 		return (num <= vent.UsableDistance &&
 						 !PhysicsHelpers.AnythingBetween(local.Collider, center, position, Constants.ShipOnlyMask,
 							 false));
+	}
+
+	[HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
+	[HarmonyPrefix]
+	public static bool TryMoveVesselToVentPrefix(Vent __instance, Vent otherVent, ref string error, ref bool __result)
+	{
+		if (otherVent == null)
+		{
+			return true;
+		}
+		var localPlayer = PlayerControl.LocalPlayer;
+		if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+			mod.Vessel == null)
+		{
+			return true;
+		}
+		if (!VesselControlState.HasControl(localPlayer.PlayerId))
+		{
+			error = "Player does not have control.";
+			return (__result = false);
+		}
+		if (!mod.Vessel.inVent)
+		{
+			error = "Vessel is not currently inside a vent";
+			return (__result = false);
+		}
+		if (mod.Vessel.walkingToVent || mod.Vessel.Visible)
+		{
+			error = "Vessel was still in the middle of animating into current vent; not allowed to move vents that fast";
+			return (__result = false);
+		}
+		VesselRole.RpcVesselTryMoveToVent(localPlayer, mod.Ghost, mod.Vessel, __instance.Id, otherVent.Id);
+		error = string.Empty;
+		__result = true;
+		return false;
 	}
 }
