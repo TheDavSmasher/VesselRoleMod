@@ -103,7 +103,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 
 		if (!couldUse)
 		{
-			Error($"Current vent cannot be exited, finding alternate route.");
+			Error($"Current vent {Vent.currentVent.name} ({Vent.currentVent.Id}) cannot be exited, finding alternate route.");
 			Vent? newVent = null;
 			foreach (var closeVent in Vent.currentVent.NearbyVents)
 			{
