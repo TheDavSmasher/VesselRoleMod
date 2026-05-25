@@ -56,7 +56,10 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 
 	public override void SetOutline(bool active)
 	{
-		// no-op, outlines are handled by GetTarget
+		if (Vessel != null && Vessel.inVent)
+		{
+			base.SetOutline(active);
+		}
 	}
 
 	public override bool CanUse()
