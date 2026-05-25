@@ -51,8 +51,13 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			return null;
 		}
 
-		var (vent, _) = ControlledPlayerInteractionPatches.FindClosestVent(Vessel, true, VesselRoleModColors.Vessel);
+		var (vent, _) = ControlledPlayerInteractionPatches.FindClosestVent(Vessel, true, VesselRoleModColors.Vessel, true);
 		return vent;
+	}
+
+	public override void SetOutline(bool active)
+	{
+		// no-op, outlines are handled by GetTarget
 	}
 
 	public override bool CanUse()
