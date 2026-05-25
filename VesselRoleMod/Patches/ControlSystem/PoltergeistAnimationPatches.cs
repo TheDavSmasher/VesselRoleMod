@@ -132,7 +132,7 @@ public static class PoltergeistAnimationPatches
 	public static void VesselEnterVentPostfix(Vent __instance, PlayerControl pc)
 	{
 		if (pc.TryGetModifier<VesselPossessedModifier>(out var mod) &&
-			mod.Ghost != null)
+			mod.Ghost != null && mod.Ghost.AmOwner)
 		{
 			Vent.currentVent = __instance;
 			ConsoleJoystick.SetMode_Vent();
