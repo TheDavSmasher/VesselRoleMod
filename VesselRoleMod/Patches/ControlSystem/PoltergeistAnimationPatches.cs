@@ -205,7 +205,7 @@ public static class PoltergeistAnimationPatches
 			return Helpers.GetStateMachineMoveNext<Vent>(nameof(Vent.ExitVent))!;
 		}
 
-		public static void Postfix(Il2CppObjectBase __instance)
+		public static void Prefix(Il2CppObjectBase __instance)
 		{
 			var wrapper = new StateMachineWrapper<Vent>(__instance);
 
