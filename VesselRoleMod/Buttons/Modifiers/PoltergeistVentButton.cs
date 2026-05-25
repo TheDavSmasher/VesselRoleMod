@@ -44,7 +44,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 
 	protected override void OnClick()
 	{
-		if (Vessel != null && Vessel.inVent)
+		if (Vessel != null && !Vessel.inVent)
 		{
 			if (Target != null)
 			{
@@ -59,7 +59,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 				}
 			}
 		}
-		else if (Timer != 0)
+		else if (Timer > 0)
 		{
 			OnEffectEnd();
 			if (!HasEffect)
