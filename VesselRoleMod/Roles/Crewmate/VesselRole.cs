@@ -616,7 +616,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		position -= (Vector3)vessel.Collider.offset;
 		vessel.NetTransform.SnapTo(position);
 
-		if (!ghost.AmOwner || !vessel.AmOwner)
+		if (!ghost.AmOwner && !vessel.AmOwner)
 		{
 			return;
 		}
