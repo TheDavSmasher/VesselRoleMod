@@ -12,7 +12,7 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
-using VesselRoleMod.Utilities;
+using VesselRoleMod.Patches.ControlSystem;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
@@ -35,7 +35,12 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 
 	public override Vent? GetTarget()
 	{
-		if (Vessel != null && Vessel.inVent)
+		if (Vessel == null || Vessel.Data.IsDead)
+		{
+			return null;
+		}
+
+		if (Vessel.inVent)
 		{
 			return Vent.currentVent;
 		}
@@ -46,7 +51,8 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			return null;
 		}
 
-		return Vessel?.GetClosestUsableVent(true);
+		var (vent, _) = ControlledPlayerInteractionPatches.FindClosestVent(Vessel, true, VesselRoleModColors.Vessel);
+		return vent;
 	}
 
 	public override bool CanUse()
@@ -109,7 +115,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			return;
 		}
 
-		_ = Vent.currentVent.CanUse(Vessel, true, out var couldUse);
+		_ = Vent.currentVent.CanUse(Vessel, true, out _, out var couldUse);
 		Vent.currentVent.SetButtons(false);
 
 		if (!couldUse)
