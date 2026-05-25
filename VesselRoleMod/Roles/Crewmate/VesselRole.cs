@@ -465,6 +465,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 
 		VesselControlState.SwapControlOver(ghost.PlayerId, vessel.PlayerId);
+
+		if ((ghost.AmOwner || vessel.AmOwner) && vessel.inVent)
+		{
+			Vent.currentVent.SetButtons(true);
+		}
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselTriggerInteraction)]
