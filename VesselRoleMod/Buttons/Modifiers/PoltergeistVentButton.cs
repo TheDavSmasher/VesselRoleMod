@@ -6,7 +6,6 @@ using MiraAPI.Utilities.Assets;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
-using TownOfUs.Roles.Impostor;
 using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -76,10 +75,6 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 				{
 					Target.SetButtons(true);
 				}
-				if (Role is MinerRole)
-				{
-					HandleMinerVents();
-				}
 			}
 		}
 		else if (!HasEffect || Timer > 0)
@@ -89,26 +84,6 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			{
 				EffectActive = false;
 				Timer = Cooldown;
-			}
-		}
-	}
-
-	private void HandleMinerVents()
-	{
-		if (Target == null || !Target.name.Contains("MinerVent"))
-		{
-			return;
-		}
-
-		Vent[] nearbyVents = Target.NearbyVents;
-		for (var i = 0; i < Target.Buttons.Length; i++)
-		{
-			var buttonBehavior = Target.Buttons[i];
-			var vent = nearbyVents[i];
-
-			if (vent != null && !vent.myRend.enabled)
-			{
-				buttonBehavior.gameObject.SetActive(false);
 			}
 		}
 	}
