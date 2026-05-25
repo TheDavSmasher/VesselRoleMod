@@ -12,7 +12,9 @@ using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 using Reactor.Utilities.Extensions;
-using UnityObject = UnityEngine.Object;
+using TownOfUs.Modules;
+using TownOfUs.Roles.Neutral;
+using System.Reflection;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -491,5 +493,60 @@ public static class ControlledPlayerInteractionPatches
 		error = string.Empty;
 		__result = true;
 		return false;
+	}
+
+	[HarmonyPatch(typeof(Vent), nameof(Vent.SetButtons))]
+	public static class VentSetButtonsPatch
+	{
+		public static bool Prefix(bool enabled)
+		{
+			if (!enabled)
+			{
+				return true;
+			}
+			var localPlayer = PlayerControl.LocalPlayer;
+			if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+				mod.Vessel == null || mod.Ghost == null)
+			{
+				return true;
+			}
+			if (mod.Ghost.GetRoleWhenAlive() is JesterRole)
+			{
+				return false;
+			}
+			return true;
+		}
+
+		public static void Postfix(Vent __instance, bool enabled)
+		{
+			if (!enabled)
+			{
+				return;
+			}
+
+			var localPlayer = PlayerControl.LocalPlayer;
+			if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+				mod.Vessel == null || mod.Ghost == null)
+			{
+				return;
+			}
+			if (mod.Ghost.GetRoleWhenAlive() is JesterRole)
+			{
+				return;
+			}
+
+			var hasControl = VesselControlState.HasControl(localPlayer.PlayerId);
+
+			Vent[] nearbyVents = __instance.NearbyVents;
+			for (int i = 0; i < __instance.Buttons.Length; i++)
+			{
+				ButtonBehavior buttonBehavior = __instance.Buttons[i];
+				Vent vent = nearbyVents[i];
+				if (vent && vent.enabled)
+				{
+					buttonBehavior.spriteRenderer.color = hasControl ? Palette.EnabledColor : Palette.DisabledGrey;
+				}
+			}
+		}
 	}
 }

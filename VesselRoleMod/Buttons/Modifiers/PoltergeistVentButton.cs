@@ -6,7 +6,6 @@ using MiraAPI.Utilities.Assets;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
-using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
@@ -74,10 +73,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			if (Target != null)
 			{
 				Vessel.MyPhysics.RpcEnterVent(Target.Id);
-				if (Role is not JesterRole)
-				{
-					Target.SetButtons(true);
-				}
+				Target.SetButtons(true);
 			}
 		}
 		else if (!HasEffect || Timer > 0)
