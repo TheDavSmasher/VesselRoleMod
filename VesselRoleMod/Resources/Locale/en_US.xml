@@ -13,7 +13,7 @@
   <string name="VesselModTakeControl">Take Control</string>
   <string name="VesselModGiveControl">Give Control</string>
   <!--Framed Murder-->
-  <string name="VesselPossession">Vessel Possession</string>
+  <string name="DiedToVesselPossession">Smitten</string>
   <!-- Options -->
   <string name="VesselOptionAdorciseCooldown">Adorcise Cooldown</string>
   <string name="VesselOptionAdorciseWindow">Window to accept possessions</string>
