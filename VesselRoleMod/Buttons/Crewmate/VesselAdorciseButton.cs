@@ -14,6 +14,7 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
@@ -103,6 +104,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 
 		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
 			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId &&
+						  !plr.HasModifier<GhostKillerBlockModifier>() &&
 						  (plr.Data.Role is IGhostRole { Caught: true } || plr.Data.Role is not IGhostRole));
 
 		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))

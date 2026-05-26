@@ -76,8 +76,7 @@ public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>,
 
 		if (OnKill == VesselOnKillType.CannotPossess)
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel!);
-			// TODO: block ghost from possessing again
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel!, true);
 		}
 	}
 }
