@@ -26,6 +26,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 	public override float InitialCooldown => 0.01f;
 	public override float Cooldown => 0.01f;
 	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.GhostControlSprite;
+	public override bool ShouldPauseInVent => false;
 
 	protected override void FixedUpdate(PlayerControl playerControl)
 	{
