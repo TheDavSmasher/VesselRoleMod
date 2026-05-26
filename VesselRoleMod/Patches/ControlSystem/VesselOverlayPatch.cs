@@ -21,7 +21,7 @@ public static class VesselOverlayPatch
 
 		if (local.TryGetModifier<VesselBlacklistModifier>(out var blckMod))
 		{
-
+			blckMod.UpdateBlocked();
 		}
 
 		var hasModifier = local.TryGetModifier<VesselPossessedModifier>(out var mod);

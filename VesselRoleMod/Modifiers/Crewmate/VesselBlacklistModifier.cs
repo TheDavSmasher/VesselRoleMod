@@ -1,12 +1,15 @@
 ﻿using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.Modifiers;
+using MiraAPI.Utilities;
 using System.Collections.Generic;
+using System.Linq;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
@@ -17,6 +20,8 @@ public sealed class VesselBlacklistModifier : BaseModifier
 	public override string ModifierName => "VesselBlacklist";
 
 	[HideFromIl2Cpp] public HashSet<byte> BlacklistedPlrIds { get; } = [];
+
+	private Dictionary<byte, SpriteRenderer> ButtonSprites { get; } = [];
 
 	public override void OnActivate()
 	{
@@ -46,6 +51,8 @@ public sealed class VesselBlacklistModifier : BaseModifier
 			meetingMenu.GenButtons(MeetingHud.Instance,
 				Player.AmOwner && !Player.HasDied() && !Player.HasModifier<JailedModifier>());
 
+			MeetingHud.Instance.playerStates.ToList().ForEach(x => GenSpriteRefs(x));
+
 			foreach (var blockPlrId in BlacklistedPlrIds)
 			{
 				meetingMenu.Actives[blockPlrId] = true;
@@ -58,11 +65,20 @@ public sealed class VesselBlacklistModifier : BaseModifier
 		}
 	}
 
+	private void GenSpriteRefs(PlayerVoteArea voteArea)
+	{
+		var targetBox = voteArea.transform.FindChildObject(
+			$"MeetingButton{Player.Data.Role.GetRoleName().Replace(" ", "")}{voteArea.TargetPlayerId}");
+		var renderer = targetBox.GetComponent<SpriteRenderer>();
+		ButtonSprites.Add(voteArea.TargetPlayerId, renderer);
+	}
+
 	public void OnVotingComplete()
 	{
 		if (Player.AmOwner)
 		{
 			meetingMenu?.HideButtons();
+			ButtonSprites.Clear();
 		}
 	}
 
@@ -77,6 +93,26 @@ public sealed class VesselBlacklistModifier : BaseModifier
 		{
 			meetingMenu?.Dispose();
 			meetingMenu = null;
+		}
+	}
+
+	public void UpdateBlocked()
+	{
+		foreach (var pair in ButtonSprites)
+		{
+			if (!pair.Value)
+			{
+				continue;
+			}
+
+			NetworkedPlayerInfo player = GameData.Instance.GetPlayerById(pair.Key);
+			if (!player.Object.HasModifier<GhostKillerBlockModifier>(m => m.VesselOwner))
+			{
+				continue;
+			}
+
+			pair.Value.sprite = VesselModAssets.VesselBlockedSprite.LoadAsset();
+			pair.Value.color = Palette.DisabledGrey;
 		}
 	}
 
