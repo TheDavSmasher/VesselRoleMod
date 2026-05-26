@@ -7,6 +7,7 @@ using VesselRoleMod.Modules.ControlSystem;
 namespace VesselRoleMod.Patches.ControlSystem;
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
+[HarmonyPriority(Priority.Low)]
 public static class VesselOverlayPatch
 {
 	[HarmonyPostfix]
@@ -16,6 +17,11 @@ public static class VesselOverlayPatch
 		if (local == null)
 		{
 			return;
+		}
+
+		if (local.TryGetModifier<VesselBlacklistModifier>(out var blckMod))
+		{
+
 		}
 
 		var hasModifier = local.TryGetModifier<VesselPossessedModifier>(out var mod);

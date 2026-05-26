@@ -6,6 +6,7 @@ using TownOfUs.Modules;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
+using VesselRoleMod.Modifiers.Ghost;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
@@ -49,6 +50,11 @@ public sealed class VesselBlacklistModifier : BaseModifier
 			{
 				meetingMenu.Actives[blockPlrId] = true;
 			}
+
+			foreach (var blockKiller in ModifierUtils.GetActiveModifiers<GhostKillerBlockModifier>(m => m.VesselOwner))
+			{
+				meetingMenu.Actives[blockKiller.Player.PlayerId] = true;
+			}
 		}
 	}
 
@@ -85,6 +91,12 @@ public sealed class VesselBlacklistModifier : BaseModifier
 	private void SetBlacklist(PlayerVoteArea voteArea, MeetingHud __instance)
 	{
 		if (meetingMenu == null || __instance.state == MeetingHud.VoteStates.Discussion || IsExempt(voteArea))
+		{
+			return;
+		}
+
+		NetworkedPlayerInfo player = GameData.Instance.GetPlayerById(voteArea.TargetPlayerId);
+		if (player.Object.HasModifier<GhostKillerBlockModifier>(m => m.VesselOwner))
 		{
 			return;
 		}
