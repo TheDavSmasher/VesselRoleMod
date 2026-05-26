@@ -48,6 +48,11 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSee
 		return Timer <= EffectDuration - MinDuration;
 	}
 
+	protected override bool ValidTargetInVent()
+	{
+		return Modifier is PoltergeistModifier;
+	}
+
 	public override PlayerControl? GetTarget()
 	{
 		if (Modifier == null)

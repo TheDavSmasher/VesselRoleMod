@@ -40,6 +40,8 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 
 	protected virtual bool CanUseAbility() => true;
 
+	protected virtual bool ValidTargetInVent() => false;
+
 	public override void SetActive(bool visible, RoleBehaviour role)
 	{
 		if (!visible)
@@ -72,7 +74,7 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 	{
 		if (target is PlayerControl playerTarget)
 		{
-			return base.IsTargetValid(target) && !playerTarget.inVent &&
+			return base.IsTargetValid(target) && (ValidTargetInVent() || !playerTarget.inVent) &&
 				   !playerTarget.GetModifiers<DisabledModifier>().Any(mod => !mod.CanBeInteractedWith) &&
 				   !SpectatorRole.TrackedSpectators.Contains(playerTarget.Data.PlayerName);
 		}
