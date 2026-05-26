@@ -440,9 +440,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(false, PlayerControl.LocalPlayer.Data.Role);
 		}
 
-		if (vessel != null && ghost != null && vessel.AmOwner && onKill)
+		if (vessel != null && ghost != null && onKill)
 		{
-			ghost.AddModifier<GhostKillerBlockModifier>();
+			ghost.AddModifier<GhostKillerBlockModifier>(vessel.AmOwner);
 		}
 	}
 
