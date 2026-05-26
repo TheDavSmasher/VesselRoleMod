@@ -1,4 +1,5 @@
-﻿using MiraAPI.Keybinds;
+﻿using MiraAPI.GameOptions;
+using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities.Extensions;
@@ -8,6 +9,8 @@ using TownOfUs.Networking;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
@@ -20,7 +23,10 @@ public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>,
 	public override float Cooldown => 0.01f;
 	public override float EffectDuration => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
+	public override int MaxUses => OnKill == VesselOnKillType.CannotKill ? 1 : 0;
+	public override bool ZeroIsInfinite { get; set; } = OnKill != VesselOnKillType.CannotKill;
 
+	private static VesselOnKillType OnKill => OptionGroupSingleton<VesselOptions>.Instance.KillingGhostOnKill.Value;
 	private static PlayerControl? Vessel => PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>()?.Vessel;
 
 	public override bool Enabled(RoleBehaviour? role)
@@ -67,5 +73,11 @@ public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>,
 			Target,
 			Vessel!,
 			causeOfDeath: "VesselPossession");
+
+		if (OnKill == VesselOnKillType.CannotPossess)
+		{
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel!);
+			// TODO: block ghost from possessing again
+		}
 	}
 }
