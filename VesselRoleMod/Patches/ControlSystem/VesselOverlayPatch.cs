@@ -19,11 +19,6 @@ public static class VesselOverlayPatch
 			return;
 		}
 
-		if (local.TryGetModifier<VesselBlacklistModifier>(out var blckMod))
-		{
-			blckMod.UpdateBlocked();
-		}
-
 		var hasModifier = local.TryGetModifier<VesselPossessedModifier>(out var mod);
 		var isControlled = VesselControlState.IsControlled(local.PlayerId, out var ghostId);
 

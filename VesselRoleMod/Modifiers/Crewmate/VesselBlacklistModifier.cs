@@ -1,27 +1,22 @@
 ﻿using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.Modifiers;
-using MiraAPI.Utilities;
 using System.Collections.Generic;
-using System.Linq;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Ghost;
-using VesselRoleMod.Utilities;
-
+using VesselRoleMod.Modules;
 namespace VesselRoleMod.Modifiers.Crewmate;
 
 public sealed class VesselBlacklistModifier : BaseModifier
 {
-	private MeetingMenu? meetingMenu;
+	private BlockedMeetingMenu? meetingMenu;
 
 	public override string ModifierName => "VesselBlacklist";
 
 	[HideFromIl2Cpp] public HashSet<byte> BlacklistedPlrIds { get; } = [];
-
-	private Dictionary<byte, SpriteRenderer> ButtonSprites { get; } = [];
 
 	public override void OnActivate()
 	{
@@ -29,13 +24,15 @@ public sealed class VesselBlacklistModifier : BaseModifier
 
 		if (Player.AmOwner)
 		{
-			meetingMenu = new MeetingMenu(
+			meetingMenu = new BlockedMeetingMenu(
 				Player.Data.Role,
 				SetBlacklist,
 				MeetingAbilityType.Toggle,
 				VesselModAssets.VesselBlockedSprite,
 				VesselModAssets.VesselUnblockedSprite,
+				VesselModAssets.VesselBlockedSprite,
 				IsExempt,
+				IsBlocked,
 				Color.white,
 				Color.white)
 			{
@@ -51,30 +48,11 @@ public sealed class VesselBlacklistModifier : BaseModifier
 			meetingMenu.GenButtons(MeetingHud.Instance,
 				Player.AmOwner && !Player.HasDied() && !Player.HasModifier<JailedModifier>());
 
-			MeetingHud.Instance.playerStates.ToList().ForEach(x => GenSpriteRefs(x));
-
 			foreach (var blockPlrId in BlacklistedPlrIds)
 			{
 				meetingMenu.Actives[blockPlrId] = true;
 			}
-
-			foreach (var blockKiller in ModifierUtils.GetActiveModifiers<GhostKillerBlockModifier>(m => m.VesselOwner))
-			{
-				meetingMenu.Actives[blockKiller.Player.PlayerId] = true;
-			}
 		}
-	}
-
-	private void GenSpriteRefs(PlayerVoteArea voteArea)
-	{
-		if (voteArea.transform.parent.FindRecursive(t => t.name.Contains("MeetingButton")) is not { } button)
-		{
-			return;
-		}
-
-		var targetBox = button.gameObject;
-		var renderer = targetBox.GetComponent<SpriteRenderer>();
-		ButtonSprites.Add(voteArea.TargetPlayerId, renderer);
 	}
 
 	public void OnVotingComplete()
@@ -82,7 +60,6 @@ public sealed class VesselBlacklistModifier : BaseModifier
 		if (Player.AmOwner)
 		{
 			meetingMenu?.HideButtons();
-			ButtonSprites.Clear();
 		}
 	}
 
@@ -100,26 +77,6 @@ public sealed class VesselBlacklistModifier : BaseModifier
 		}
 	}
 
-	public void UpdateBlocked()
-	{
-		foreach (var pair in ButtonSprites)
-		{
-			if (!pair.Value)
-			{
-				continue;
-			}
-
-			NetworkedPlayerInfo player = GameData.Instance.GetPlayerById(pair.Key);
-			if (!player.Object.HasModifier<GhostKillerBlockModifier>(m => m.VesselOwner))
-			{
-				continue;
-			}
-
-			pair.Value.sprite = VesselModAssets.VesselBlockedSprite.LoadAsset();
-			pair.Value.color = Palette.DisabledGrey;
-		}
-	}
-
 	private bool IsExempt(PlayerVoteArea voteArea)
 	{
 		NetworkedPlayerInfo? player = GameData.Instance.GetPlayerById(voteArea.TargetPlayerId);
@@ -128,15 +85,16 @@ public sealed class VesselBlacklistModifier : BaseModifier
 			   !player || !player.Object || player.Object.Data.Disconnected;
 	}
 
+	private bool IsBlocked(PlayerVoteArea voteArea)
+	{
+		NetworkedPlayerInfo? player = GameData.Instance.GetPlayerById(voteArea.TargetPlayerId);
+
+		return player != null && player.Object.Data.IsDead && player.Object.HasModifier<GhostKillerBlockModifier>(m => m.VesselOwner);
+	}
+
 	private void SetBlacklist(PlayerVoteArea voteArea, MeetingHud __instance)
 	{
-		if (meetingMenu == null || __instance.state == MeetingHud.VoteStates.Discussion || IsExempt(voteArea))
-		{
-			return;
-		}
-
-		NetworkedPlayerInfo player = GameData.Instance.GetPlayerById(voteArea.TargetPlayerId);
-		if (player.Object.HasModifier<GhostKillerBlockModifier>(m => m.VesselOwner))
+		if (meetingMenu == null || __instance.state == MeetingHud.VoteStates.Discussion || IsExempt(voteArea) || IsBlocked(voteArea))
 		{
 			return;
 		}
