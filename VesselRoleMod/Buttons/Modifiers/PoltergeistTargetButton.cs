@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using InnerNet;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using Reactor.Utilities.Extensions;
@@ -44,7 +45,7 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 
 	public override void SetActive(bool visible, RoleBehaviour role)
 	{
-		if (!visible)
+		if (!visible && AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Started)
 		{
 			SetOutline(false);
 		}
