@@ -67,8 +67,12 @@ public sealed class VesselBlacklistModifier : BaseModifier
 
 	private void GenSpriteRefs(PlayerVoteArea voteArea)
 	{
-		var targetBox = voteArea.transform.FindChildObject(
-			$"MeetingButton{Player.Data.Role.GetRoleName().Replace(" ", "")}{voteArea.TargetPlayerId}");
+		if (voteArea.transform.parent.FindRecursive(t => t.name.Contains("MeetingButton")) is not { } button)
+		{
+			return;
+		}
+
+		var targetBox = button.gameObject;
 		var renderer = targetBox.GetComponent<SpriteRenderer>();
 		ButtonSprites.Add(voteArea.TargetPlayerId, renderer);
 	}
