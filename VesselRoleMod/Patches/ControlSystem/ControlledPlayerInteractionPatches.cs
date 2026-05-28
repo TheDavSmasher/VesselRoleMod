@@ -225,6 +225,15 @@ public static class ControlledPlayerInteractionPatches
 		}
 	}
 
+	public static void ClearVentOutlines()
+	{
+		var cachedVents = GetCachedVents();
+		foreach (var vent in cachedVents)
+		{
+			vent.SetOutline(false, false);
+		}
+	}
+
 	/// <summary>
 	/// Find the closest interactable object near a player
 	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
