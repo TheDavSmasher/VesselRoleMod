@@ -25,8 +25,6 @@ namespace VesselRoleMod.Patches.ControlSystem;
 public static class ControlledPlayerInteractionPatches
 {
 	private static List<IUsable>? _cachedInteractables;
-	private static List<Vent>? _cachedVents;
-
 	private static float _lastCacheRefresh;
 	private const float CacheRefreshInterval = 10f;
 	private const float UpdateThrottle = 0.1f;
@@ -225,15 +223,6 @@ public static class ControlledPlayerInteractionPatches
 		}
 	}
 
-	public static void ClearVentOutlines()
-	{
-		var cachedVents = GetCachedVents();
-		foreach (var vent in cachedVents)
-		{
-			vent.SetOutline(false, false);
-		}
-	}
-
 	/// <summary>
 	/// Find the closest interactable object near a player
 	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
@@ -306,167 +295,29 @@ public static class ControlledPlayerInteractionPatches
 	}
 
 	/// <summary>
-	/// Find the closest interactable object near a player
-	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
-	/// </summary>
-	public static (Vent? interactable, Vector2 position) FindClosestVent(
-		PlayerControl player,
-		bool toVent,
-		Color? color = null,
-		bool setOutlines = false
-		)
-	{
-		if (player == null || player.Collider == null)
-		{
-			return (null, Vector2.zero);
-		}
-
-		var cachedVents = GetCachedVents();
-
-		if (cachedVents == null || cachedVents.Count == 0)
-		{
-			return (null, Vector2.zero);
-		}
-
-		var closestDistance = float.MaxValue;
-		Vent? closestVent = null;
-		Vector2 closestPosition = Vector2.zero;
-		Vector2 usePosition = (Vector2)player.transform.position;
-		Color useColor = color ?? PlayerControl.LocalPlayer.Data.Role.TeamColor;
-
-		foreach (var vent in cachedVents)
-		{
-			if (vent == null)
-			{
-				continue;
-			}
-
-			var ventPos = (Vector2)vent.transform.position;
-			var distance = Vector2.Distance(usePosition, ventPos);
-
-			vent.CanUse(player, toVent, out bool canUse, out bool couldUse);
-
-			if (setOutlines)
-			{
-				vent.SetOutline(couldUse && distance <= player.MaxReportDistance, false, useColor);
-			}
-
-			if (!canUse || distance > player.MaxReportDistance || distance > vent.UsableDistance)
-			{
-				continue;
-			}
-
-			if (distance < closestDistance)
-			{
-				closestDistance = distance;
-				closestVent = vent;
-				closestPosition = ventPos;
-			}
-		}
-
-		if (setOutlines)
-		{
-			closestVent?.SetOutline(true, true, useColor);
-		}
-
-		return (closestVent, closestPosition);
-	}
-
-	/// <summary>
 	/// Public accessor for cached interactables (used by VesselRole RPC handler)
 	/// </summary>
 	public static List<IUsable> GetCachedInteractables()
 	{
 		if (_cachedInteractables == null || Time.time - _lastCacheRefresh > CacheRefreshInterval)
 		{
-			GetInteractablesList(out _cachedInteractables, out _cachedVents);
+			_cachedInteractables = GetInteractablesList();
 		}
 		return _cachedInteractables!;
 	}
 
-	/// <summary>
-	/// Public accessor for cached vents (used by VesselRole RPC handler)
-	/// </summary>
-	public static List<Vent> GetCachedVents()
+	public static List<IUsable> GetInteractablesList()
 	{
-		if (_cachedVents == null || Time.time - _lastCacheRefresh > CacheRefreshInterval)
-		{
-			GetInteractablesList(out _cachedInteractables, out _cachedVents);
-		}
-		return _cachedVents!;
-	}
-
-	public static void GetInteractablesList(out List<IUsable> interactables, out List<Vent> vents)
-	{
-		interactables = new List<IUsable>();
-		vents = new List<Vent>();
+		List<IUsable> interactables = new List<IUsable>();
 		var allUsables = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
 		foreach (var obj in allUsables)
 		{
-			if (obj.TryCast<IUsable>() is { } usable)
+			if (obj.TryCast<IUsable>() is { } usable && usable.TryCast<Vent>() == null)
 			{
-				if (usable.TryCast<Vent>() is { } vent)
-				{
-					vents.Add(vent);
-				}
-				else
-				{
-					interactables.Add(usable);
-				}
+				interactables.Add(usable);
 			}
 		}
-	}
-
-	public static float CanUse(this Vent vent, PlayerControl player, bool toVent, out bool canUse, out bool couldUse)
-	{
-		var canReach = vent.InRange(out float num);
-		var beyondReach = num > player.MaxReportDistance;
-
-		if (!beyondReach)
-		{
-			var @event = new PlayerCanUseEvent(vent.Cast<IUsable>());
-			MiraEventManager.InvokeEvent(@event);
-
-			beyondReach = @event.IsCancelled;
-		}
-
-		if (beyondReach)
-		{
-			canUse = false;
-			couldUse = false;
-			return float.MaxValue;
-		}
-
-		couldUse = !toVent ||
-			Vent.currentVent == vent ||
-			(player.CanMove || player.inVent);
-
-		if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Ventilation, out ISystemType systemType))
-		{
-			var ventilationSystem = systemType.TryCast<VentilationSystem>();
-			if (ventilationSystem != null && ventilationSystem.IsVentCurrentlyBeingCleaned(vent.Id))
-			{
-				couldUse = false;
-			}
-		}
-		canUse = couldUse;
-		if (canUse)
-		{
-			canUse &= canReach;
-		}
-
-		return num;
-	}
-
-	public static bool InRange(this Vent vent, out float num)
-	{
-		var local = PlayerControl.LocalPlayer;
-		Vector3 center = local.Collider.bounds.center;
-		Vector3 position = vent.transform.position;
-		num = Vector2.Distance(center, position);
-		return (num <= vent.UsableDistance &&
-						 !PhysicsHelpers.AnythingBetween(local.Collider, center, position, Constants.ShipOnlyMask,
-							 false));
+		return interactables;
 	}
 
 	[HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]

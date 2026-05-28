@@ -6,11 +6,9 @@ using MiraAPI.Utilities.Assets;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
-using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
-using VesselRoleMod.Patches.ControlSystem;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
@@ -49,16 +47,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			return null;
 		}
 
-		var (vent, _) = ControlledPlayerInteractionPatches.FindClosestVent(Vessel, true, VesselRoleModColors.Vessel, true);
-		return vent;
-	}
-
-	public override void SetOutline(bool active)
-	{
-		if (Vessel != null && Vessel.inVent)
-		{
-			base.SetOutline(active);
-		}
+		return DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.currentTarget;
 	}
 
 	public override bool CanUse()
@@ -94,7 +83,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			return;
 		}
 
-		_ = Vent.currentVent.CanUse(Vessel, true, out _, out var couldUse);
+		_ = Vent.currentVent.CanUse(PlayerControl.LocalPlayer.Data, out _, out var couldUse);
 		Vent.currentVent.SetButtons(false);
 
 		if (!couldUse)

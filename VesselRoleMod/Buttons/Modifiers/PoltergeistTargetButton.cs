@@ -66,7 +66,7 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 			}
 			else if (Target is Vent vent)
 			{
-				vent.SetOutline(active, true, VesselRoleModColors.Vessel);
+				vent.SetOutline(active, true);
 			}
 		}
 	}

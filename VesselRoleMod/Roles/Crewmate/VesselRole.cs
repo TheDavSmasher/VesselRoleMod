@@ -435,7 +435,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 				CustomButtonSingleton<PoltergeistVentButton>.Instance.SetActive(false, ghost.Data.Role);
 				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, ghost.Data.Role);
 				ControlledPlayerInteractionPatches.ClearInteractableOutlines();
-				ControlledPlayerInteractionPatches.ClearVentOutlines();
 			}
 		}
 
@@ -472,10 +471,6 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			if (vessel.inVent)
 			{
 				Vent.currentVent.SetButtons(true);
-			}
-			if (!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
-			{
-				ControlledPlayerInteractionPatches.ClearVentOutlines();
 			}
 		}
 	}
