@@ -64,10 +64,6 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 			{
 				body.bodyRenderers.Do(x => x.SetOutline(active ? VesselRoleModColors.Vessel : null));
 			}
-			else if (Target is Vent vent)
-			{
-				vent.SetOutline(active, true);
-			}
 		}
 	}
 
