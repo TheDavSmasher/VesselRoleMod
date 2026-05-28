@@ -28,7 +28,8 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 
 	protected override bool CanUseAbility()
 	{
-		return Modifier!.CanVent() == true;
+		return VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out _) &&
+			   Modifier!.CanVent() == true;
 	}
 
 	public override Vent? GetTarget()
@@ -43,8 +44,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			return Vent.currentVent;
 		}
 
-		if (!VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out _) ||
-			!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
+		if (!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
 		{
 			return null;
 		}
