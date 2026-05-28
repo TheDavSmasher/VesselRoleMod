@@ -46,11 +46,6 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 			return Vent.currentVent;
 		}
 
-		if (!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
-		{
-			return null;
-		}
-
 		return DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.currentTarget;
 	}
 
