@@ -111,7 +111,7 @@ public static class ControlledPlayerInteractionPatches
 	[HarmonyPostfix]
 	public static void UseButtonSetTargetPostfix(UseButton __instance)
 	{
-		UpdateUseButtonTarget(__instance);
+		UpdateUseButtonTarget(__instance, false);
 	}
 
 	/// <summary>

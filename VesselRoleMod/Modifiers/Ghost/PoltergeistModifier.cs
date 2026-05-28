@@ -29,6 +29,11 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 	public override bool? CanVent()
 	{
+		if (!OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent)
+		{
+			return null;
+		}
+
 		return VesselControlState.HasControl(Player.PlayerId);
 	}
 
