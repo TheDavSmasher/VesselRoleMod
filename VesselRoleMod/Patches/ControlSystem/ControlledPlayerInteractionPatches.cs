@@ -1,6 +1,4 @@
 ﻿using HarmonyLib;
-using MiraAPI.Events;
-using MiraAPI.Events.Vanilla.Usables;
 using MiraAPI.Modifiers;
 using System.Collections.Generic;
 using TownOfUs.Utilities;
@@ -11,10 +9,8 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
-using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
 using TownOfUs.Roles.Neutral;
-using System.Reflection;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -148,11 +144,11 @@ public static class ControlledPlayerInteractionPatches
 
 		if (__instance?.UseButton != null)
 		{
-			UpdateUseButtonTarget(__instance.UseButton);
+			UpdateUseButtonTarget(__instance.UseButton, false);
 		}
 	}
 
-	private static void UpdateUseButtonTarget(UseButton useButton)
+	private static void UpdateUseButtonTarget(UseButton useButton, bool setOutlines = true)
 	{
 		var localPlayer = PlayerControl.LocalPlayer;
 		if (localPlayer == null || useButton == null)
@@ -192,7 +188,7 @@ public static class ControlledPlayerInteractionPatches
 			return;
 		}
 
-		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: true);
+		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: setOutlines);
 		useButton.currentTarget = usable;
 		if (usable != null)
 		{
