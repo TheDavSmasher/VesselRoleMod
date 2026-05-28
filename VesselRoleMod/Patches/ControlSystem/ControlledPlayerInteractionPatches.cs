@@ -298,6 +298,7 @@ public static class ControlledPlayerInteractionPatches
 		if (_cachedInteractables == null || Time.time - _lastCacheRefresh > CacheRefreshInterval)
 		{
 			_cachedInteractables = GetInteractablesList();
+			_lastCacheRefresh = Time.time;
 		}
 		return _cachedInteractables!;
 	}
