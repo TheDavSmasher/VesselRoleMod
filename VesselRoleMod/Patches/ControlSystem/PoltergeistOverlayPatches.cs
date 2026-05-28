@@ -468,4 +468,20 @@ public static class PoltergeistOverlayPatches
 			player.gameObject.transform.FindChildObject("Names").SetActive(show);
 		}
 	}
+
+	[HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
+	[HarmonyPostfix]
+	public static void SetOutlinePostfix(Vent __instance, bool on, bool mainTarget)
+	{
+		if (!PlayerControl.LocalPlayer.HasModifier<PoltergeistModifier>())
+		{
+			return;
+		}
+
+		var color = VesselRoleModColors.Vessel;
+
+		__instance.myRend.material.SetFloat(ShaderID.Outline, on ? 1 : 0);
+		__instance.myRend.material.SetColor(ShaderID.OutlineColor, color);
+		__instance.myRend.material.SetColor(ShaderID.AddColor, mainTarget ? color : Color.clear);
+	}
 }
