@@ -1,5 +1,6 @@
 ﻿using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Usables;
+using MiraAPI.GameOptions;
 using MiraAPI.Hud;
 using MiraAPI.Keybinds;
 using MiraAPI.Utilities.Assets;
@@ -9,6 +10,8 @@ using TownOfUs.Buttons.Crewmate;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
@@ -27,7 +30,8 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistM
 	protected override bool CanUseAbility()
 	{
 		return VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out _) &&
-			   Modifier!.CanVent() == true;
+			   OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent &&
+			   Role.HasVentingAbility();
 	}
 
 	public override Vent? GetTarget()

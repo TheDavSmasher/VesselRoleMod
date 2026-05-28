@@ -1,4 +1,5 @@
-﻿using MiraAPI.Keybinds;
+﻿using MiraAPI.GameOptions;
+using MiraAPI.Keybinds;
 using MiraAPI.Utilities.Assets;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
@@ -6,6 +7,8 @@ using TownOfUs.Networking;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
@@ -18,7 +21,8 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 
 	protected override bool CanUseAbility()
 	{
-		return Modifier!.CanKill();
+		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill &&
+			   Role.HasKillingAbility();
 	}
 
 	public override PlayerControl? GetTarget()
