@@ -2,6 +2,7 @@
 using MiraAPI.Utilities.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Modules.Localization;
+using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers;
@@ -48,6 +49,11 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 
 	public override bool CanUse()
 	{
+		if (PlayerControl.LocalPlayer.IsInTargetingAnimState())
+		{
+			return false;
+		}
+
 		return base.CanUse() || PlayerControl.LocalPlayer.inVent;
 	}
 

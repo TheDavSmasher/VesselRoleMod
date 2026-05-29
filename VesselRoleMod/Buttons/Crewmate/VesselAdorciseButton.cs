@@ -90,6 +90,16 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		}
 	}
 
+	public override bool CanUse()
+	{
+		if (PlayerControl.LocalPlayer.IsInTargetingAnimState())
+		{
+			return false;
+		}
+
+		return base.CanUse();
+	}
+
 	public override void OnTriggerActivate()
 	{
 		base.OnTriggerActivate();
