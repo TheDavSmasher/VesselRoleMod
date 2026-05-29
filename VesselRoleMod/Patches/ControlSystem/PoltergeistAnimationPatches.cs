@@ -5,6 +5,8 @@ using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using System.Collections;
 using System.Reflection;
+using TownOfUs.Modules;
+using TownOfUs.Roles.Neutral;
 using UnityEngine;
 using VesselRoleMod.Modifiers.Crewmate;
 
@@ -124,6 +126,118 @@ public static class PoltergeistAnimationPatches
 			mod.Ghost != null && mod.Ghost.AmOwner && __instance.lastUsedConsole)
 		{
 			__instance.lastUsedConsole.SetDestinationCooldown();
+		}
+	}
+
+	[HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
+	[HarmonyPostfix]
+	public static void VesselEnterVentPostfix(Vent __instance, PlayerControl pc)
+	{
+		if (pc.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+			mod.Ghost != null)
+		{
+			if (mod.Ghost.AmOwner)
+			{
+				Vent.currentVent = __instance;
+				ConsoleJoystick.SetMode_Vent();
+			}
+			else if (mod.Vessel.AmOwner && mod.Ghost.GetRoleWhenAlive() is not JesterRole)
+			{
+				Vent.currentVent.SetButtons(true);
+			}
+		}
+	}
+
+	[HarmonyPatch]
+	public static class PhysicsEnterVentPatch
+	{
+		public static MethodBase TargetMethod()
+		{
+			return Helpers.GetStateMachineMoveNext<PlayerPhysics>(nameof(PlayerPhysics.CoEnterVent))!;
+		}
+
+		public static void Postfix(Il2CppObjectBase __instance, bool __result)
+		{
+			if (__result)
+			{
+				return;
+			}
+
+			var wrapper = new StateMachineWrapper<PlayerPhysics>(__instance);
+
+			var id = wrapper.GetParameter<int>("id");
+			var physics = wrapper.Instance;
+			var player = physics.myPlayer;
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null && mod.Ghost.AmOwner)
+			{
+				VentilationSystem.Update(VentilationSystem.Operation.Enter, id);
+			}
+		}
+	}
+
+	[HarmonyPatch]
+	public static class PhysicsExitVentPatch
+	{
+		public static MethodBase TargetMethod()
+		{
+			return Helpers.GetStateMachineMoveNext<PlayerPhysics>(nameof(PlayerPhysics.CoExitVent))!;
+		}
+
+		public static void Postfix(Il2CppObjectBase __instance, bool __result)
+		{
+			if (__result)
+			{
+				return;
+			}
+
+			var wrapper = new StateMachineWrapper<PlayerPhysics>(__instance);
+
+			var id = wrapper.GetParameter<int>("id");
+			var physics = wrapper.Instance;
+			var player = physics.myPlayer;
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null && mod.Ghost.AmOwner)
+			{
+				VentilationSystem.Update(VentilationSystem.Operation.Exit, id);
+			}
+		}
+	}
+
+	[HarmonyPatch]
+	public static class VentExitVesselPatch
+	{
+		public static MethodBase TargetMethod()
+		{
+			return Helpers.GetStateMachineMoveNext<Vent>(nameof(Vent.ExitVent))!;
+		}
+
+		public static void Prefix(Il2CppObjectBase __instance)
+		{
+			var wrapper = new StateMachineWrapper<Vent>(__instance);
+
+			var player = wrapper.GetParameter<PlayerControl>("pc");
+
+			if (wrapper.GetState() != 0)
+			{
+				return;
+			}
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null)
+			{
+				if (mod.Vessel.AmOwner || mod.Ghost.AmOwner)
+				{
+					Vent.currentVent.SetButtons(false);
+				}
+				if (mod.Ghost.AmOwner)
+				{
+					Vent.currentVent = null;
+					ConsoleJoystick.SetMode_Gameplay();
+				}				
+			}
 		}
 	}
 }

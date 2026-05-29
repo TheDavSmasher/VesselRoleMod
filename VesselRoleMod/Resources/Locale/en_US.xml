@@ -27,6 +27,7 @@
   <string name="VesselOptionOnGhostKillEnumNone">Nothing</string>
   <string name="VesselOptionOnGhostKillEnumCannotKill">Cannot Kill</string>
   <string name="VesselOptionOnGhostKillEnumCannotPossess">Cannot Possess</string>
+  <string name="VesselOptionGhostCanVent">Venting ghosts can vent when possessing</string>
   <string name="VesselOptionCanReject">Vessel can reject possession attempts</string>
   <string name="VesselOptionCanRejectEnumNone">None</string>
   <string name="VesselOptionCanRejectEnumBlacklistOnly">Through Blacklist</string>

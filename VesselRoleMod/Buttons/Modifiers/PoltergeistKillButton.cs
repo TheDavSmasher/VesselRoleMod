@@ -1,8 +1,6 @@
 ﻿using MiraAPI.GameOptions;
 using MiraAPI.Keybinds;
-using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
-using Reactor.Utilities.Extensions;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Networking;
@@ -11,30 +9,25 @@ using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>, IDiseaseableButton, IKillButton
+public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistModifier, PlayerControl>, IDiseaseableButton, IKillButton
 {
 	public override string Name => "Kill";
-	public override bool UsableInDeath => true;
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
-	public override float InitialCooldown => 0.01f;
-	public override float Cooldown => 0.01f;
-	public override float EffectDuration => PlayerControl.LocalPlayer.GetKillCooldown();
+	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 	public override int MaxUses => OnKill == VesselOnKillType.CannotKill ? 1 : -1;
 	public override bool ZeroIsInfinite { get; set; }
 
 	private static VesselOnKillType OnKill => OptionGroupSingleton<VesselOptions>.Instance.KillingGhostOnKill.Value;
-	private static PlayerControl? Vessel => PlayerControl.LocalPlayer.GetModifier<PoltergeistModifier>()?.Vessel;
 
-	public override bool Enabled(RoleBehaviour? role)
+	protected override bool CanUseAbility()
 	{
-		return PlayerControl.LocalPlayer != null &&
-			   PlayerControl.LocalPlayer.Data.IsDead &&
-			   PlayerControl.LocalPlayer.TryGetModifier<PoltergeistModifier>(out var mod) &&
-			   mod.CanKill();
+		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill &&
+			   Role.HasKillingAbility();
 	}
 
 	public override PlayerControl? GetTarget()
@@ -54,23 +47,19 @@ public sealed class PoltergeistKillButton : TownOfUsTargetButton<PlayerControl>,
 		SetTimer(Cooldown * multiplier);
 	}
 
-	public override void SetOutline(bool active)
+	public override void SetActive(bool visible, RoleBehaviour role)
 	{
-		if (Target != null && PlayerControl.LocalPlayer.HasDied())
+		if (visible)
 		{
-			Target.cosmetics.currentBodySprite.BodySprite.SetOutline(active ? VesselRoleModColors.Vessel : null);
+			SetTimer(InitialCooldown);
 		}
+		base.SetActive(visible, role);
 	}
 
 	protected override void OnClick()
 	{
-		if (Target == null)
-		{
-			return;
-		}
-
 		PlayerControl.LocalPlayer.RpcFramedMurder(
-			Target,
+			Target!,
 			Vessel!,
 			causeOfDeath: "VesselPossession");
 

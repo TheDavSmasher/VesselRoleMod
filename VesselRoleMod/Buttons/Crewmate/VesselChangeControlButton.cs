@@ -2,6 +2,7 @@
 using MiraAPI.Utilities.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Modules.Localization;
+using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers;
@@ -22,6 +23,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 	public override float InitialCooldown => 0.01f;
 	public override float Cooldown => 0.01f;
 	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.GhostControlSprite;
+	public override bool ShouldPauseInVent => false;
 
 	protected override void FixedUpdate(PlayerControl playerControl)
 	{
@@ -43,6 +45,21 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 		return !VesselControlState.CanShareControl &&
 			PlayerControl.LocalPlayer != null && role != null && 
 			role.Player.HasModifierOfType<IVesselModifier>();
+	}
+
+	public override bool CanUse()
+	{
+		if (PlayerControl.LocalPlayer.IsInTargetingAnimState())
+		{
+			return false;
+		}
+
+		if (PlayerControl.LocalPlayer.inVent)
+		{
+			return true;
+		}
+
+		return base.CanUse();
 	}
 
 	protected override void OnClick()

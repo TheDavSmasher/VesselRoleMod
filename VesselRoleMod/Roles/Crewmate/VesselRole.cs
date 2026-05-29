@@ -5,7 +5,10 @@ using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking.Attributes;
+using Reactor.Utilities.Extensions;
+using Rewired.Utils.Classes.Data;
 using System;
+using System.Linq;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
 using TownOfUs.Modules.Localization;
@@ -325,6 +328,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		if (ghost.AmOwner)
 		{
 			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(true, ghost.Data.Role);
+			CustomButtonSingleton<PoltergeistVentButton>.Instance.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
 		}
 		else if (vessel.AmOwner)
@@ -428,6 +432,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			if (ghost.AmOwner)
 			{
 				CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(false, ghost.Data.Role);
+				CustomButtonSingleton<PoltergeistVentButton>.Instance.SetActive(false, ghost.Data.Role);
 				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, ghost.Data.Role);
 				ControlledPlayerInteractionPatches.ClearInteractableOutlines();
 			}
@@ -465,6 +470,15 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 
 		VesselControlState.SwapControlOver(ghost.PlayerId, vessel.PlayerId);
+
+		if (ghost.AmOwner && !VesselControlState.HasControl(ghost.PlayerId))
+		{
+			ControlledPlayerInteractionPatches.ClearInteractableOutlines();
+		}
+		if ((ghost.AmOwner || vessel.AmOwner) && vessel.inVent)
+		{
+			Vent.currentVent.SetButtons(true);
+		}
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselTriggerInteraction)]
@@ -582,6 +596,53 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			}
 			deconControl.OnUse.Invoke();
 		}
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselMoveVent)]
+	public static void RpcVesselTryMoveToVent(
+		PlayerControl source,
+		PlayerControl ghost, PlayerControl vessel, 
+		int ventId, int otherVentId)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(source);
+			return;
+		}
+		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		{
+			Error($"RpcVesselVentMove - Invalid poltergeist");
+			return;
+		}
+		if (mod.Vessel.PlayerId != vessel.PlayerId)
+		{
+			Error("RpcVesselVentMove - Vessel is not controlled by ghost.");
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		Vent vent = ShipStatus.Instance.AllVents.First((Vent v) => v.Id == ventId);
+		Vent otherVent = ShipStatus.Instance.AllVents.First((Vent v) => v.Id == otherVentId);
+
+		Vector3 position = otherVent.transform.position;
+		position -= (Vector3)vessel.Collider.offset;
+		vessel.NetTransform.SnapTo(position);
+
+		if (!ghost.AmOwner && !vessel.AmOwner)
+		{
+			return;
+		}
+
+		if (Constants.ShouldPlaySfx())
+		{
+			SoundManager.Instance.PlaySound(ShipStatus.Instance.VentMoveSounds.ToArray().Random(), loop: false).pitch = FloatRange.Next(0.8f, 1.2f);
+		}
+		vent.SetButtons(enabled: false);
+		otherVent.SetButtons(enabled: true);
+		Vent.currentVent = otherVent;
+		VentilationSystem.Update(VentilationSystem.Operation.Move, Vent.currentVent.Id);
 	}
 
 	public void LobbyStart()

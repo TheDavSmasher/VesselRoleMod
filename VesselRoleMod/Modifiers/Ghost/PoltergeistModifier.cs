@@ -2,16 +2,16 @@
 using MiraAPI.Hud;
 using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
-using TownOfUs.Modules;
+using TownOfUs.Buttons;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Patches;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Modifiers;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
-using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
@@ -27,11 +27,14 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 
 	private LobbyNotificationMessage? controllerNotification;
 
-	public bool CanKill()
+	public override bool? CanVent()
 	{
-		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill && 
-			   Vessel.Data.Role is VesselRole && 
-			   Player.GetRoleWhenAlive().HasKillingAbility();
+		if (!OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent)
+		{
+			return null;
+		}
+
+		return VesselControlState.HasControl(Player.PlayerId);
 	}
 
 	public override void OnActivate()
@@ -73,6 +76,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			}
 		}
 		catch { /* ignored */ }
+
+		CustomButtonSingleton<FakeVentButton>.Instance.Show = false;
 	}
 
 	public override void OnDeactivate()
@@ -110,6 +115,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingMod
 			}
 		}
 		catch { /* ignored */ }
+
+		CustomButtonSingleton<FakeVentButton>.Instance.Show = true;
 	}
 
 	private void SetVisibility(bool visible)

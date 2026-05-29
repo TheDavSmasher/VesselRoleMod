@@ -1,4 +1,5 @@
 ﻿using MiraAPI.Modifiers;
+using MiraAPI.Roles;
 using System;
 using System.Linq;
 using TownOfUs.Roles;
@@ -32,6 +33,14 @@ public static class Extensions
 		return role.IsImpostor() ||
 			   (alignment == RoleAlignment.NeutralKilling) ||
 			   (alignment == RoleAlignment.CrewmateKilling);
+	}
+
+	public static bool HasVentingAbility(this RoleBehaviour role)
+	{
+		return role.CanVent ||
+			   role is ICustomRole custom && custom.Configuration.CanUseVent ||
+			   role is EngineerRole ||
+			   role.Player.HasModifier<BaseModifier>(x => x.CanVent() == true);
 	}
 
 	public static GameObject FindChildObject(this Transform transform, string n)

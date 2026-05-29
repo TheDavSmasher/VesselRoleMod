@@ -3,11 +3,14 @@ using MiraAPI.Modifiers;
 using System.Collections.Generic;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
-using UnityObject = UnityEngine.Object;
+using VesselRoleMod.Utilities;
+using TownOfUs.Modules;
+using TownOfUs.Roles.Neutral;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -20,8 +23,6 @@ public static class ControlledPlayerInteractionPatches
 	private static List<IUsable>? _cachedInteractables;
 	private static float _lastCacheRefresh;
 	private const float CacheRefreshInterval = 10f;
-	private const float UpdateThrottle = 0.1f;
-	private static float _lastUpdateTime;
 
 	/// <summary>
 	/// Allow UseButton to work for poltergeist when controlling a vessel
@@ -122,29 +123,6 @@ public static class ControlledPlayerInteractionPatches
 		_lastCacheRefresh = 0f;
 	}
 
-	/// <summary>
-	/// Also patch HudManager Update to continuously check for interactables near controlled player
-	/// Throttled to avoid performance issues
-	/// </summary>
-	[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
-	[HarmonyPriority(Priority.Last)]
-	[HarmonyPostfix]
-	public static void HudManagerUpdatePostfix(HudManager __instance)
-	{
-		// Throttle updates to avoid stuttering
-		var now = Time.time;
-		if (now - _lastUpdateTime < UpdateThrottle)
-		{
-			return;
-		}
-		_lastUpdateTime = now;
-
-		if (__instance?.UseButton != null)
-		{
-			UpdateUseButtonTarget(__instance.UseButton);
-		}
-	}
-
 	private static void UpdateUseButtonTarget(UseButton useButton)
 	{
 		var localPlayer = PlayerControl.LocalPlayer;
@@ -243,8 +221,6 @@ public static class ControlledPlayerInteractionPatches
 		Vector2 closestPosition = Vector2.zero;
 		Vector2 usePosition = position ?? (Vector2)player.transform.position;
 
-		const float maxCheckDistance = 5f;
-
 		foreach (var usable in cachedInteractables)
 		{
 			if (usable == null)
@@ -265,10 +241,10 @@ public static class ControlledPlayerInteractionPatches
 
 			if (setOutlines)
 			{
-				usable.SetOutline(couldUse && distance <= maxCheckDistance, false);
+				usable.SetOutline(couldUse && distance <= player.MaxReportDistance, false);
 			}
 
-			if (!canUse || distance > maxCheckDistance || distance > usable.UsableDistance)
+			if (!canUse || distance > player.MaxReportDistance || distance > usable.UsableDistance)
 			{
 				continue;
 			}
@@ -297,21 +273,114 @@ public static class ControlledPlayerInteractionPatches
 		if (_cachedInteractables == null || Time.time - _lastCacheRefresh > CacheRefreshInterval)
 		{
 			_cachedInteractables = GetInteractablesList();
+			_lastCacheRefresh = Time.time;
 		}
 		return _cachedInteractables!;
 	}
 
 	public static List<IUsable> GetInteractablesList()
 	{
-		var result = new List<IUsable>();
+		List<IUsable> interactables = new List<IUsable>();
 		var allUsables = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
 		foreach (var obj in allUsables)
 		{
-			if (obj.TryCast<IUsable>() is { } usable && usable.TryCast<Vent>() == null)
+			if (obj.TryCast<IUsable>() is { } usable &&
+				usable.TryCast<Vent>() == null &&
+				!obj.name.Contains("Vent"))
 			{
-				result.Add(usable);
+				interactables.Add(usable);
 			}
 		}
-		return result;
+		return interactables;
+	}
+
+	[HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
+	[HarmonyPrefix]
+	public static bool TryMoveVesselToVentPrefix(Vent __instance, Vent otherVent, ref string error, ref bool __result)
+	{
+		if (otherVent == null)
+		{
+			return true;
+		}
+		var localPlayer = PlayerControl.LocalPlayer;
+		if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+			mod.Vessel == null)
+		{
+			return true;
+		}
+		if (!VesselControlState.HasControl(localPlayer.PlayerId))
+		{
+			error = "Player does not have control.";
+			return (__result = false);
+		}
+		if (!mod.Vessel.inVent)
+		{
+			error = "Vessel is not currently inside a vent";
+			return (__result = false);
+		}
+		if (mod.Vessel.walkingToVent || mod.Vessel.Visible)
+		{
+			error = "Vessel was still in the middle of animating into current vent; not allowed to move vents that fast";
+			return (__result = false);
+		}
+		VesselRole.RpcVesselTryMoveToVent(localPlayer, mod.Ghost, mod.Vessel, __instance.Id, otherVent.Id);
+		error = string.Empty;
+		__result = true;
+		return false;
+	}
+
+	[HarmonyPatch(typeof(Vent), nameof(Vent.SetButtons))]
+	public static class VentSetButtonsPatch
+	{
+		public static bool Prefix(bool enabled)
+		{
+			if (!enabled)
+			{
+				return true;
+			}
+			var localPlayer = PlayerControl.LocalPlayer;
+			if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+				mod.Vessel == null || mod.Ghost == null)
+			{
+				return true;
+			}
+			if (mod.Ghost.GetRoleWhenAlive() is JesterRole)
+			{
+				return false;
+			}
+			return true;
+		}
+
+		public static void Postfix(Vent __instance, bool enabled)
+		{
+			if (!enabled)
+			{
+				return;
+			}
+
+			var localPlayer = PlayerControl.LocalPlayer;
+			if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+				mod.Vessel == null || mod.Ghost == null)
+			{
+				return;
+			}
+			if (mod.Ghost.GetRoleWhenAlive() is JesterRole)
+			{
+				return;
+			}
+
+			var hasControl = VesselControlState.HasControl(localPlayer.PlayerId);
+
+			Vent[] nearbyVents = __instance.NearbyVents;
+			for (int i = 0; i < __instance.Buttons.Length; i++)
+			{
+				ButtonBehavior buttonBehavior = __instance.Buttons[i];
+				Vent vent = nearbyVents[i];
+				if (vent && vent.enabled)
+				{
+					buttonBehavior.spriteRenderer.color = hasControl ? Palette.EnabledColor : Palette.DisabledGrey;
+				}
+			}
+		}
 	}
 }
