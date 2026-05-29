@@ -1,10 +1,6 @@
 ﻿using MiraAPI.Keybinds;
-using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
-using System.Linq;
 using TownOfUs.Buttons;
-using TownOfUs.Modifiers;
-using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using UnityEngine;
 using VesselRoleMod.Assets;
@@ -52,27 +48,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 
 	public override bool CanUse()
 	{
-		if (PlayerControl.LocalPlayer == null)
-		{
-			return false;
-		}
-
-		if (TimeLordRewindSystem.IsRewinding)
-		{
-			return false;
-		}
-
-		if (HudManager.Instance.Chat.IsOpenOrOpening || MeetingHud.Instance)
-		{
-			return false;
-		}
-
-		if (PlayerControl.LocalPlayer.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
-		{
-			return false;
-		}
-
-		return PlayerControl.LocalPlayer.moveable || PlayerControl.LocalPlayer.inVent;
+		return base.CanUse() || PlayerControl.LocalPlayer.inVent;
 	}
 
 	protected override void OnClick()
