@@ -69,4 +69,34 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : VesselRoleBu
 
 		return target != null;
 	}
+
+	/// <inheritdoc />
+	public override bool CanUse()
+	{
+		var newTarget = GetTarget();
+		if (newTarget != Target)
+		{
+			SetOutline(false);
+		}
+
+		Target = IsTargetValid(newTarget) ? newTarget : null;
+		SetOutline(true);
+
+		return base.CanUse() && Target != null;
+	}
+
+	/// <inheritdoc />
+	public override bool CanClick()
+	{
+		return base.CanClick() && Target != null;
+	}
+
+	/// <summary>
+	/// Use this to reset the button's target after used.
+	/// </summary>
+	public virtual void ResetTarget()
+	{
+		SetOutline(false);
+		Target = null;
+	}
 }
