@@ -6,8 +6,6 @@ using System;
 using System.Linq;
 using TownOfUs;
 using TownOfUs.Buttons;
-using TownOfUs.Modifiers;
-using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
@@ -27,7 +25,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	public override Color TextOutlineColor => TownOfUsColors.Impostor;
 	public override float Cooldown => Math.Clamp(OptionGroupSingleton<VesselOptions>.Instance.AdorciseCooldown + MapCooldown, 5f, 120f);
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
-	public static float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
+	public override float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
 	public override float TriggerWindow => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.AdorciseSprite;
 
@@ -41,50 +39,6 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		}
 
 		base.FixedUpdateHandler(playerControl);
-	}
-
-	public override void ClickHandler()
-	{
-		if (!CanUse())
-		{
-			return;
-		}
-
-		OnClick();
-		Button?.SetDisabled();
-		if (HasEffect && EffectActive && Timer > 0)
-		{
-			EffectActive = false;
-			Timer = Cooldown;
-		}
-		else if (HasTrigger && !WaitingOnTrigger && Timer <= 0)
-		{
-			WaitingOnTrigger = true;
-			Timer = TriggerWindow;
-		}
-		else
-		{
-			WaitingOnTrigger = false;
-			Timer = Cooldown;
-		}
-	}
-
-	public override bool CanUse()
-	{
-		if (HudManager.Instance.Chat.IsOpenOrOpening || MeetingHud.Instance)
-		{
-			return false;
-		}
-
-		if (PlayerControl.LocalPlayer.HasModifier<GlitchHackedModifier>() || PlayerControl.LocalPlayer
-				.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
-		{
-			return false;
-		}
-
-		return ((Timer <= 0 && !EffectActive && !WaitingOnTrigger) ||
-			(EffectActive && Timer <= EffectDuration - MinDuration) ||
-			(WaitingOnTrigger && Timer <= TriggerWindow - 2f));
 	}
 
 	protected override void OnClick()
