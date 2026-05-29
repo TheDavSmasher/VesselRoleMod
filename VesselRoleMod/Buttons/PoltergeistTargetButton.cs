@@ -4,44 +4,27 @@ using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using Reactor.Utilities.Extensions;
 using System.Linq;
-using TownOfUs.Buttons;
 using TownOfUs.Modifiers;
-using TownOfUs.Modules;
 using TownOfUs.Roles.Other;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
-using VesselRoleMod.Modifiers.Ghost;
-using VesselRoleMod.Modules.ControlSystem;
-using VesselRoleMod.Roles.Crewmate;
-using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons;
 
 [MiraIgnore]
-public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTargetButton<TTarget> where TModifier : IVesselModifier
-																								  where TTarget : MonoBehaviour
+public abstract class PoltergeistTargetButton<TModifier, TTarget> : VesselRoleButton<TModifier> where TModifier : IVesselModifier
+																								where TTarget : MonoBehaviour
 {
-	public override bool UsableInDeath => true;
-	public override float InitialCooldown => 0.001f;
-	public override float Cooldown => 0.001f;
-	public override bool ShouldPauseInVent => false;
-	public override Color TextOutlineColor => VesselRoleModColors.Vessel;
+	/// <summary>
+	/// Gets or sets the target object of the button.
+	/// </summary>
+	public TTarget? Target { get; set; }
 
-	protected static RoleBehaviour Role => PlayerControl.LocalPlayer.GetRoleWhenAlive();
-	protected static TModifier? Modifier => PlayerControl.LocalPlayer.GetModifierOfType<TModifier>();
-	protected static PlayerControl? Vessel => Modifier?.Vessel;
-
-	public override bool Enabled(RoleBehaviour? role)
-	{
-		return PlayerControl.LocalPlayer != null &&
-			   PlayerControl.LocalPlayer.Data.IsDead &&
-			   Modifier != null &&
-			   Vessel!.Data.Role is VesselRole &&
-			   CanUseAbility();
-	}
-
-	protected virtual bool CanUseAbility() => true;
+	/// <summary>
+	/// Gets the distance the player must be from the target object to use the button.
+	/// </summary>
+	public virtual float Distance => PlayerControl.LocalPlayer.Data.Role.GetAbilityDistance();
 
 	protected virtual bool ValidTargetInVent() => false;
 
@@ -54,7 +37,7 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 		base.SetActive(visible, role);
 	}
 
-	public override void SetOutline(bool active)
+	public virtual void SetOutline(bool active)
 	{
 		if (Target != null && PlayerControl.LocalPlayer.HasDied())
 		{
@@ -69,69 +52,21 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 		}
 	}
 
-	public override bool IsTargetValid(TTarget? target)
+	/// <summary>
+	/// The method used to get the target object.
+	/// </summary>
+	/// <returns>The target object or null if it isn't found.</returns>
+	public abstract TTarget? GetTarget();
+
+	public virtual bool IsTargetValid(TTarget? target)
 	{
 		if (target is PlayerControl playerTarget)
 		{
-			return base.IsTargetValid(target) && (ValidTargetInVent() || !playerTarget.inVent) &&
+			return target != null && (ValidTargetInVent() || !playerTarget.inVent) &&
 				   !playerTarget.GetModifiers<DisabledModifier>().Any(mod => !mod.CanBeInteractedWith) &&
 				   !SpectatorRole.TrackedSpectators.Contains(playerTarget.Data.PlayerName);
 		}
 
-		return base.IsTargetValid(target);
-	}
-
-	public override bool IsEffectCancellable() => true;
-
-	public override bool CanUse()
-	{
-		if (Modifier == null)
-		{
-			return false;
-		}
-
-		if (Modifier is PoltergeistModifier && Vessel != null)
-		{
-			if (Vessel.Data == null ||
-				Vessel.HasDied() ||
-				Vessel.Data.Disconnected ||
-				!VesselControlState.IsControlled(Vessel.PlayerId, out _))
-			{
-				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
-				return false;
-			}
-			if (Vessel.IsInTargetingAnimState())
-			{
-				return false;
-			}
-		}
-
-		return base.CanUse();
-	}
-
-	public override void ClickHandler()
-	{
-		if (!CanClick())
-		{
-			return;
-		}
-
-		OnClick();
-		Button?.SetDisabled(); // Note: not in base.ClickHandler
-
-		if (EffectActive) // Note: not in base.ClickHandler
-		{
-			Timer = Cooldown;
-			EffectActive = false;
-		}
-		else if (HasEffect)
-		{
-			EffectActive = true;
-			Timer = EffectDuration;
-		}
-		else
-		{
-			Timer = Cooldown;
-		}
+		return target != null;
 	}
 }
