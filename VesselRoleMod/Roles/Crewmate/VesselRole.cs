@@ -6,7 +6,6 @@ using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking.Attributes;
 using Reactor.Utilities.Extensions;
-using Rewired.Utils.Classes.Data;
 using System;
 using System.Linq;
 using TownOfUs.Assets;
@@ -20,6 +19,7 @@ using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Buttons.Modifiers;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.Components;
@@ -136,7 +136,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		if (player.AmOwner)
 		{
-			if (!player.HasModifier<VesselSeekingModifier>())
+			if (!player.HasModifierOfType<IVesselSeekingModifier>())
 			{
 				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, player.Data.Role);
 			}

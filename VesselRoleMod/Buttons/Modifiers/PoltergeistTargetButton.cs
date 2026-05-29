@@ -10,14 +10,16 @@ using TownOfUs.Modules;
 using TownOfUs.Roles.Other;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
 [MiraIgnore]
-public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTargetButton<TTarget> where TModifier : VesselSeekingModifier
+public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTargetButton<TTarget> where TModifier : IVesselSeekingModifier
 																								  where TTarget : MonoBehaviour
 {
 	public override bool UsableInDeath => true;
@@ -27,7 +29,7 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTarg
 	public override Color TextOutlineColor => VesselRoleModColors.Vessel;
 
 	protected static RoleBehaviour Role => PlayerControl.LocalPlayer.GetRoleWhenAlive();
-	protected static TModifier? Modifier => PlayerControl.LocalPlayer.GetModifier<TModifier>();
+	protected static TModifier? Modifier => PlayerControl.LocalPlayer.GetModifierOfType<TModifier>();
 	protected static PlayerControl? Vessel => Modifier?.Vessel;
 
 	public override bool Enabled(RoleBehaviour? role)

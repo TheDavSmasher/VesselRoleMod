@@ -10,6 +10,7 @@ using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
@@ -18,7 +19,7 @@ using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistPossessButton : PoltergeistTargetButton<VesselSeekingModifier, PlayerControl>, IAftermathablePlayerButton
+public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSeekingModifier, PlayerControl>, IAftermathablePlayerButton
 {
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;

@@ -1,5 +1,6 @@
 ﻿using MiraAPI.GameOptions;
 using MiraAPI.Hud;
+using MiraAPI.Modifiers.Types;
 using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Buttons;
@@ -15,14 +16,16 @@ using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : VesselSeekingModifier(vessel), IVesselModifier
+public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, IVesselSeekingModifier, IVesselModifier
 {
 	private static readonly int PlayerLayer = LayerMask.NameToLayer("Players");
 	private static readonly int GhostLayer = LayerMask.NameToLayer("Ghost");
 
 	public override string ModifierName => "Ghost Possessor";
+	public override bool HideOnUi => true;
 	public PlayerControl Target => Vessel;
 	public PlayerControl Ghost => Player;
+	public PlayerControl Vessel => vessel;
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 
 	private LobbyNotificationMessage? controllerNotification;
