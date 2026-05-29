@@ -284,7 +284,9 @@ public static class ControlledPlayerInteractionPatches
 		var allUsables = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
 		foreach (var obj in allUsables)
 		{
-			if (obj.TryCast<IUsable>() is { } usable && usable.TryCast<Vent>() == null)
+			if (obj.TryCast<IUsable>() is { } usable &&
+				usable.TryCast<Vent>() == null &&
+				!obj.name.Contains("Vent"))
 			{
 				interactables.Add(usable);
 			}
