@@ -17,6 +17,7 @@ public sealed class ValidAdorcismGhostModifier(PlayerControl vessel) : TimedModi
 	public override string ModifierName => "ValidAdorcismGhost";
 	public override bool Unique => false;
 	public override bool HideOnUi => true;
+	public PlayerControl Ghost => Player;
 	public PlayerControl Vessel => vessel;
 
 

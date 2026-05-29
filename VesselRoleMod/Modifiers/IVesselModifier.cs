@@ -10,6 +10,11 @@ public interface IVesselModifier
 	/// The <see cref="Roles.Crewmate.VesselRole"/> player.
 	/// </summary>
 	public PlayerControl Vessel { get; }
+
+	/// <summary>
+	/// The Dead player, possessing.
+	/// </summary>
+	public PlayerControl Ghost { get; }
 }
 
 /// <summary>
@@ -28,11 +33,6 @@ public interface IVesselSeekingModifier : IVesselModifier
 /// </summary>
 public interface IVesselPossessModifier : IVesselModifier
 {
-	/// <summary>
-	/// The Dead player, possessing.
-	/// </summary>
-	public PlayerControl Ghost { get; }
-
 	/// <summary>
 	/// The other player that isn't the owner of the current modifier.
 	/// </summary>
