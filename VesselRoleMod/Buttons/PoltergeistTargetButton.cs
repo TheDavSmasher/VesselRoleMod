@@ -16,7 +16,7 @@ using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
-namespace VesselRoleMod.Buttons.Modifiers;
+namespace VesselRoleMod.Buttons;
 
 [MiraIgnore]
 public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTargetButton<TTarget> where TModifier : IVesselModifier
