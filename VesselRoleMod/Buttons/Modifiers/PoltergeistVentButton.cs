@@ -8,14 +8,14 @@ using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
 using UnityEngine;
-using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistVentButton : PoltergeistTargetButton<PoltergeistModifier, Vent>
+public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPossessModifier, Vent>
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
