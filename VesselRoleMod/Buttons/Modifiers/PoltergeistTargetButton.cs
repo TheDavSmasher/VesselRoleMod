@@ -19,7 +19,7 @@ using VesselRoleMod.Utilities;
 namespace VesselRoleMod.Buttons.Modifiers;
 
 [MiraIgnore]
-public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTargetButton<TTarget> where TModifier : IVesselSeekingModifier
+public abstract class PoltergeistTargetButton<TModifier, TTarget> : TownOfUsTargetButton<TTarget> where TModifier : IVesselModifier
 																								  where TTarget : MonoBehaviour
 {
 	public override bool UsableInDeath => true;
