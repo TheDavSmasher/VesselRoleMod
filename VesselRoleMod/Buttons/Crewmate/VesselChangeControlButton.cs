@@ -54,7 +54,12 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 			return false;
 		}
 
-		return base.CanUse() || PlayerControl.LocalPlayer.inVent;
+		if (PlayerControl.LocalPlayer.inVent)
+		{
+			return true;
+		}
+
+		return base.CanUse();
 	}
 
 	protected override void OnClick()

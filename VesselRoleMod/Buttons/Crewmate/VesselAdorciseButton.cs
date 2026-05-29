@@ -97,6 +97,11 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			return false;
 		}
 
+		if (PlayerControl.LocalPlayer.inVent)
+		{
+			return true;
+		}
+
 		return base.CanUse();
 	}
 
