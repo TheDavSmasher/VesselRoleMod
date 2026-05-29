@@ -41,7 +41,7 @@ public sealed class VesselChangeControlButton : VesselRoleButton<IVesselPossessM
 
 	public override bool CanUse()
 	{
-		if (Vessel != null && Vessel.inVent)
+		if (Modifier?.Vessel != null && Modifier.Vessel.inVent)
 		{
 			return true;
 		}

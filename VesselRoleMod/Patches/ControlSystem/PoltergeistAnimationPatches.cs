@@ -5,9 +5,9 @@ using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using System.Collections;
 using System.Reflection;
-using TownOfUs.Modules;
 using TownOfUs.Roles.Neutral;
 using UnityEngine;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -141,7 +141,7 @@ public static class PoltergeistAnimationPatches
 				Vent.currentVent = __instance;
 				ConsoleJoystick.SetMode_Vent();
 			}
-			else if (mod.Vessel.AmOwner && mod.Ghost.GetRoleWhenAlive() is not JesterRole)
+			else if (mod.Vessel.AmOwner && ((IVesselModifier)mod).Role is not JesterRole)
 			{
 				Vent.currentVent.SetButtons(true);
 			}

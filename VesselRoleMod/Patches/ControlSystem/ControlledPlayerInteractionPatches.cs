@@ -9,7 +9,6 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
-using TownOfUs.Modules;
 using TownOfUs.Roles.Neutral;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -344,7 +343,7 @@ public static class ControlledPlayerInteractionPatches
 			{
 				return true;
 			}
-			if (mod.Ghost.GetRoleWhenAlive() is JesterRole)
+			if (mod.Role is JesterRole)
 			{
 				return false;
 			}
@@ -364,7 +363,7 @@ public static class ControlledPlayerInteractionPatches
 			{
 				return;
 			}
-			if (mod.Ghost.GetRoleWhenAlive() is JesterRole)
+			if (mod.Role is JesterRole)
 			{
 				return;
 			}

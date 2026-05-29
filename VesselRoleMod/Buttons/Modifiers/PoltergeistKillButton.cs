@@ -6,6 +6,7 @@ using TownOfUs.Buttons;
 using TownOfUs.Networking;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
@@ -27,12 +28,12 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 	protected override bool CanUseAbility()
 	{
 		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill &&
-			   Role!.HasKillingAbility();
+			   ((IVesselModifier)Modifier!).Role.HasKillingAbility();
 	}
 
 	public override PlayerControl? GetTarget()
 	{
-		return Vessel?.GetClosestLivingPlayer(
+		return Modifier?.Vessel.GetClosestLivingPlayer(
 			true,
 			Distance,
 			predicate: plr =>
@@ -60,12 +61,12 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 	{
 		PlayerControl.LocalPlayer.RpcFramedMurder(
 			Target!,
-			Vessel!,
+			Modifier!.Vessel,
 			causeOfDeath: "VesselPossession");
 
 		if (OnKill == VesselOnKillType.CannotPossess)
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel!, true);
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Modifier!.Vessel, true);
 		}
 	}
 }

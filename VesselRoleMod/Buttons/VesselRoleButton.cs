@@ -1,6 +1,5 @@
 ﻿using MiraAPI.PluginLoading;
 using TownOfUs.Buttons;
-using TownOfUs.Modules;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
@@ -21,15 +20,12 @@ public abstract class VesselRoleButton<TModifier> : TownOfUsButton where TModifi
 	public override Color TextOutlineColor => VesselRoleModColors.Vessel;
 
 	protected static TModifier? Modifier => PlayerControl.LocalPlayer.GetModifierOfType<TModifier>();
-	protected static RoleBehaviour? Role => Modifier?.Ghost.GetRoleWhenAlive();
-	protected static PlayerControl? Vessel => Modifier?.Vessel;
 
 	public override bool Enabled(RoleBehaviour? role)
 	{
 		return PlayerControl.LocalPlayer != null &&
 			   (UsableInDeath == PlayerControl.LocalPlayer.Data.IsDead) &&
-			   Modifier != null &&
-			   Vessel!.Data.Role is VesselRole &&
+			   Modifier?.Vessel.Data.Role is VesselRole &&
 			   CanUseAbility();
 	}
 
@@ -39,22 +35,22 @@ public abstract class VesselRoleButton<TModifier> : TownOfUsButton where TModifi
 
 	public override bool CanUse()
 	{
-		if (Modifier == null)
+		if (Modifier?.Vessel == null)
 		{
 			return false;
 		}
 
-		if (Modifier is PoltergeistModifier && Vessel != null)
+		if (Modifier is PoltergeistModifier)
 		{
-			if (Vessel.Data == null ||
-				Vessel.HasDied() ||
-				Vessel.Data.Disconnected ||
-				!VesselControlState.IsControlled(Vessel.PlayerId, out _))
+			if (Modifier.Vessel.Data == null ||
+				Modifier.Vessel.HasDied() ||
+				Modifier.Vessel.Data.Disconnected ||
+				!VesselControlState.IsControlled(Modifier.Vessel.PlayerId, out _))
 			{
-				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel);
+				VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Modifier.Vessel);
 				return false;
 			}
-			if (Vessel.IsInTargetingAnimState())
+			if (Modifier.Vessel.IsInTargetingAnimState())
 			{
 				return false;
 			}

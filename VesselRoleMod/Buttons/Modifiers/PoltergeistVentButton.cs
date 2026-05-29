@@ -19,10 +19,10 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
-	public override float Cooldown => Role is EngineerRole && (HasEffect || Vessel != null && Vessel.inVent)
+	public override float Cooldown => Modifier?.Role is EngineerRole && (HasEffect || Modifier.Vessel != null && Modifier.Vessel.inVent)
 		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown
 		: base.Cooldown;
-	public override float EffectDuration => Role is EngineerRole
+	public override float EffectDuration => Modifier?.Role is EngineerRole
 		? CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration
 		: base.EffectDuration;
 	public override LoadableAsset<Sprite> Sprite => TouCrewAssets.EngiVentSprite;
@@ -31,17 +31,17 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 	{
 		return VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out _) &&
 			   OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent &&
-			   Role!.HasVentingAbility();
+			   Modifier!.Role.HasVentingAbility();
 	}
 
 	public override Vent? GetTarget()
 	{
-		if (Vessel == null || Vessel.Data.IsDead)
+		if (Modifier?.Vessel == null || Modifier.Vessel.Data.IsDead)
 		{
 			return null;
 		}
 
-		if (Vessel.inVent)
+		if (Modifier.Vessel.inVent)
 		{
 			return Vent.currentVent;
 		}
@@ -51,16 +51,16 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 
 	public override bool CanUse()
 	{
-		return base.CanUse() || Vessel!.inVent;
+		return base.CanUse() || Modifier!.Vessel.inVent;
 	}
 
 	protected override void OnClick()
 	{
-		if (Vessel != null && !Vessel.inVent)
+		if (Modifier?.Vessel != null && !Modifier.Vessel.inVent)
 		{
 			if (Target != null)
 			{
-				Vessel.MyPhysics.RpcEnterVent(Target.Id);
+				Modifier.Vessel.MyPhysics.RpcEnterVent(Target.Id);
 				Target.SetButtons(true);
 			}
 		}
@@ -77,7 +77,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 
 	public override void OnEffectEnd()
 	{
-		if (Vessel == null || !Vessel.inVent)
+		if (Modifier?.Vessel == null || !Modifier.Vessel.inVent)
 		{
 			return;
 		}
@@ -106,11 +106,11 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 
 			if (newVent != null)
 			{
-				Vessel.MyPhysics.RpcExitVent(newVent.Id);
+				Modifier.Vessel.MyPhysics.RpcExitVent(newVent.Id);
 				return;
 			}
 		}
 
-		Vessel.MyPhysics.RpcExitVent(Vent.currentVent.Id);
+		Modifier.Vessel.MyPhysics.RpcExitVent(Vent.currentVent.Id);
 	}
 }

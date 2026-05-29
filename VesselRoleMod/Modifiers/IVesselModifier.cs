@@ -1,4 +1,6 @@
-﻿namespace VesselRoleMod.Modifiers;
+﻿using TownOfUs.Modules;
+
+namespace VesselRoleMod.Modifiers;
 
 
 /// <summary>
@@ -15,6 +17,8 @@ public interface IVesselModifier
 	/// The Dead player, possessing.
 	/// </summary>
 	public PlayerControl Ghost { get; }
+
+	public RoleBehaviour Role => Ghost.GetRoleWhenAlive();
 }
 
 /// <summary>

@@ -32,11 +32,11 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 	public override void FixedUpdateHandler(PlayerControl playerControl)
 	{
 		TimerPaused = false;
-		if (Modifier != null && Vessel != null &&
-			(VesselControlState.IsPausingTimer(Vessel.PlayerId) ||
+		if (Modifier?.Vessel != null &&
+			(VesselControlState.IsPausingTimer(Modifier.Vessel.PlayerId) ||
 			 Modifier is PoltergeistModifier &&
-			 VesselControlState.IsControlled(Vessel.PlayerId, out _) &&
-			 VesselControlState.IsInInitialGrace(Vessel.PlayerId)))
+			 VesselControlState.IsControlled(Modifier.Vessel.PlayerId, out _) &&
+			 VesselControlState.IsInInitialGrace(Modifier.Vessel.PlayerId)))
 		{
 			TimerPaused = true;
 		}
@@ -56,14 +56,14 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 
 	public override PlayerControl? GetTarget()
 	{
-		if (Modifier == null)
+		if (Modifier?.Vessel == null)
 		{
 			return null;
 		}
 
-		if (Modifier is PoltergeistModifier && Vessel != null)
+		if (Modifier is PoltergeistModifier)
 		{
-			return Vessel;
+			return Modifier.Vessel;
 		}
 
 		var validTargetIds = PlayerControl.LocalPlayer.GetModifiers<ValidAdorcismGhostModifier>().Select(m => m.Vessel.PlayerId);
@@ -85,7 +85,7 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 
 		if (Modifier is PoltergeistModifier)
 		{
-			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Vessel!);
+			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Modifier.Vessel);
 		}
 
 		OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
@@ -96,12 +96,12 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 	{
 		if (Modifier is PoltergeistModifier)
 		{
-			if (Vessel != null)
+			if (Modifier.Vessel != null)
 			{
-				if (!Vessel.HasDied() &&
-					!Vessel.Data.Disconnected &&
-					VesselControlState.IsControlled(Vessel.PlayerId, out _) &&
-					Vessel.IsInTargetingAnimState()) // pm.Vessel.inVent
+				if (!Modifier.Vessel.HasDied() &&
+					!Modifier.Vessel.Data.Disconnected &&
+					VesselControlState.IsControlled(Modifier.Vessel.PlayerId, out _) &&
+					Modifier.Vessel.IsInTargetingAnimState()) // pm.Vessel.inVent
 				{
 					return;
 				}
