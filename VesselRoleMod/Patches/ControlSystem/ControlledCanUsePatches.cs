@@ -16,7 +16,7 @@ public static class ControlledCanUsePatches
 			return true;
 		}
 
-		if (pc.HasModifierOfType<IVesselModifier>())
+		if (pc.HasModifierOfType<IVesselPossessModifier>())
 		{
 			__result = null!;
 			return false;

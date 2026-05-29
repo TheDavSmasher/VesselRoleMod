@@ -44,7 +44,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 	{
 		return !VesselControlState.CanShareControl &&
 			PlayerControl.LocalPlayer != null && role != null && 
-			role.Player.HasModifierOfType<IVesselModifier>();
+			role.Player.HasModifierOfType<IVesselPossessModifier>();
 	}
 
 	public override bool CanUse()
@@ -69,7 +69,7 @@ public sealed class VesselChangeControlButton : TownOfUsButton
 			return;
 		}
 
-		if (PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is not { } mod)
+		if (PlayerControl.LocalPlayer.GetModifierOfType<IVesselPossessModifier>() is not { } mod)
 		{
 			Error("ChangeControlButton - Invalid click source");
 			return;

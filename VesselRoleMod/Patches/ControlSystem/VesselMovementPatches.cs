@@ -105,7 +105,7 @@ public static class VesselMovementPatches
 
 		if (TimeLordRewindSystem.IsRewinding)
 		{
-			if (player.HasModifierOfType<IVesselModifier>() && player.AmOwner)
+			if (player.HasModifierOfType<IVesselPossessModifier>() && player.AmOwner)
 			{
 				return true;
 			}
@@ -117,7 +117,7 @@ public static class VesselMovementPatches
 
 		if (player.AmOwner &&
 			PlayerControl.LocalPlayer &&
-			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod &&
+			PlayerControl.LocalPlayer.GetModifierOfType<IVesselPossessModifier>() is { } mod &&
 			mod.Vessel != null)
 		{
 			if (TimeLordRewindSystem.IsRewinding)

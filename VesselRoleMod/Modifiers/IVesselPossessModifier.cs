@@ -1,6 +1,6 @@
 ﻿namespace VesselRoleMod.Modifiers;
 
-public interface IVesselModifier
+public interface IVesselPossessModifier
 {
 	public PlayerControl Vessel { get; }
 

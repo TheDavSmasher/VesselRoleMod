@@ -16,7 +16,7 @@ using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, IVesselSeekingModifier, IVesselModifier
+public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, IVesselSeekingModifier, IVesselPossessModifier
 {
 	private static readonly int PlayerLayer = LayerMask.NameToLayer("Players");
 	private static readonly int GhostLayer = LayerMask.NameToLayer("Ghost");

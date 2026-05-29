@@ -303,7 +303,7 @@ public static class ControlledPlayerInteractionPatches
 			return true;
 		}
 		var localPlayer = PlayerControl.LocalPlayer;
-		if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+		if (localPlayer.GetModifierOfType<IVesselPossessModifier>() is not { } mod ||
 			mod.Vessel == null)
 		{
 			return true;
@@ -339,7 +339,7 @@ public static class ControlledPlayerInteractionPatches
 				return true;
 			}
 			var localPlayer = PlayerControl.LocalPlayer;
-			if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+			if (localPlayer.GetModifierOfType<IVesselPossessModifier>() is not { } mod ||
 				mod.Vessel == null || mod.Ghost == null)
 			{
 				return true;
@@ -359,7 +359,7 @@ public static class ControlledPlayerInteractionPatches
 			}
 
 			var localPlayer = PlayerControl.LocalPlayer;
-			if (localPlayer.GetModifierOfType<IVesselModifier>() is not { } mod ||
+			if (localPlayer.GetModifierOfType<IVesselPossessModifier>() is not { } mod ||
 				mod.Vessel == null || mod.Ghost == null)
 			{
 				return;
