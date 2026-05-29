@@ -20,8 +20,8 @@ public abstract class VesselRoleButton<TModifier> : TownOfUsButton where TModifi
 	public override bool ShouldPauseInVent => false;
 	public override Color TextOutlineColor => VesselRoleModColors.Vessel;
 
-	protected static RoleBehaviour Role => PlayerControl.LocalPlayer.GetRoleWhenAlive();
 	protected static TModifier? Modifier => PlayerControl.LocalPlayer.GetModifierOfType<TModifier>();
+	protected static RoleBehaviour? Role => Modifier?.Ghost.GetRoleWhenAlive();
 	protected static PlayerControl? Vessel => Modifier?.Vessel;
 
 	public override bool Enabled(RoleBehaviour? role)

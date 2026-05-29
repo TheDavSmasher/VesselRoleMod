@@ -27,7 +27,7 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 	protected override bool CanUseAbility()
 	{
 		return OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill &&
-			   Role.HasKillingAbility();
+			   Role!.HasKillingAbility();
 	}
 
 	public override PlayerControl? GetTarget()
