@@ -23,8 +23,6 @@ public static class ControlledPlayerInteractionPatches
 	private static List<IUsable>? _cachedInteractables;
 	private static float _lastCacheRefresh;
 	private const float CacheRefreshInterval = 10f;
-	private const float UpdateThrottle = 0.1f;
-	private static float _lastUpdateTime;
 
 	/// <summary>
 	/// Allow UseButton to work for poltergeist when controlling a vessel
@@ -111,7 +109,7 @@ public static class ControlledPlayerInteractionPatches
 	[HarmonyPostfix]
 	public static void UseButtonSetTargetPostfix(UseButton __instance)
 	{
-		UpdateUseButtonTarget(__instance, false);
+		UpdateUseButtonTarget(__instance);
 	}
 
 	/// <summary>
@@ -125,30 +123,7 @@ public static class ControlledPlayerInteractionPatches
 		_lastCacheRefresh = 0f;
 	}
 
-	/// <summary>
-	/// Also patch HudManager Update to continuously check for interactables near controlled player
-	/// Throttled to avoid performance issues
-	/// </summary>
-	[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
-	[HarmonyPriority(Priority.Last)]
-	[HarmonyPostfix]
-	public static void HudManagerUpdatePostfix(HudManager __instance)
-	{
-		// Throttle updates to avoid stuttering
-		var now = Time.time;
-		if (now - _lastUpdateTime < UpdateThrottle)
-		{
-			return;
-		}
-		_lastUpdateTime = now;
-
-		if (__instance?.UseButton != null)
-		{
-			UpdateUseButtonTarget(__instance.UseButton, false);
-		}
-	}
-
-	private static void UpdateUseButtonTarget(UseButton useButton, bool setOutlines = true)
+	private static void UpdateUseButtonTarget(UseButton useButton)
 	{
 		var localPlayer = PlayerControl.LocalPlayer;
 		if (localPlayer == null || useButton == null)
@@ -188,7 +163,7 @@ public static class ControlledPlayerInteractionPatches
 			return;
 		}
 
-		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: setOutlines);
+		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: true);
 		useButton.currentTarget = usable;
 		if (usable != null)
 		{
