@@ -14,7 +14,7 @@ namespace VesselRoleMod.Buttons;
 [MiraIgnore]
 public abstract class VesselRoleButton<TModifier> : TownOfUsButton where TModifier : IVesselModifier
 {
-	public override bool UsableInDeath => true;
+	public override bool UsableInDeath => Modifier is IVesselSeekingModifier;
 	public override float InitialCooldown => 0.001f;
 	public override float Cooldown => 0.001f;
 	public override bool ShouldPauseInVent => false;
