@@ -1,8 +1,6 @@
 ﻿using MiraAPI.GameOptions;
 using MiraAPI.Hud;
-using MiraAPI.Modifiers.Types;
 using MiraAPI.Utilities;
-using Reactor.Utilities.Extensions;
 using TownOfUs.Buttons;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Patches;
@@ -16,19 +14,15 @@ using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, IVesselSeekingModifier, IVesselPossessModifier
+public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossessionModifier<PoltergeistPossessButton>, IVesselSeekingModifier
 {
 	private static readonly int PlayerLayer = LayerMask.NameToLayer("Players");
 	private static readonly int GhostLayer = LayerMask.NameToLayer("Ghost");
 
 	public override string ModifierName => "Ghost Possessor";
-	public override bool HideOnUi => true;
-	public PlayerControl Target => Vessel;
-	public PlayerControl Ghost => Player;
-	public PlayerControl Vessel => vessel;
-	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
-
-	private LobbyNotificationMessage? controllerNotification;
+	public override PlayerControl Target => Vessel;
+	public override PlayerControl Ghost => Player;
+	public override PlayerControl Vessel => vessel;
 
 	public override bool? CanVent()
 	{
@@ -42,6 +36,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, I
 
 	public override void OnActivate()
 	{
+		base.OnActivate();
+
 		if (!Player.AmOwner)
 		{
 			return;
@@ -49,13 +45,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, I
 
 		SetVisibility(false);
 		Player.gameObject.layer = PlayerLayer;
-
-		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
-
-		if (button != null && !button.EffectActive && Player.AmOwner)
-		{
-			button.OnSuccess();
-		}
 
 		if (Minigame.Instance && Minigame.Instance.TryCast<HauntMenuMinigame>())
 		{
@@ -85,6 +74,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, I
 
 	public override void OnDeactivate()
 	{
+		base.OnDeactivate();
+
 		if (!Player.AmOwner)
 		{
 			return;
@@ -93,12 +84,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, I
 		SetVisibility(true);
 		Player.gameObject.layer = GhostLayer;
 
-		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
-
-		if (button != null && button.EffectActive)
-		{
-			button.ResetCooldownAndOrEffect();
-		}
 		HudManager.Instance.AbilityButton.SetEnabled();
 		HudManagerPatches.ZoomButton.SetActive(HudManagerPatches.CanZoom);
 
@@ -136,7 +121,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, I
 
 	public override void OnMeetingStart()
 	{
-		ModifierComponent?.RemoveModifier(this);
+		base.OnMeetingStart();
 
 		if (Player.AmOwner)
 		{
@@ -183,29 +168,20 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : TimedModifier, I
 		}
 	}
 
-	public void CreateNotification()
+	public override void CreateNotification()
 	{
 		if (Vessel == null || Player == null || !Player.AmOwner)
 		{
 			return;
 		}
 
-		if (controllerNotification == null)
+		if (notification == null)
 		{
 			var controllerText = TouLocale.GetParsed("PoltergeistControlNotif", $"You are possessing {Vessel.Data.PlayerName}!");
-			controllerNotification = Helpers.CreateAndShowNotification(
+			notification = Helpers.CreateAndShowNotification(
 				$"<b>{VesselRoleModColors.Vessel.ToTextColor()}{controllerText.Replace("<player>", Vessel.Data.PlayerName)}</color></b>",
 				Color.white, new Vector3(0f, 2f, -20f), spr: VesselRoleIcons.Vessel.LoadAsset());
-			controllerNotification?.AdjustNotification();
-		}
-	}
-
-	public void ClearNotification()
-	{
-		if (controllerNotification != null && controllerNotification.gameObject != null)
-		{
-			controllerNotification.gameObject.Destroy();
-			controllerNotification = null;
+			notification?.AdjustNotification();
 		}
 	}
 }

@@ -1,8 +1,6 @@
 ﻿using MiraAPI.Events;
 using MiraAPI.GameOptions;
-using MiraAPI.Hud;
 using MiraAPI.Modifiers;
-using MiraAPI.Modifiers.Types;
 using TownOfUs.Interfaces;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
@@ -19,19 +17,17 @@ namespace VesselRoleMod.Modifiers.Crewmate;
 /// Applied to the vessel while they are controlled by a Poltergeist.
 /// Movement/input suppression is handled by Harmony patches while this modifier is present.
 /// </summary>
-public sealed class VesselPossessedModifier(PlayerControl ghost) : TimedModifier, IUncontrollable, IVesselPossessModifier
+public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossessionModifier<VesselAdorciseButton>, IUncontrollable
 {
-	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override string ModifierName => "Possessed";
-	public override bool HideOnUi => true;
-	public PlayerControl Target => Ghost;
-	public PlayerControl Vessel => Player;
-	public PlayerControl Ghost => ghost;
-
-	private LobbyNotificationMessage? _possessedNotification;
+	public override PlayerControl Target => Ghost;
+	public override PlayerControl Vessel => Player;
+	public override PlayerControl Ghost => ghost;
 
 	public override void OnActivate()
 	{
+		base.OnActivate();
+
 		if (Player.AmOwner)
 		{
 			CreateNotification();
@@ -59,49 +55,27 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : TimedModifier
 
 	public override void OnDeactivate()
 	{
+		base.OnDeactivate();
+
 		ClearNotification();
-		if (Player.AmOwner)
-		{
-			var button = CustomButtonSingleton<VesselAdorciseButton>.Instance;
-
-			if (button != null && button.EffectActive)
-			{
-				button.ResetCooldownAndOrEffect();
-			}
-		}
 	}
 
-	public override void OnDeath(DeathReason reason)
-	{
-		ModifierComponent?.RemoveModifier(this);
-	}
-
-	public override void OnMeetingStart()
-	{
-		ModifierComponent?.RemoveModifier(this);
-	}
-
-	public void CreateNotification()
+	public override void CreateNotification()
 	{
 		if (Player == null || !Player.AmOwner || PlayerControl.LocalPlayer == null)
 		{
 			return;
 		}
 
-		if (_possessedNotification == null)
+		if (notification == null)
 		{
 			var ghostName = OptionGroupSingleton<VesselOptions>.Instance.NotifHasName ? Ghost.Data.PlayerName :
 				Ghost?.Data?.Role is ITownOfUsRole touRole ? touRole.RoleName : "Poltergeist";
-			_possessedNotification = ControlledFeedbackUtilities.ShowControlledByNotification(
+			notification = ControlledFeedbackUtilities.ShowControlledByNotification(
 				ghostName,
 				VesselRoleModColors.Vessel,
 				VesselRoleIcons.Vessel.LoadAsset());
-			_possessedNotification?.AdjustNotification();
+			notification?.AdjustNotification();
 		}
-	}
-
-	public void ClearNotification()
-	{
-		ControlledFeedbackUtilities.ClearNotification(ref _possessedNotification);
 	}
 }

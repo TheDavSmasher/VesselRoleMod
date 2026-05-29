@@ -19,7 +19,7 @@ using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Buttons.Crewmate;
 
-public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
+public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>, IPossessionButton
 {
 	public override string Name => TouLocale.GetParsed("VesselRoleAdorcise", "Adorcise");
 	public override BaseKeybind? Keybind => Keybinds.SecondaryAction;
@@ -106,6 +106,8 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 
 		return base.CanUse();
 	}
+
+	public void OnSuccess() => ActivateTriggerEffect();
 
 	public override void OnTriggerActivate()
 	{
