@@ -534,9 +534,14 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
+		if (!player.AmOwner)
+		{
+			return;
+		}
+
 		if (interactable.TryCast<Ladder>() is { } ladder)
 		{
-			if (!player.AmOwner || ladder.IsCoolingDown())
+			if (ladder.IsCoolingDown())
 			{
 				return;
 			}
@@ -545,7 +550,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else if (interactable.TryCast<ZiplineConsole>() is { } ziplineConsole)
 		{
-			if (!player.AmOwner || ziplineConsole.IsCoolingDown())
+			if (ziplineConsole.IsCoolingDown())
 			{
 				return;
 			}
@@ -554,55 +559,23 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else if (interactable.TryCast<OpenDoorConsole>() is { } openDoorConsole)
 		{
-			if (AmongUsClient.Instance == null || !AmongUsClient.Instance.AmHost)
-			{
-				return;
-			}
+			ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, (byte)(openDoorConsole.myDoor.Id | 0x40));
 			openDoorConsole.myDoor.SetDoorway(true);
 		}
 		else if (interactable.TryCast<DoorConsole>() is { } doorConsole)
 		{
-			if (player.AmOwner)
-			{
-				player.NetTransform.Halt();
-				var minigame = Object.Instantiate(doorConsole.MinigamePrefab, Camera.main.transform);
-				minigame.transform.localPosition = new Vector3(0f, 0f, -50f);
-
-				try
-				{
-					minigame.Cast<IDoorMinigame>().SetDoor(doorConsole.MyDoor);
-				}
-				catch (InvalidCastException)
-				{
-					/* ignored */
-				}
-
-				minigame.Begin(null);
-			}
+			player.NetTransform.Halt();
+			var minigame = Object.Instantiate(doorConsole.MinigamePrefab, Camera.main.transform);
+			minigame.transform.localPosition = new Vector3(0f, 0f, -50f);
+			minigame.TryCast<IDoorMinigame>()?.SetDoor(doorConsole.MyDoor);
+			minigame.Begin(null);
 		}
 		else if (interactable.TryCast<PlatformConsole>() is { } platformConsole)
 		{
-			if (AmongUsClient.Instance == null || !AmongUsClient.Instance.AmHost)
-			{
-				return;
-			}
-			var platform = platformConsole.Platform;
-			if (platform != null)
-			{
-				var vector = platform.transform.position - player.transform.position;
-				if (!platform.Target && vector.magnitude <= 3f)
-				{
-					platform.IsDirty = true;
-					platform.StartCoroutine(platform.UsePlatform(player));
-				}
-			}
+			platformConsole.Platform.Use();
 		}
 		else if (interactable.TryCast<DeconControl>() is { } deconControl)
 		{
-			if (AmongUsClient.Instance == null || !AmongUsClient.Instance.AmHost)
-			{
-				return;
-			}
 			deconControl.cooldown = 6f;
 			if (Constants.ShouldPlaySfx())
 			{
