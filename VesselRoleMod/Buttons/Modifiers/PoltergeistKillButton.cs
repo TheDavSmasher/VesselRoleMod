@@ -18,7 +18,9 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 {
 	public override string Name => "Kill";
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
-	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
+	public override float Cooldown => Options.KillingGhostOnKill == VesselOnKillType.None
+		? PlayerControl.LocalPlayer.GetKillCooldown()
+		: base.Cooldown;
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 	public override int MaxUses => Options.KillingGhostOnKill == VesselOnKillType.CannotKill ? 1 : -1;
 
