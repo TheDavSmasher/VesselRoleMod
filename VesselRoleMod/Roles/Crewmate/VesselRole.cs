@@ -7,6 +7,7 @@ using MiraAPI.Utilities;
 using Reactor.Networking.Attributes;
 using Reactor.Utilities.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
@@ -83,32 +84,59 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		RoleBehaviourStubs.OnMeetingStart(this);
 	}
 
+	public static void RpcSeekVessel(PlayerControl vessel, List<PlayerControl> ghosts)
+	{
+		RpcSeekVessel(vessel, ghosts.ToDictionary(x => x.PlayerId, x => x.Data.PlayerName));
+	}
+
 	[MethodRpc((uint)VesselModRpc.AdorcismStart)]
-	public static void RpcSeekVessel(PlayerControl player, PlayerControl target)
+	public static void RpcSeekVessel(PlayerControl vessel, Dictionary<byte, string> ghosts)
 	{
 		if (LobbyBehaviour.Instance)
 		{
-			MiscUtils.RunAnticheatWarning(player);
+			MiscUtils.RunAnticheatWarning(vessel);
 			return;
 		}
-		if (target.Data.Role is not VesselRole)
+		if (vessel.Data.Role is not VesselRole)
 		{
 			Error($"RpcSeekVessel - Invalid Vessel target");
 			return;
 		}
-
-		if (!player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
+		
+		if (!vessel.HasModifier<VesselAdorcismModifier>())
 		{
-			player.AddModifier<ValidAdorcismGhostModifier>(target);
+			vessel.AddModifier<VesselAdorcismModifier>();
 		}
 
-		var color = Palette.PlayerColors[target.GetDefaultAppearance().ColorId];
-		if (player.AmOwner)
+		if (ghosts.Count == 0)
 		{
-			var mod = new PoltergeistArrowModifier(target, color);
-			player.AddModifier(mod);
+			return;
+		}
 
-			CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(true, player.Data.Role);
+		var color = Palette.PlayerColors[vessel.GetDefaultAppearance().ColorId];
+		var allPlayers = PlayerControl.AllPlayerControls.ToArray().Where(x => x.PlayerId == vessel.PlayerId).ToList();
+
+		foreach (var (ghostId, ghostName) in ghosts)
+		{
+			var ghost = allPlayers.FirstOrDefault(x => x.PlayerId == ghostId || x.Data.PlayerName == ghostName);
+			if (ghost == null)
+			{
+				continue;
+			}
+			allPlayers.Remove(ghost);
+
+			if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
+			{
+				ghost.AddModifier<ValidAdorcismGhostModifier>(vessel);
+			}
+
+			if (ghost.AmOwner)
+			{
+				var mod = new PoltergeistArrowModifier(vessel, color);
+				ghost.AddModifier(mod);
+
+				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(true, ghost.Data.Role);
+			}
 		}
 	}
 

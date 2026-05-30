@@ -56,22 +56,14 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>, IPossessio
 			return;
 		}
 
-		var deadPlayers = PlayerControl.AllPlayerControls.ToArray().Where(IsValidGhost);
+		var deadPlayers = PlayerControl.AllPlayerControls.ToArray().Where(IsValidGhost).ToList();
 
-		if (!deadPlayers.Any())
+		if (deadPlayers.Count == 0)
 		{
 			return;
 		}
 
-		if (!PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>())
-		{
-			PlayerControl.LocalPlayer.RpcAddModifier<VesselAdorcismModifier>();
-		}
-
-		foreach (var ghost in deadPlayers)
-		{
-			VesselRole.RpcSeekVessel(ghost, PlayerControl.LocalPlayer);
-		}
+		VesselRole.RpcSeekVessel(PlayerControl.LocalPlayer, deadPlayers);
 	}
 
 	private static bool IsValidGhost(PlayerControl plr)
