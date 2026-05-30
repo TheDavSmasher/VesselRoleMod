@@ -26,6 +26,35 @@ public static class PoltergeistAnimationPatches
 			mod.Ghost.MyPhysics.StartClimb(down);
 		}
 	}
+
+	[HarmonyPatch]
+	public static class ClimbLadderPatch
+	{
+		public static MethodBase TargetMethod()
+		{
+			return Helpers.GetStateMachineMoveNext<PlayerPhysics>(nameof(PlayerPhysics.CoClimbLadder))!;
+		}
+
+		public static void Postfix(Il2CppObjectBase __instance, bool __result)
+		{
+			var wrapper = new StateMachineWrapper<PlayerPhysics>(__instance);
+
+			if (__result)
+			{
+				return;
+			}
+
+			var instance = wrapper.Instance;
+			var player = instance.myPlayer;
+			var source = wrapper.GetParameter<Ladder>("source");
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null && mod.Ghost.AmOwner)
+			{
+				source.SetDestinationCooldown();
+			}
+		}
+	}
 	#endregion
 
 	#region Zipline
@@ -121,14 +150,31 @@ public static class PoltergeistAnimationPatches
 		}
 	}
 
-	[HarmonyPatch(typeof(ZiplineBehaviour), nameof(ZiplineBehaviour.CoUseZipline))]
-	[HarmonyPostfix]
-	public static void VesselUseZiplinePostfix(ZiplineBehaviour __instance, PlayerControl player)
+	[HarmonyPatch]
+	public static class UseZiplinePatch
 	{
-		if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
-			mod.Ghost != null && mod.Ghost.AmOwner && __instance.lastUsedConsole)
+		public static MethodBase TargetMethod()
 		{
-			__instance.lastUsedConsole.SetDestinationCooldown();
+			return Helpers.GetStateMachineMoveNext<ZiplineBehaviour>(nameof(ZiplineBehaviour.CoUseZipline))!;
+		}
+
+		public static void Postfix(Il2CppObjectBase __instance, bool __result)
+		{
+			var wrapper = new StateMachineWrapper<ZiplineBehaviour>(__instance);
+
+			if (__result)
+			{
+				return;
+			}
+
+			var instance = wrapper.Instance;
+			var player = wrapper.GetParameter<PlayerControl>("player");
+
+			if (player.TryGetModifier<VesselPossessedModifier>(out var mod) &&
+				mod.Ghost != null && mod.Ghost.AmOwner && instance.lastUsedConsole)
+			{
+				instance.lastUsedConsole.SetDestinationCooldown();
+			}
 		}
 	}
 	#endregion
