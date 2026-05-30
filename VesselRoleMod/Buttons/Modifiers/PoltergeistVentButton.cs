@@ -56,7 +56,12 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 
 	protected override void OnClick()
 	{
-		if (Modifier?.Vessel != null && !Modifier.Vessel.inVent)
+		if (Modifier?.Vessel == null || Modifier.Vessel.walkingToVent)
+		{
+			return;
+		}
+
+		if (!Modifier.Vessel.inVent)
 		{
 			if (Target != null)
 			{
