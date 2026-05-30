@@ -233,7 +233,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	{
 		if (LobbyBehaviour.Instance)
 		{
-			MiscUtils.RunAnticheatWarning(ghost);
+			MiscUtils.RunAnticheatWarning(vessel);
 			return;
 		}
 		if (ghost.GetModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
