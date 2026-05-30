@@ -81,6 +81,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		RoleBehaviourStubs.OnMeetingStart(this);
 	}
 
+	#region Role RPCs
+
+	#region Vessel Seeking
 	public static void RpcSeekVessel(PlayerControl vessel, List<PlayerControl> ghosts)
 	{
 		RpcSeekVessel(vessel, ghosts.ToDictionary(x => x.PlayerId, x => x.Data.PlayerName));
@@ -167,7 +170,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		return modifier.Vessel.PlayerId == vessel.PlayerId ||
 			   ghost != null && modifier.Player.PlayerId == ghost.PlayerId;
 	}
+	#endregion
 
+	#region Ghost Possession
+
+	#region Start Possession
 	[MethodRpc((uint)VesselModRpc.VesselTryPossessing)]
 	public static void RpcGhostTryPossessing(PlayerControl ghost, PlayerControl vessel)
 	{
@@ -347,7 +354,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(true, PlayerControl.LocalPlayer.Data.Role);
 		}
 	}
+	#endregion
 
+	#region End Possession
 	[MethodRpc((uint)VesselModRpc.VesselEndPossession)]
 	public static void RpcGhostEndPossession(PlayerControl ghost, PlayerControl vessel, bool onKill = false)
 	{
@@ -450,7 +459,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			ghost.AddModifier<GhostKillerBlockModifier>(vessel.AmOwner);
 		}
 	}
+	#endregion
 
+	#region Possession Control
 	[MethodRpc((uint)VesselModRpc.ChangePossessionControl)]
 	public static void RpcChangeControl(PlayerControl ghost, PlayerControl vessel)
 	{
@@ -481,6 +492,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 	}
 
+	#region Possession Interactions
+
+	#region Usables
 	[MethodRpc((uint)VesselModRpc.VesselTriggerInteraction)]
 	public static void RpcGhostTriggerInteraction(PlayerControl ghost, PlayerControl vessel, Vector2 interactablePosition)
 	{
@@ -597,7 +611,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			deconControl.OnUse.Invoke();
 		}
 	}
+	#endregion
 
+	#region Vents
 	[MethodRpc((uint)VesselModRpc.VesselMoveVent)]
 	public static void RpcVesselTryMoveToVent(
 		PlayerControl source,
@@ -644,6 +660,15 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		Vent.currentVent = otherVent;
 		VentilationSystem.Update(VentilationSystem.Operation.Move, Vent.currentVent.Id);
 	}
+	#endregion
+
+	#endregion
+
+	#endregion
+
+	#endregion
+
+	#endregion
 
 	public void LobbyStart()
 	{
