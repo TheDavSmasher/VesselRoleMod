@@ -16,6 +16,7 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
@@ -73,7 +74,7 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 				plr != PlayerControl.LocalPlayer &&
 				!plr.HasDied() &&
 				!plr.IsInTargetingAnimState() &&
-				!plr.GetModifiers<BaseModifier>().Any(x => x is IUncontrollable) &&
+				!plr.HasModifierOfType<IUncontrollable>() &&
 				plr.HasModifier<VesselAdorcismModifier>() &&
 				validTargetIds.Contains(plr.PlayerId) &&
 				!VesselControlState.IsPausingTimer(plr.PlayerId));

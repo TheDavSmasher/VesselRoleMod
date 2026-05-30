@@ -20,18 +20,15 @@ public static class VesselOverlayPatch
 			return;
 		}
 
-		var hasModifier = local.TryGetModifier<VesselPossessedModifier>(out var mod);
-		var isControlled = VesselControlState.IsControlled(local.PlayerId, out var ghostId);
-
-		if (hasModifier && !isControlled)
+		if (local.TryGetModifier<VesselPossessedModifier>(out var mod))
 		{
-			mod!.ClearNotification();
-			mod!.RemoveSelf();
-			return;
-		}
+			if (!VesselControlState.IsControlled(local.PlayerId, out var ghostId))
+			{
+				mod.ClearNotification();
+				mod.RemoveSelf();
+				return;
+			}
 
-		if (hasModifier)
-		{
 			var shouldClear =
 				MeetingHud.Instance != null ||
 				ExileController.Instance != null ||
@@ -50,8 +47,8 @@ public static class VesselOverlayPatch
 
 			if (shouldClear)
 			{
-				mod!.ClearNotification();
 				VesselControlState.ClearControl(local.PlayerId);
+				mod.ClearNotification();
 				mod.RemoveSelf();
 			}
 		}

@@ -88,8 +88,8 @@ public static class PoltergeistOverlayPatches
 		static string GetDiedR1ExtraNameTextForDisplayedIdentity(PlayerControl player)
 		{
 			var displayPlayer = GetDisguiseTargetOrSelf(player);
-			var mod = displayPlayer.GetModifiers<BaseRevealModifier>()
-				.FirstOrDefault(x => x.Visible && x is FirstRoundIndicator && x.ExtraNameText != string.Empty);
+			var mod = displayPlayer.GetModifier<BaseRevealModifier>
+				(x => x.Visible && x is FirstRoundIndicator && x.ExtraNameText != string.Empty);
 			return mod?.ExtraNameText ?? string.Empty;
 		}
 
@@ -162,7 +162,7 @@ public static class PoltergeistOverlayPatches
 					roleName += "<size=80%><color=#FFFFFF> (<color=#D63F42>Retrained</color>)</color></size>";
 				}
 
-				var cachedMod = player.GetModifiers<BaseModifier>().FirstOrDefault(x => x is ICachedRole);
+				var cachedMod = player.GetModifierOfType<ICachedRole>();
 				if (cachedMod is ICachedRole cache && cache.Visible &&
 					player.Data.Role.GetType() != cache.CachedRole.GetType())
 				{

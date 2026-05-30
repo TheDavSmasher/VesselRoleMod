@@ -46,9 +46,9 @@ public static class VesselDisconnectPatch
 			}
 		}
 
-		if (player.TryGetModifier<PoltergeistModifier>(out var mod2) && mod2.Vessel != null)
+		if (player.TryGetModifier<PoltergeistModifier>(out var mod) && mod.Vessel != null)
 		{
-			VesselRole.RpcGhostEndPossession(player, mod2.Vessel);
+			VesselRole.RpcGhostEndPossession(player, mod.Vessel);
 		}
 
 		player.RemoveExistingModifier<VesselPossessedModifier>();

@@ -136,7 +136,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 	public override void ClickHandler()
 	{
 		if (!CanClick() || PlayerControl.LocalPlayer.HasModifier<GlitchHackedModifier>() ||
-			PlayerControl.LocalPlayer.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
+			PlayerControl.LocalPlayer.HasModifier<DisabledModifier>(x => !x.CanUseAbilities))
 		{
 			return;
 		}
@@ -223,7 +223,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		}
 
 		if (!PlayerControl.LocalPlayer.CanMove ||
-			PlayerControl.LocalPlayer.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
+			PlayerControl.LocalPlayer.HasModifier<DisabledModifier>(x => !x.CanUseAbilities))
 		{
 			return false;
 		}

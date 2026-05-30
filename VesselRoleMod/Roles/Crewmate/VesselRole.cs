@@ -176,7 +176,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (ghost.GetModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcPossess - Invalid poltergeist");
 			return;
@@ -231,7 +231,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(vessel);
 			return;
 		}
-		if (ghost.GetModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcPossess - Invalid poltergeist");
 			return;
@@ -362,12 +362,12 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 	public static void GhostEndPossession(PlayerControl ghost, PlayerControl vessel, bool onKill = false)
 	{
-		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			return;
 		}
 
-		if (vessel != null && vessel.GetModifier<VesselPossessedModifier>() is { } mod1)
+		if (vessel != null && vessel.TryGetModifier<VesselPossessedModifier>(out var mod1))
 		{
 			VesselControlState.ClearControl(vessel.PlayerId);
 			vessel.RemoveExistingModifier<VesselPossessedModifier>();
@@ -462,7 +462,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcChangeControl - Invalid poltergeist");
 			return;
@@ -492,7 +492,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcVesselInteraction - Invalid poltergeist");
 			return;
@@ -612,7 +612,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(source);
 			return;
 		}
-		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcVesselVentMove - Invalid poltergeist");
 			return;

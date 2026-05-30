@@ -91,7 +91,7 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : VesselRoleBu
 		if (target is PlayerControl playerTarget)
 		{
 			return target != null && (ValidTargetInVent() || !playerTarget.inVent) &&
-				   !playerTarget.GetModifiers<DisabledModifier>().Any(mod => !mod.CanBeInteractedWith) &&
+				   !playerTarget.HasModifier<DisabledModifier>(mod => !mod.CanBeInteractedWith) &&
 				   !SpectatorRole.TrackedSpectators.Contains(playerTarget.Data.PlayerName);
 		}
 
