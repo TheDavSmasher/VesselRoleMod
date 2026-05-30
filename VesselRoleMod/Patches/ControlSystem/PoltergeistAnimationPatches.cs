@@ -15,6 +15,7 @@ namespace VesselRoleMod.Patches.ControlSystem;
 [HarmonyPatch]
 public static class PoltergeistAnimationPatches
 {
+	#region Ladders
 	[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.StartClimb))]
 	[HarmonyPostfix]
 	public static void VesselClimbLadderPostfix(PlayerPhysics __instance, bool down)
@@ -25,7 +26,9 @@ public static class PoltergeistAnimationPatches
 			mod.Ghost.MyPhysics.StartClimb(down);
 		}
 	}
+	#endregion
 
+	#region Zipline
 	[HarmonyPatch]
 	public static class AnimateZiplinePatch
 	{
@@ -128,7 +131,9 @@ public static class PoltergeistAnimationPatches
 			__instance.lastUsedConsole.SetDestinationCooldown();
 		}
 	}
+	#endregion
 
+	#region Vent
 	[HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
 	[HarmonyPostfix]
 	public static void VesselEnterVentPostfix(Vent __instance, PlayerControl pc)
@@ -240,4 +245,5 @@ public static class PoltergeistAnimationPatches
 			}
 		}
 	}
+	#endregion
 }
