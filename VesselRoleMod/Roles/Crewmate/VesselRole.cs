@@ -63,7 +63,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	{
 		RoleBehaviourStubs.Initialize(this, player);
 
-		if (OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.None && 
+		if (OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.None &&
 			!player.HasModifier<VesselBlacklistModifier>())
 		{
 			player.AddModifier<VesselBlacklistModifier>();
@@ -99,7 +99,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			Error($"RpcSeekVessel - Invalid Vessel target");
 			return;
 		}
-		
+
 		if (!vessel.HasModifier<VesselAdorcismModifier>())
 		{
 			vessel.AddModifier<VesselAdorcismModifier>();
@@ -604,7 +604,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	[MethodRpc((uint)VesselModRpc.VesselMoveVent)]
 	public static void RpcVesselTryMoveToVent(
 		PlayerControl source,
-		PlayerControl ghost, PlayerControl vessel, 
+		PlayerControl ghost, PlayerControl vessel,
 		int ventId, int otherVentId)
 	{
 		if (LobbyBehaviour.Instance)

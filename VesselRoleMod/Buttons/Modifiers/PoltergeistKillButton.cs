@@ -36,7 +36,7 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 			true,
 			Distance,
 			predicate: plr =>
-			    plr != null &&
+				plr != null &&
 				plr != PlayerControl.LocalPlayer &&
 				!plr.HasDied() &&
 				!plr.IsInTargetingAnimState());

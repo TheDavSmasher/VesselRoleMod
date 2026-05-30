@@ -66,7 +66,7 @@ internal sealed class VesselInputUnreliableRpc(VesselRoleModPlugin plugin, uint 
 				return;
 			}
 			VesselControlState.SetSelfDirection(data.TargetId, data.Direction);
-			
+
 		}
 		else
 		{

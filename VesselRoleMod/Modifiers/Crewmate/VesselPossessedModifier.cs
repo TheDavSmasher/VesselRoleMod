@@ -1,6 +1,5 @@
 ﻿using MiraAPI.Events;
 using MiraAPI.GameOptions;
-using MiraAPI.Modifiers;
 using TownOfUs.Interfaces;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;

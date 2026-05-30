@@ -291,7 +291,7 @@ public static class PoltergeistOverlayPatches
 			return;
 		}
 
-		if (__instance is EclipsalBlindModifier blindMod && ! PlayerControl.LocalPlayer.IsImpostorAligned())
+		if (__instance is EclipsalBlindModifier blindMod && !PlayerControl.LocalPlayer.IsImpostorAligned())
 		{
 			blindMod.Player.cosmetics.currentBodySprite.BodySprite.material.SetColor(ShaderID.VisorColor, Color.black);
 			blindMod.EclipseBack?.SetActive(!blindMod.Player.IsVisibleToOthers());

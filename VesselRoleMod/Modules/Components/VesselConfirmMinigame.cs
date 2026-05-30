@@ -1,6 +1,5 @@
 ﻿using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.GameOptions;
-using MiraAPI.LocalSettings;
 using MiraAPI.Patches.Stubs;
 using Reactor.Utilities;
 using Reactor.Utilities.Attributes;
@@ -10,7 +9,6 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using TMPro;
-using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Utilities;
 using UnityEngine;

@@ -236,7 +236,7 @@ public static class PoltergeistAnimationPatches
 				{
 					Vent.currentVent = null;
 					ConsoleJoystick.SetMode_Gameplay();
-				}				
+				}
 			}
 		}
 	}

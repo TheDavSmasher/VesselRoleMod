@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using MiraAPI.Modifiers;
 using System.Collections.Generic;
+using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
@@ -9,7 +10,6 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
-using TownOfUs.Roles.Neutral;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -236,7 +236,7 @@ public static class ControlledPlayerInteractionPatches
 			var objPos = (Vector2)obj.transform.position;
 			var distance = Vector2.Distance(usePosition, objPos);
 
-			usable.CanUse(player.Data, out bool canUse, out bool couldUse);		
+			usable.CanUse(player.Data, out bool canUse, out bool couldUse);
 
 			if (setOutlines)
 			{

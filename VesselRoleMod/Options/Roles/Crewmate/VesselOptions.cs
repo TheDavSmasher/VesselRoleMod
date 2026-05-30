@@ -1,10 +1,10 @@
-﻿using MiraAPI.Utilities;
-using MiraAPI.GameOptions;
+﻿using MiraAPI.GameOptions;
 using MiraAPI.GameOptions.Attributes;
 using MiraAPI.GameOptions.OptionTypes;
-using VesselRoleMod.Roles.Crewmate;
 using MiraAPI.Roles;
+using MiraAPI.Utilities;
 using UnityEngine;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Options.Roles.Crewmate;
 

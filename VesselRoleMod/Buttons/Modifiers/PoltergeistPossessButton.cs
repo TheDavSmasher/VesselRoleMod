@@ -70,7 +70,7 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 		var validTargetIds = PlayerControl.LocalPlayer.GetModifiers<ValidAdorcismGhostModifier>().Select(m => m.Vessel.PlayerId);
 		return PlayerControl.LocalPlayer.GetClosestLivingPlayer(false, Distance,
 			predicate: plr =>
-			    plr != null &&
+				plr != null &&
 				plr != PlayerControl.LocalPlayer &&
 				!plr.HasDied() &&
 				!plr.IsInTargetingAnimState() &&

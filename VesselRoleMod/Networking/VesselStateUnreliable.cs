@@ -68,6 +68,6 @@ internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint 
 			return;
 		}
 
-		VesselControlState.SetMovementState(data.VesselId, data.Position, data.InAnim, data.Velocity);		
+		VesselControlState.SetMovementState(data.VesselId, data.Position, data.InAnim, data.Velocity);
 	}
 }

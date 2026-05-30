@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using MiraAPI.Modifiers;
 using TownOfUs.Modules.ControlSystem;
 using TownOfUs.Roles.Impostor;
 using TownOfUs.Utilities;
@@ -22,7 +21,7 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		if (ParasiteControlState.IsControlled(target.PlayerId, out _) || 
+		if (ParasiteControlState.IsControlled(target.PlayerId, out _) ||
 			PuppeteerControlState.IsControlled(target.PlayerId, out _))
 		{
 			target.RemoveExistingModifier<VesselAdorcismModifier>();

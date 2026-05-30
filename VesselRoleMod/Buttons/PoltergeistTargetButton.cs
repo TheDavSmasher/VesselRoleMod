@@ -4,7 +4,6 @@ using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using Reactor.Utilities.Extensions;
 using System;
-using System.Linq;
 using TownOfUs.Assets;
 using TownOfUs.Modifiers;
 using TownOfUs.Roles.Other;
