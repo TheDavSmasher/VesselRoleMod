@@ -11,11 +11,14 @@ namespace VesselRoleMod.Modifiers.Ghost;
 /// </summary>
 /// <param name="owner">The Vessel player that the arrow points to</param>
 public sealed class PoltergeistArrowModifier(PlayerControl owner, Color color)
-	: ArrowSourceModifier(owner, color, 0)
+	: ArrowSourceModifier(owner, color, 0), IVesselModifier
 {
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 
 	public override bool AutoStart => true;
+
+	public PlayerControl Vessel => Owner;
+	public PlayerControl Ghost => Player;
 
 	public override void FixedUpdate()
 	{

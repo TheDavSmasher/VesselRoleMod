@@ -143,7 +143,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public static void VesselClosed(PlayerControl vessel, PlayerControl? ghost = null)
 	{
 		foreach (var validMod in ModifierUtils.GetActiveModifiers
-			<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId || x.Player.PlayerId == ghost?.PlayerId))
+			<ValidAdorcismGhostModifier>(x => IsModifierToRemove(x, vessel, ghost)))
 		{
 			if (validMod == null)
 			{
@@ -155,7 +155,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 			if (seekingGhost.AmOwner)
 			{
-				if (seekingGhost.GetModifier<PoltergeistArrowModifier>(m => m.Owner.PlayerId == vessel.PlayerId || m.Player.PlayerId == ghost?.PlayerId) is { } arrow)
+				if (seekingGhost.GetModifier<PoltergeistArrowModifier>(x => IsModifierToRemove(x, vessel, ghost)) is { } arrow)
 				{
 					seekingGhost.RemoveModifier(arrow);
 				}
@@ -165,6 +165,12 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 				}
 			}
 		}
+	}
+
+	private static bool IsModifierToRemove<T>(T modifier, PlayerControl vessel, PlayerControl? ghost) where T : BaseModifier, IVesselModifier
+	{
+		return modifier.Vessel.PlayerId == vessel.PlayerId ||
+			   ghost != null && modifier.Player.PlayerId == ghost.PlayerId;
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselTryPossessing)]
