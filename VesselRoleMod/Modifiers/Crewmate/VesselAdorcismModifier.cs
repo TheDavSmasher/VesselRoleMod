@@ -2,7 +2,6 @@
 using MiraAPI.Modifiers;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
-using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 
@@ -34,17 +33,6 @@ public sealed class VesselAdorcismModifier : OpenAdorcismModifier
 			MiraEventManager.InvokeEvent(vesselAbilityEvent);
 		}
 
-		foreach (var validAdorcismMod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>())
-		{
-			if (validAdorcismMod == null)
-			{
-				continue;
-			}
-
-			if (validAdorcismMod.Vessel.PlayerId == Player.PlayerId)
-			{
-				VesselRole.VesselClosed(validAdorcismMod.Player, Player);
-			}
-		}
+		VesselRole.VesselClosed(Player);
 	}
 }

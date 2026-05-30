@@ -140,38 +140,29 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 	}
 
-	public static void VesselClosed(PlayerControl player, PlayerControl target)
+	public static void VesselClosed(PlayerControl vessel, PlayerControl? ghost = null)
 	{
-		if (LobbyBehaviour.Instance)
+		foreach (var validMod in ModifierUtils.GetActiveModifiers
+			<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId || x.Player.PlayerId == ghost?.PlayerId))
 		{
-			MiscUtils.RunAnticheatWarning(player);
-			return;
-		}
-		if (target.Data.Role is not VesselRole)
-		{
-			Error($"RpcVesselClosed - Invalid Vessel target");
-			return;
-		}
-
-		if (player.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == target.PlayerId))
-		{
-			player.RemoveModifier(mod);
-		}
-		else
-		{
-			Error($"RpcVesselClosed - Invalid ghost");
-		}
-
-		if (player.AmOwner)
-		{
-			if (!player.HasModifierOfType<IVesselSeekingModifier>())
+			if (validMod == null)
 			{
-				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, player.Data.Role);
+				continue;
 			}
 
-			if (player.GetModifier<PoltergeistArrowModifier>(m => m.Owner.PlayerId == target.PlayerId) is { } arrow)
+			var seekingGhost = validMod.Player;
+			seekingGhost.RemoveModifier(validMod);
+
+			if (seekingGhost.AmOwner)
 			{
-				player.RemoveModifier(arrow);
+				if (seekingGhost.GetModifier<PoltergeistArrowModifier>(m => m.Owner.PlayerId == vessel.PlayerId || m.Player.PlayerId == ghost?.PlayerId) is { } arrow)
+				{
+					seekingGhost.RemoveModifier(arrow);
+				}
+				if (!seekingGhost.HasModifierOfType<IVesselSeekingModifier>())
+				{
+					CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, seekingGhost.Data.Role);
+				}
 			}
 		}
 	}
@@ -303,14 +294,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			vessel.RemoveModifier<VesselAdorcismModifier>();
 		}
 
-		foreach (var validmod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>(m => m.Vessel.PlayerId == vessel.PlayerId))
-		{
-			VesselClosed(validmod.Player, vessel);
-		}
-		foreach (var validmod2 in ghost.GetModifiers<ValidAdorcismGhostModifier>())
-		{
-			VesselClosed(ghost, validmod2.Vessel);
-		}
+		VesselClosed(vessel, ghost);
 
 		if (vessel.inVent)
 		{
