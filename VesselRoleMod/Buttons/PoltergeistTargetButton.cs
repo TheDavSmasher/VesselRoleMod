@@ -36,21 +36,13 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : VesselRoleBu
 			return;
 		}
 
-		switch (typeof(TTarget))
+		Button.usesRemainingSprite.sprite = (typeof(TTarget) switch
 		{
-			case Type t when t == typeof(Vent):
-				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterVentSprite.LoadAsset();
-				break;
-			case Type t when t == typeof(DeadBody):
-				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterBodySprite.LoadAsset();
-				break;
-			case Type t when t == typeof(PlayerControl):
-				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterPlayerSprite.LoadAsset();
-				break;
-			default:
-				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterBasicSprite.LoadAsset();
-				break;
-		}
+			Type t when t == typeof(Vent)		   => TouAssets.AbilityCounterVentSprite,
+			Type t when t == typeof(DeadBody)	   => TouAssets.AbilityCounterBodySprite,
+			Type t when t == typeof(PlayerControl) => TouAssets.AbilityCounterPlayerSprite,
+			_									   => TouAssets.AbilityCounterBasicSprite,
+		}).LoadAsset();
 	}
 
 	protected virtual bool ValidTargetInVent() => false;

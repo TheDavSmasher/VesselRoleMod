@@ -34,7 +34,7 @@ namespace VesselRoleMod.Patches.ControlSystem;
 [HarmonyPatch]
 public static class PoltergeistOverlayPatches
 {
-	private static readonly Dictionary<byte, Vector3> _colorBlindBasePos = new();
+	private static readonly Dictionary<byte, Vector3> _colorBlindBasePos = [];
 
 	[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 	[HarmonyPriority(Priority.LowerThanNormal)]

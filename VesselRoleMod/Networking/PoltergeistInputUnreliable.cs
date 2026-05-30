@@ -9,18 +9,11 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Networking;
 
-internal readonly struct VesselInputPacket
+internal readonly struct VesselInputPacket(byte targetId, bool fromVessel, Vector2 direction)
 {
-	public VesselInputPacket(byte targetId, bool fromVessel, Vector2 direction)
-	{
-		TargetId = targetId;
-		FromVessel = fromVessel;
-		Direction = direction;
-	}
-
-	public byte TargetId { get; }
-	public bool FromVessel { get; }
-	public Vector2 Direction { get; }
+	public byte TargetId { get; } = targetId;
+	public bool FromVessel { get; } = fromVessel;
+	public Vector2 Direction { get; } = direction;
 }
 
 [RegisterCustomRpc((uint)VesselModInternalRpc.VesselInputUnreliable)]

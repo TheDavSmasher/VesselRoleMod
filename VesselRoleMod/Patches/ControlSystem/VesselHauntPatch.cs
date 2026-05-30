@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using MiraAPI.Modifiers;
 using TownOfUs.Roles.Neutral;
-using UnityEngine;
 using VesselRoleMod.Modifiers.Ghost;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -13,7 +12,7 @@ public sealed class VesselHauntPatch
 	[HarmonyPatch(typeof(ImpostorGhostRole), nameof(ImpostorGhostRole.UseAbility))]
 	[HarmonyPatch(typeof(NeutralGhostRole), nameof(NeutralGhostRole.UseAbility))]
 	[HarmonyPrefix]
-	public static bool GhostPossessionBlockHaunt(Object __instance)
+	public static bool GhostPossessionBlockHaunt()
 	{
 		if (PlayerControl.LocalPlayer != null &&
 			PlayerControl.LocalPlayer.Data.IsDead &&

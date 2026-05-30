@@ -9,20 +9,12 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Networking;
 
-internal readonly struct VesselStatePacket
+internal readonly struct VesselStatePacket(byte vesselId, Vector2 position, bool inAnim, Vector2 velocity)
 {
-	public VesselStatePacket(byte vesselId, Vector2 position, bool inAnim, Vector2 velocity)
-	{
-		VesselId = vesselId;
-		Position = position;
-		InAnim = inAnim;
-		Velocity = velocity;
-	}
-
-	public byte VesselId { get; }
-	public Vector2 Position { get; }
-	public bool InAnim { get; }
-	public Vector2 Velocity { get; }
+	public byte VesselId { get; } = vesselId;
+	public Vector2 Position { get; } = position;
+	public bool InAnim { get; } = inAnim;
+	public Vector2 Velocity { get; } = velocity;
 }
 
 [RegisterCustomRpc((uint)VesselModInternalRpc.VesselStateUnreliable)]

@@ -15,7 +15,7 @@ namespace VesselRoleMod.Utilities;
 internal static class NetTransformBacklogUtils
 {
 	private static bool _searched;
-	private static FieldInfo[] _clearableCollectionFields = Array.Empty<FieldInfo>();
+	private static FieldInfo[] _clearableCollectionFields = [];
 
 	private static void EnsureSearched()
 	{
@@ -70,11 +70,11 @@ internal static class NetTransformBacklogUtils
 				}
 			}
 
-			_clearableCollectionFields = candidates.Distinct().ToArray();
+			_clearableCollectionFields = [.. candidates.Distinct()];
 		}
 		catch
 		{
-			_clearableCollectionFields = Array.Empty<FieldInfo>();
+			_clearableCollectionFields = [];
 		}
 	}
 

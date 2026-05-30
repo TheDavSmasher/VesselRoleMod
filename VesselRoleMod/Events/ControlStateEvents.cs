@@ -11,7 +11,7 @@ namespace VesselRoleMod.Events;
 public static class ControlStateEvents
 {
 	[RegisterEvent]
-	public static void RoundStartEventHandler(RoundStartEvent @event)
+	public static void RoundStartEventHandler(RoundStartEvent _)
 	{
 		VesselControlState.ClearAll();
 
@@ -23,7 +23,7 @@ public static class ControlStateEvents
 	}
 
 	[RegisterEvent]
-	public static void ClientGameEndEventHandler(ClientGameEndEvent @event)
+	public static void ClientGameEndEventHandler(ClientGameEndEvent _)
 	{
 		VesselControlState.ClearAll();
 

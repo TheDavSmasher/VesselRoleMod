@@ -374,10 +374,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 			if (vessel.MyPhysics != null)
 			{
-				if (vessel.MyPhysics.body != null)
-				{
-					vessel.MyPhysics.body.velocity = Vector2.zero;
-				}
+				vessel.MyPhysics.body?.velocity = Vector2.zero;
 				vessel.MyPhysics.SetNormalizedVelocity(Vector2.zero);
 			}
 
@@ -626,8 +623,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		Vent vent = ShipStatus.Instance.AllVents.First((Vent v) => v.Id == ventId);
-		Vent otherVent = ShipStatus.Instance.AllVents.First((Vent v) => v.Id == otherVentId);
+		Vent vent = ShipStatus.Instance.AllVents.First(v => v.Id == ventId);
+		Vent otherVent = ShipStatus.Instance.AllVents.First(v => v.Id == otherVentId);
 
 		Vector3 position = otherVent.transform.position;
 		position -= (Vector3)vessel.Collider.offset;

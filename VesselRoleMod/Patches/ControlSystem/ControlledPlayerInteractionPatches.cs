@@ -279,7 +279,7 @@ public static class ControlledPlayerInteractionPatches
 
 	public static List<IUsable> GetInteractablesList()
 	{
-		List<IUsable> interactables = new List<IUsable>();
+		List<IUsable> interactables = [];
 		var allUsables = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
 		foreach (var obj in allUsables)
 		{

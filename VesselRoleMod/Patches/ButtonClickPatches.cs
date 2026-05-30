@@ -10,7 +10,7 @@ public static class ButtonClickPatches
 	[HarmonyPatch(typeof(UseButton), nameof(UseButton.DoClick))]
 	[HarmonyPriority(799)] // second
 	[HarmonyPrefix]
-	public static bool VanillaButtonChecks(UseButton __instance)
+	public static bool VanillaButtonChecks()
 	{
 		if (PlayerControl.LocalPlayer != null &&
 			PlayerControl.LocalPlayer.TryGetModifier<PoltergeistModifier>(out var mod) && mod.Vessel != null)
