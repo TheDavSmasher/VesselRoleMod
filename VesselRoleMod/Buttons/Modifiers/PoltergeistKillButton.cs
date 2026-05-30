@@ -21,7 +21,6 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
 	public override int MaxUses => OnKill == VesselOnKillType.CannotKill ? 1 : -1;
-	public override bool ZeroIsInfinite { get; set; }
 
 	private static VesselOnKillType OnKill => OptionGroupSingleton<VesselOptions>.Instance.KillingGhostOnKill.Value;
 

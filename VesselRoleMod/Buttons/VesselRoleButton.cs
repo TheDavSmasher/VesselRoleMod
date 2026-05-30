@@ -1,4 +1,6 @@
-﻿using MiraAPI.PluginLoading;
+﻿using MiraAPI.LocalSettings;
+using MiraAPI.PluginLoading;
+using TownOfUs;
 using TownOfUs.Buttons;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -64,6 +66,24 @@ public abstract class VesselRoleButton<TModifier> : TownOfUsButton where TModifi
 		if (!CanClick())
 		{
 			return;
+		}
+
+		if (LimitedUses)
+		{
+			UsesLeft--;
+			Button?.SetUsesRemaining(UsesLeft);
+			TownOfUsColors.UseBasic = false;
+			if (TextOutlineColor != Color.clear)
+			{
+				SetTextOutline(TextOutlineColor);
+				if (Button != null)
+				{
+					Button.usesRemainingSprite.color = TextOutlineColor;
+				}
+			}
+
+			TownOfUsColors.UseBasic = LocalSettingsTabSingleton<TownOfUsLocalRoleSettings>.Instance
+				.UseCrewmateTeamColorToggle.Value;
 		}
 
 		OnClick();
