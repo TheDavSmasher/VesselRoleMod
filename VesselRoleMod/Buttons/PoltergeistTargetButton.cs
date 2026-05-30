@@ -38,10 +38,10 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : VesselRoleBu
 
 		Button.usesRemainingSprite.sprite = (typeof(TTarget) switch
 		{
-			Type t when t == typeof(Vent)		   => TouAssets.AbilityCounterVentSprite,
-			Type t when t == typeof(DeadBody)	   => TouAssets.AbilityCounterBodySprite,
+			Type t when t == typeof(Vent) => TouAssets.AbilityCounterVentSprite,
+			Type t when t == typeof(DeadBody) => TouAssets.AbilityCounterBodySprite,
 			Type t when t == typeof(PlayerControl) => TouAssets.AbilityCounterPlayerSprite,
-			_									   => TouAssets.AbilityCounterBasicSprite,
+			_ => TouAssets.AbilityCounterBasicSprite,
 		}).LoadAsset();
 	}
 

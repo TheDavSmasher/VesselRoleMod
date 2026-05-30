@@ -228,10 +228,7 @@ public static class VesselMovementPatches
 			if (delta.magnitude > 0.5f)
 			{
 				__instance.myPlayer.transform.position = pos;
-				if (__instance.body != null)
-				{
-					__instance.body.position = pos;
-				}
+				__instance.body?.position = pos;
 			}
 		}
 	}
