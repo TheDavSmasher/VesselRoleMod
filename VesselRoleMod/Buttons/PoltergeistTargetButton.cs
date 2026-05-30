@@ -3,7 +3,9 @@ using InnerNet;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using Reactor.Utilities.Extensions;
+using System;
 using System.Linq;
+using TownOfUs.Assets;
 using TownOfUs.Modifiers;
 using TownOfUs.Roles.Other;
 using TownOfUs.Utilities;
@@ -25,6 +27,32 @@ public abstract class PoltergeistTargetButton<TModifier, TTarget> : VesselRoleBu
 	/// Gets the distance the player must be from the target object to use the button.
 	/// </summary>
 	public virtual float Distance => PlayerControl.LocalPlayer.Data.Role.GetAbilityDistance();
+
+	public override void CreateButton(Transform parent)
+	{
+		base.CreateButton(parent);
+
+		if (Button == null)
+		{
+			return;
+		}
+
+		switch (typeof(TTarget))
+		{
+			case Type t when t == typeof(Vent):
+				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterVentSprite.LoadAsset();
+				break;
+			case Type t when t == typeof(DeadBody):
+				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterBodySprite.LoadAsset();
+				break;
+			case Type t when t == typeof(PlayerControl):
+				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterPlayerSprite.LoadAsset();
+				break;
+			default:
+				Button.usesRemainingSprite.sprite = TouAssets.AbilityCounterBasicSprite.LoadAsset();
+				break;
+		}
+	}
 
 	protected virtual bool ValidTargetInVent() => false;
 
