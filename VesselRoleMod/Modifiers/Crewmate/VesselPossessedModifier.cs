@@ -10,6 +10,7 @@ using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
 using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
@@ -43,10 +44,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 				Player.MyPhysics.ExitAllVents();
 			}
 
-			if (Player.HasModifier<VesselAdorcismModifier>())
-			{
-				Player.RemoveModifier<VesselAdorcismModifier>();
-			}
+			Player.RemoveExistingModifier<VesselAdorcismModifier>();
 		}
 
 		var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Ghost, Player);

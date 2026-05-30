@@ -1,6 +1,7 @@
 ﻿using MiraAPI.Modifiers;
 using MiraAPI.Roles;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
@@ -12,13 +13,18 @@ public static class Extensions
 {
 	public static bool HasModifierOfType<T>(this PlayerControl player, Func<T, bool>? predicate = null)
 	{
-		return player.GetModifierComponent() is { } comp && comp.ActiveModifiers.OfType<T>().Any(predicate ?? (_ => true));
+		return player.GetModifierComponent().ActiveModifiers.OfType<T>().Any(predicate ?? (_ => true));
 	}
 
 	public static T? GetModifierOfType<T>(this PlayerControl player, Func<T, bool>? predicate = null)
 	{
-		return player.GetModifierComponent() is { } comp &&
-			comp.ActiveModifiers.OfType<T>().FirstOrDefault(predicate ?? (_ => true)) is T res ? res : default;
+		return player.GetModifierComponent().ActiveModifiers.OfType<T>().Where(predicate ?? (_ => true)).FirstOrDefault();
+	}
+
+	public static bool TryGetModifierOfType<T>(this PlayerControl player, [NotNullWhen(true)] out T? modifier, Func<T, bool>? predicate = null)
+	{
+		modifier = GetModifierOfType(player, predicate);
+		return modifier != null;
 	}
 
 	public static bool HasKillingAbility(this PlayerControl player)
@@ -58,5 +64,31 @@ public static class Extensions
 	public static Vector2 ApplyDeadzone(this Vector2 v)
 	{
 		return v.sqrMagnitude < DirectionDeadzone * DirectionDeadzone ? Vector2.zero : v;
+	}
+
+	public static void RemoveSelf(this BaseModifier modifier)
+	{
+		modifier.ModifierComponent?.RemoveModifier(modifier);
+	}
+
+	public static void RpcRemoveSelf(this BaseModifier modifier)
+	{
+		modifier.Player.RpcRemoveModifier(modifier.UniqueId);
+	}
+
+	public static void RemoveExistingModifier<T>(this PlayerControl player, Func<T, bool>? predicate = null) where T : BaseModifier
+	{
+		if (player.TryGetModifier(out var modifier, predicate))
+		{
+			modifier.RemoveSelf();
+		}
+	}
+
+	public static void RpcRemoveExistingModifier<T>(this PlayerControl player, Func<T, bool>? predicate = null) where T : BaseModifier
+	{
+		if (player.TryGetModifier(out var modifier, predicate))
+		{
+			modifier.RpcRemoveSelf();
+		}
 	}
 }

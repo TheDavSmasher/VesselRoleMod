@@ -5,6 +5,7 @@ using TownOfUs.Events.TouEvents;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Events;
 
@@ -17,15 +18,8 @@ public static class ControlStateEvents
 
 		foreach (var player in PlayerControl.AllPlayerControls)
 		{
-			if (player.TryGetModifier<PoltergeistModifier>(out var gmod))
-			{
-				player.RemoveModifier(gmod);
-			}
-
-			if (player.TryGetModifier<VesselPossessedModifier>(out var vmod))
-			{
-				player.RemoveModifier(vmod);
-			}
+			player.RemoveExistingModifier<PoltergeistModifier>();
+			player.RemoveExistingModifier<VesselPossessedModifier>();
 		}
 	}
 
@@ -36,15 +30,8 @@ public static class ControlStateEvents
 
 		foreach (var player in PlayerControl.AllPlayerControls)
 		{
-			if (player.TryGetModifier<PoltergeistModifier>(out var gmod))
-			{
-				player.RemoveModifier(gmod);
-			}
-
-			if (player.TryGetModifier<VesselPossessedModifier>(out var vmod))
-			{
-				player.RemoveModifier(vmod);
-			}
+			player.RemoveExistingModifier<PoltergeistModifier>();
+			player.RemoveExistingModifier<VesselPossessedModifier>();
 		}
 	}
 }

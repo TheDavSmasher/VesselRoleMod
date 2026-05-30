@@ -73,10 +73,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public override void Deinitialize(PlayerControl targetPlayer)
 	{
 		RoleBehaviourStubs.Deinitialize(this, targetPlayer);
-		if (targetPlayer.HasModifier<VesselBlacklistModifier>())
-		{
-			targetPlayer.RemoveModifier<VesselBlacklistModifier>();
-		}
+		targetPlayer.RemoveExistingModifier<VesselBlacklistModifier>();
 	}
 
 	public override void OnMeetingStart()
@@ -149,16 +146,14 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			{
 				continue;
 			}
+			validMod.RemoveSelf();
 
 			var seekingGhost = validMod.Player;
-			seekingGhost.RemoveModifier(validMod);
 
 			if (seekingGhost.AmOwner)
 			{
-				if (seekingGhost.GetModifier<PoltergeistArrowModifier>(x => IsModifierToRemove(x, vessel, ghost)) is { } arrow)
-				{
-					seekingGhost.RemoveModifier(arrow);
-				}
+				seekingGhost.RemoveExistingModifier<PoltergeistArrowModifier>(x => IsModifierToRemove(x, vessel, ghost));
+
 				if (!seekingGhost.HasModifierOfType<IVesselSeekingModifier>())
 				{
 					CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, seekingGhost.Data.Role);
@@ -295,10 +290,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			vessel.AddModifier<VesselPossessedModifier>(ghost);
 		}
-		if (vessel.HasModifier<VesselAdorcismModifier>())
-		{
-			vessel.RemoveModifier<VesselAdorcismModifier>();
-		}
+		vessel.RemoveExistingModifier<VesselAdorcismModifier>();
 
 		VesselClosed(vessel, ghost);
 
@@ -378,10 +370,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		if (vessel != null && vessel.GetModifier<VesselPossessedModifier>() is { } mod1)
 		{
 			VesselControlState.ClearControl(vessel.PlayerId);
-			if (vessel.TryGetModifier<VesselPossessedModifier>(out var mod2))
-			{
-				vessel.RemoveModifier(mod2);
-			}
+			vessel.RemoveExistingModifier<VesselPossessedModifier>();
 
 			if (vessel.MyPhysics != null)
 			{
@@ -419,10 +408,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			}
 		}
 
+		mod.RemoveSelf();
+
 		if (ghost != null)
 		{
-			ghost.RemoveModifier(mod);
-
 			if (ghost.AmOwner)
 			{
 				var pos = (Vector2)ghost.transform.position;
@@ -665,7 +654,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		foreach (var ghostMod in ModifierUtils.GetActiveModifiers<PoltergeistModifier>())
 		{
-			ghostMod.Player.RemoveModifier(ghostMod);
+			ghostMod.RemoveSelf();
 		}
 	}
 }

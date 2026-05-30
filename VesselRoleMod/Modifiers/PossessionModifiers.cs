@@ -7,6 +7,7 @@ using TownOfUs.Modules;
 using VesselRoleMod.Buttons;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers;
 
@@ -19,12 +20,12 @@ public abstract class PossessionModifier : TimedModifier
 
 	public override void OnDeath(DeathReason reason)
 	{
-		ModifierComponent?.RemoveModifier(this);
+		this.RemoveSelf();
 	}
 
 	public override void OnMeetingStart()
 	{
-		ModifierComponent?.RemoveModifier(this);
+		this.RemoveSelf();
 	}
 }
 

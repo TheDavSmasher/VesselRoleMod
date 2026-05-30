@@ -6,6 +6,7 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.Components;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -32,10 +33,7 @@ public static class VesselDisconnectPatch
 			{
 				VesselControlState.ClearControl(player.PlayerId);
 
-				if (player.TryGetModifier<VesselPossessedModifier>(out var mod))
-				{
-					player.RemoveModifier(mod);
-				}
+				player.RemoveExistingModifier<VesselPossessedModifier>();
 			}
 		}
 
@@ -53,9 +51,6 @@ public static class VesselDisconnectPatch
 			VesselRole.RpcGhostEndPossession(player, mod2.Vessel);
 		}
 
-		if (player.TryGetModifier<VesselPossessedModifier>(out var mod3))
-		{
-			player.RemoveModifier(mod3);
-		}
+		player.RemoveExistingModifier<VesselPossessedModifier>();
 	}
 }

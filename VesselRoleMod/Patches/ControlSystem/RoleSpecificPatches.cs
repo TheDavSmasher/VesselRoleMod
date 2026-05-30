@@ -4,6 +4,7 @@ using TownOfUs.Modules.ControlSystem;
 using TownOfUs.Roles.Impostor;
 using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Utilities;
 
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -21,11 +22,10 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		if ((ParasiteControlState.IsControlled(target.PlayerId, out _) || 
-			PuppeteerControlState.IsControlled(target.PlayerId, out _)) &&
-			target.TryGetModifier<VesselAdorcismModifier>(out var mod))
+		if (ParasiteControlState.IsControlled(target.PlayerId, out _) || 
+			PuppeteerControlState.IsControlled(target.PlayerId, out _))
 		{
-			target.RemoveModifier(mod);
+			target.RemoveExistingModifier<VesselAdorcismModifier>();
 		}
 	}
 }

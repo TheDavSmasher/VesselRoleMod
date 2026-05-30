@@ -3,6 +3,7 @@ using MiraAPI.Modifiers;
 using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -24,9 +25,8 @@ public static class VesselOverlayPatch
 
 		if (hasModifier && !isControlled)
 		{
-			mod?.ClearNotification();
-			if (mod != null)
-				local.RemoveModifier(mod);
+			mod!.ClearNotification();
+			mod!.RemoveSelf();
 			return;
 		}
 
@@ -50,12 +50,9 @@ public static class VesselOverlayPatch
 
 			if (shouldClear)
 			{
-				mod?.ClearNotification();
-				if (mod != null)
-				{
-					VesselControlState.ClearControl(local.PlayerId);
-					local.RemoveModifier(mod);
-				}
+				mod!.ClearNotification();
+				VesselControlState.ClearControl(local.PlayerId);
+				mod.RemoveSelf();
 			}
 		}
 	}
