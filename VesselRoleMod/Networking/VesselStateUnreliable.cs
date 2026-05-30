@@ -9,13 +9,7 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Networking;
 
-internal readonly struct VesselStatePacket(byte vesselId, Vector2 position, bool inAnim, Vector2 velocity)
-{
-	public byte VesselId { get; } = vesselId;
-	public Vector2 Position { get; } = position;
-	public bool InAnim { get; } = inAnim;
-	public Vector2 Velocity { get; } = velocity;
-}
+internal readonly record struct VesselStatePacket(byte TargetId, Vector2 Position, bool InAnim, Vector2 Velocity);
 
 [RegisterCustomRpc((uint)VesselModInternalRpc.VesselStateUnreliable)]
 internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint id)
@@ -25,7 +19,7 @@ internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint 
 
 	public override void Write(MessageWriter writer, VesselStatePacket data)
 	{
-		writer.Write(data.VesselId);
+		writer.Write(data.TargetId);
 		writer.Write(data.Position);
 		writer.Write(data.InAnim);
 		writer.Write(data.Velocity);
@@ -42,7 +36,7 @@ internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint 
 
 	public override void Handle(PlayerControl sender, VesselStatePacket data)
 	{
-		var targetPlayerInfo = GameData.Instance?.GetPlayerById(data.VesselId);
+		var targetPlayerInfo = GameData.Instance?.GetPlayerById(data.TargetId);
 		var target = targetPlayerInfo?.Object;
 		if (target == null || sender == null)
 		{
@@ -54,12 +48,12 @@ internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint 
 			return;
 		}
 
-		if (!VesselControlState.IsControlled(data.VesselId, out _) ||
-			data.VesselId != sender.PlayerId)
+		if (!VesselControlState.IsControlled(data.TargetId, out _) ||
+			data.TargetId != sender.PlayerId)
 		{
 			return;
 		}
 
-		VesselControlState.SetMovementState(data.VesselId, data.Position, data.InAnim, data.Velocity);
+		VesselControlState.SetMovementState(data.TargetId, data.Position, data.InAnim, data.Velocity);
 	}
 }
