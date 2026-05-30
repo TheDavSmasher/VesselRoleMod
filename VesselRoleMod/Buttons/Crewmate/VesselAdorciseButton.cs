@@ -57,9 +57,11 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>, IPossessio
 		}
 
 		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
-			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId &&
+			.Where(plr => plr.Data.IsDead &&
+						  !plr.Data.Disconnected &&
+						  plr.PlayerId != PlayerControl.LocalPlayer.PlayerId &&
 						  !plr.HasModifier<GhostKillerBlockModifier>() &&
-						  (plr.Data.Role is IGhostRole { Caught: true } || plr.Data.Role is not IGhostRole));
+						  (plr.Data.Role is not IGhostRole role || role.Caught));
 
 		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
 		{
