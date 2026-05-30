@@ -524,14 +524,30 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		TriggerInteractionAsPlayer(vessel, interactable);
+		TriggerInteractionAsPlayer(vessel, ghost, interactable);
 	}
 
-	private static void TriggerInteractionAsPlayer(PlayerControl player, IUsable interactable)
+	private static void TriggerInteractionAsPlayer(PlayerControl player, PlayerControl ghost, IUsable interactable)
 	{
 		if (player == null || interactable == null)
 		{
 			return;
+		}
+
+		if (ghost.AmOwner)
+		{
+			if (interactable.TryCast<IUsableCoolDown>() is { } cooldown)
+			{
+				if (cooldown.IsCoolingDown())
+				{
+					return;
+				}
+				cooldown.CoolDown = cooldown.MaxCoolDown;
+			}
+			else if (interactable.TryCast<DeconControl>() is { } decon)
+			{
+				decon.cooldown = 6f;
+			}
 		}
 
 		if (!player.AmOwner)
