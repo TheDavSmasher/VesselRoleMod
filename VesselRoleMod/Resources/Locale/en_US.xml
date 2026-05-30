@@ -13,7 +13,7 @@
   <string name="VesselModTakeControl">Take Control</string>
   <string name="VesselModGiveControl">Give Control</string>
   <!--Framed Murder-->
-  <string name="VesselPossession">Vessel Possession</string>
+  <string name="DiedToVesselPossession">Smitten</string>
   <!-- Options -->
   <string name="VesselOptionAdorciseCooldown">Adorcise Cooldown</string>
   <string name="VesselOptionAdorciseWindow">Window to accept possessions</string>
@@ -23,6 +23,10 @@
   <string name="VesselOptionNeutralsCanPossess">Neutral ghosts can possess</string>
   <string name="VesselOptionAllowSharedControl">Vessel and Ghost share control</string>
   <string name="VesselOptionGhostCanKill">Killing ghosts can kill through Vessel</string>
+  <string name="VesselOptionOnGhostKill">On Ghost Kill</string>
+  <string name="VesselOptionOnGhostKillEnumNone">Nothing</string>
+  <string name="VesselOptionOnGhostKillEnumCannotKill">Cannot Kill</string>
+  <string name="VesselOptionOnGhostKillEnumCannotPossess">Cannot Possess</string>
   <string name="VesselOptionCanReject">Vessel can reject possession attempts</string>
   <string name="VesselOptionCanRejectEnumNone">None</string>
   <string name="VesselOptionCanRejectEnumBlacklistOnly">Through Blacklist</string>

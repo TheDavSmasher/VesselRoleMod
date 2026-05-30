@@ -7,6 +7,7 @@ using VesselRoleMod.Modules.ControlSystem;
 namespace VesselRoleMod.Patches.ControlSystem;
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
+[HarmonyPriority(Priority.Low)]
 public static class VesselOverlayPatch
 {
 	[HarmonyPostfix]

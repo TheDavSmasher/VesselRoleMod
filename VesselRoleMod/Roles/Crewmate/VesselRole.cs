@@ -339,7 +339,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	}
 
 	[MethodRpc((uint)VesselModRpc.VesselEndPossession)]
-	public static void RpcGhostEndPossession(PlayerControl ghost, PlayerControl vessel)
+	public static void RpcGhostEndPossession(PlayerControl ghost, PlayerControl vessel, bool onKill = false)
 	{
 		if (LobbyBehaviour.Instance)
 		{
@@ -347,10 +347,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		GhostEndPossession(ghost, vessel);
+		GhostEndPossession(ghost, vessel, onKill);
 	}
 
-	public static void GhostEndPossession(PlayerControl ghost, PlayerControl vessel)
+	public static void GhostEndPossession(PlayerControl ghost, PlayerControl vessel, bool onKill = false)
 	{
 		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
 		{
@@ -438,6 +438,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		if (!VesselControlState.CanShareControl && (ghost != null && ghost.AmOwner || vessel != null && vessel.AmOwner))
 		{
 			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(false, PlayerControl.LocalPlayer.Data.Role);
+		}
+
+		if (vessel != null && ghost != null && onKill)
+		{
+			ghost.AddModifier<GhostKillerBlockModifier>(vessel.AmOwner);
 		}
 	}
 

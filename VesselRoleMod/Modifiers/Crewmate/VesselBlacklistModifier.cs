@@ -6,12 +6,13 @@ using TownOfUs.Modules;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
-
+using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules;
 namespace VesselRoleMod.Modifiers.Crewmate;
 
 public sealed class VesselBlacklistModifier : BaseModifier
 {
-	private MeetingMenu? meetingMenu;
+	private BlockedMeetingMenu? meetingMenu;
 
 	public override string ModifierName => "VesselBlacklist";
 
@@ -23,13 +24,15 @@ public sealed class VesselBlacklistModifier : BaseModifier
 
 		if (Player.AmOwner)
 		{
-			meetingMenu = new MeetingMenu(
+			meetingMenu = new BlockedMeetingMenu(
 				Player.Data.Role,
 				SetBlacklist,
 				MeetingAbilityType.Toggle,
 				VesselModAssets.VesselBlockedSprite,
 				VesselModAssets.VesselUnblockedSprite,
+				VesselModAssets.VesselBlockedSprite,
 				IsExempt,
+				IsBlocked,
 				Color.white,
 				Color.white)
 			{
@@ -82,9 +85,16 @@ public sealed class VesselBlacklistModifier : BaseModifier
 			   !player || !player.Object || player.Object.Data.Disconnected;
 	}
 
+	private bool IsBlocked(PlayerVoteArea voteArea)
+	{
+		NetworkedPlayerInfo? player = GameData.Instance.GetPlayerById(voteArea.TargetPlayerId);
+
+		return player != null && player.Object.Data.IsDead && player.Object.HasModifier<GhostKillerBlockModifier>(m => m.VesselOwner);
+	}
+
 	private void SetBlacklist(PlayerVoteArea voteArea, MeetingHud __instance)
 	{
-		if (meetingMenu == null || __instance.state == MeetingHud.VoteStates.Discussion || IsExempt(voteArea))
+		if (meetingMenu == null || __instance.state == MeetingHud.VoteStates.Discussion || IsExempt(voteArea) || IsBlocked(voteArea))
 		{
 			return;
 		}

@@ -37,6 +37,13 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 
 	public ModdedToggleOption KillingGhostsCanKill { get; set; } = new("VesselOptionGhostCanKill", true);
 
+	public ModdedEnumOption<VesselOnKillType> KillingGhostOnKill { get; set; } =
+		new("VesselOptionOnGhostKill", VesselOnKillType.CannotKill,
+			["VesselOptionOnGhostKillEnumNone", "VesselOptionOnGhostKillEnumCannotKill", "VesselOptionOnGhostKillEnumCannotPossess"])
+		{
+			Visible = () => OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill.Value
+		};
+
 	// public ModdedToggleOption KillingInvestigative shenanigans
 
 	public ModdedEnumOption<VesselRejectionType> CanRejectPossession { get; set; } =
@@ -62,4 +69,11 @@ public enum VesselRejectionType
 	None,
 	BlacklistOnly,
 	Free
+}
+
+public enum VesselOnKillType
+{
+	None,
+	CannotKill,
+	CannotPossess
 }
