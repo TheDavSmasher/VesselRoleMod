@@ -20,9 +20,9 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 	public override BaseKeybind Keybind => Keybinds.PrimaryAction;
 	public override float Cooldown => PlayerControl.LocalPlayer.GetKillCooldown();
 	public override LoadableAsset<Sprite> Sprite => TouAssets.KillSprite;
-	public override int MaxUses => OnKill == VesselOnKillType.CannotKill ? 1 : -1;
+	public override int MaxUses => Options.KillingGhostOnKill.Value == VesselOnKillType.CannotKill ? 1 : -1;
 
-	private static VesselOnKillType OnKill => OptionGroupSingleton<VesselOptions>.Instance.KillingGhostOnKill.Value;
+	private static VesselOptions Options => OptionGroupSingleton<VesselOptions>.Instance;
 
 	protected override bool CanUseAbility()
 	{
@@ -63,7 +63,7 @@ public sealed class PoltergeistKillButton : PoltergeistTargetButton<PoltergeistM
 			Modifier!.Vessel,
 			causeOfDeath: "VesselPossession");
 
-		if (OnKill == VesselOnKillType.CannotPossess)
+		if (Options.KillingGhostOnKill.Value == VesselOnKillType.CannotPossess)
 		{
 			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Modifier!.Vessel, true);
 		}
