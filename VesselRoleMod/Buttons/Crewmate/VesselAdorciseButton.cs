@@ -56,27 +56,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>, IPossessio
 			return;
 		}
 
-		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
-			.Where(plr => plr.Data.IsDead &&
-						  !plr.Data.Disconnected &&
-						  plr.PlayerId != PlayerControl.LocalPlayer.PlayerId &&
-						  !plr.HasModifier<GhostKillerBlockModifier>() &&
-						  (plr.Data.Role is not IGhostRole role || role.Caught));
-
-		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
-		{
-			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId));
-		}
-
-		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostImpostors)
-		{
-			deadPlayers = deadPlayers.Where(x => !x.IsImpostor());
-		}
-
-		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostNeutrals)
-		{
-			deadPlayers = deadPlayers.Where(x => !x.IsNeutral());
-		}
+		var deadPlayers = PlayerControl.AllPlayerControls.ToArray().Where(IsValidGhost);
 
 		if (!deadPlayers.Any())
 		{
@@ -92,6 +72,40 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>, IPossessio
 		{
 			VesselRole.RpcSeekVessel(ghost, PlayerControl.LocalPlayer);
 		}
+	}
+
+	private static bool IsValidGhost(PlayerControl plr)
+	{
+		if (plr.AmOwner)
+		{
+			return false;
+		}
+		if (!plr.Data.IsDead || plr.Data.Disconnected)
+		{
+			return false;
+		}
+		if (plr.Data.Role is IGhostRole role && !role.Caught)
+		{
+			return false;
+		}
+		if (plr.HasModifier<GhostKillerBlockModifier>())
+		{
+			return false;
+		}
+		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostImpostors && plr.IsImpostor())
+		{
+			return false;
+		}
+		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostNeutrals && plr.IsNeutral())
+		{
+			return false;
+		}
+		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist) &&
+			blacklist.BlacklistedPlrIds.Contains(plr.PlayerId))
+		{
+			return false;
+		}
+		return true;
 	}
 
 	public override bool CanUse()
