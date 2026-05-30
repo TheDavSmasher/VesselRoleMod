@@ -61,6 +61,17 @@ public abstract class ActivePossessionModifier<TButton> : PossessionModifier, IV
 
 	protected LobbyNotificationMessage? notification;
 
+	public override bool? CanVent()
+	{
+		if (!OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent)
+		{
+			return null;
+		}
+
+		return VesselControlState.HasControl(Player.PlayerId) &&
+			   (Player.Data.IsDead || Player.inVent);
+	}
+
 	public override void OnActivate()
 	{
 		if (!Player.AmOwner)

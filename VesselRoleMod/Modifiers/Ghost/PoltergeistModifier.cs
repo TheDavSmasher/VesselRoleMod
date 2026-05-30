@@ -1,5 +1,4 @@
-﻿using MiraAPI.GameOptions;
-using MiraAPI.Hud;
+﻿using MiraAPI.Hud;
 using MiraAPI.Utilities;
 using TownOfUs.Buttons;
 using TownOfUs.Modules.Localization;
@@ -8,8 +7,6 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Modifiers;
-using VesselRoleMod.Modules.ControlSystem;
-using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Ghost;
@@ -23,16 +20,6 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossession
 	public override PlayerControl Target => Vessel;
 	public override PlayerControl Ghost => Player;
 	public override PlayerControl Vessel => vessel;
-
-	public override bool? CanVent()
-	{
-		if (!OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent)
-		{
-			return null;
-		}
-
-		return VesselControlState.HasControl(Player.PlayerId);
-	}
 
 	public override void OnActivate()
 	{
