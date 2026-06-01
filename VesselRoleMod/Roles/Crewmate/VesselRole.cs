@@ -540,18 +540,22 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		if (interactable.TryCast<IUsableCoolDown>() is { } cooldown)
+		if (interactable.TryCast<Ladder>() is { } ladder)
 		{
-			if (cooldown.IsCoolingDown())
+			if (ladder.IsCoolingDown())
 			{
 				return;
 			}
-			cooldown.CoolDown = cooldown.MaxCoolDown;
-
-			if (cooldown.TryCast<ZiplineConsole>() is { } zipline)
+			ladder.CoolDown = ladder.MaxCoolDown;
+		}
+		else if (interactable.TryCast<ZiplineConsole>() is { } zipline)
+		{
+			if (zipline.IsCoolingDown())
 			{
-				zipline.zipline.lastUsedConsole = zipline;
+				return;
 			}
+			zipline.CoolDown = zipline.MaxCoolDown;
+			zipline.zipline.lastUsedConsole = zipline;
 		}
 		else if (interactable.TryCast<DeconControl>() is { } decon)
 		{
