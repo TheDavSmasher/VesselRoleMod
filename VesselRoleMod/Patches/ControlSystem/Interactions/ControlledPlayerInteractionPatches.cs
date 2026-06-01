@@ -33,7 +33,7 @@ public static class ControlledPlayerInteractionPatches
 			return true;
 		}
 
-		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var vesselMod) && vesselMod.Ghost != null)
+		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var vesselMod))
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
@@ -43,7 +43,7 @@ public static class ControlledPlayerInteractionPatches
 			}
 		}
 
-		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
+		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod))
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
@@ -71,7 +71,7 @@ public static class ControlledPlayerInteractionPatches
 			return true;
 		}
 
-		if (__instance.TryGetModifier<VesselPossessedModifier>(out var vesselMod) && vesselMod.Ghost != null)
+		if (__instance.TryGetModifier<VesselPossessedModifier>(out var vesselMod))
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
@@ -82,7 +82,7 @@ public static class ControlledPlayerInteractionPatches
 			}
 		}
 
-		if (__instance.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
+		if (__instance.TryGetModifier<PoltergeistModifier>(out var poltergeistMod))
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
@@ -127,7 +127,7 @@ public static class ControlledPlayerInteractionPatches
 			return;
 		}
 
-		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var possessedMod) && possessedMod.Ghost != null)
+		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var possessedMod))
 		{
 			var controller = possessedMod.Ghost;
 			if (controller != null && controller.HasDied() &&
@@ -143,7 +143,7 @@ public static class ControlledPlayerInteractionPatches
 		var isControlling = false;
 		PlayerControl? controlledPlayer = null;
 
-		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
+		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod))
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
