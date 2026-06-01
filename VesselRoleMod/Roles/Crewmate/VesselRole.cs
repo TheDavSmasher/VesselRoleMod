@@ -167,8 +167,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 	private static bool IsModifierToRemove<T>(T modifier, PlayerControl vessel, PlayerControl? ghost) where T : BaseModifier, IVesselModifier
 	{
-		return modifier.Vessel.PlayerId == vessel.PlayerId ||
-			   ghost != null && modifier.Player.PlayerId == ghost.PlayerId;
+		return vessel.PlayerId == modifier.Vessel.PlayerId ||
+			   ghost?.PlayerId == modifier.Player.PlayerId;
 	}
 	#endregion
 
