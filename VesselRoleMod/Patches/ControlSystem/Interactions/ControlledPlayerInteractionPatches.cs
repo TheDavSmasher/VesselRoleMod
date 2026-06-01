@@ -1,17 +1,14 @@
 ﻿using HarmonyLib;
 using MiraAPI.Modifiers;
 using System.Collections.Generic;
-using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using UnityEngine;
-using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
-using VesselRoleMod.Utilities;
 
-namespace VesselRoleMod.Patches.ControlSystem;
+namespace VesselRoleMod.Patches.ControlSystem.Interactions;
 
 /// <summary>
 /// Patches to allow vessel poltergeists to trigger interactions for controlled vessels
@@ -291,95 +288,5 @@ public static class ControlledPlayerInteractionPatches
 			}
 		}
 		return interactables;
-	}
-
-	[HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
-	[HarmonyPrefix]
-	public static bool TryMoveVesselToVentPrefix(Vent __instance, Vent otherVent, ref string error, ref bool __result)
-	{
-		if (otherVent == null)
-		{
-			return true;
-		}
-		var localPlayer = PlayerControl.LocalPlayer;
-		if (!localPlayer.TryGetModifierOfType<IVesselPossessModifier>(out var mod) ||
-			mod.Vessel == null)
-		{
-			return true;
-		}
-		if (!VesselControlState.HasControl(localPlayer.PlayerId))
-		{
-			error = "Player does not have control.";
-			return (__result = false);
-		}
-		if (!mod.Vessel.inVent)
-		{
-			error = "Vessel is not currently inside a vent";
-			return (__result = false);
-		}
-		if (mod.Vessel.walkingToVent || mod.Vessel.Visible)
-		{
-			error = "Vessel was still in the middle of animating into current vent; not allowed to move vents that fast";
-			return (__result = false);
-		}
-		VesselRole.RpcVesselTryMoveToVent(localPlayer, mod.Ghost, mod.Vessel, __instance.Id, otherVent.Id);
-		error = string.Empty;
-		__result = true;
-		return false;
-	}
-
-	[HarmonyPatch(typeof(Vent), nameof(Vent.SetButtons))]
-	public static class VentSetButtonsPatch
-	{
-		public static bool Prefix(bool enabled)
-		{
-			if (!enabled)
-			{
-				return true;
-			}
-			var localPlayer = PlayerControl.LocalPlayer;
-			if (!localPlayer.TryGetModifierOfType<IVesselPossessModifier>(out var mod) ||
-				mod.Vessel == null || mod.Ghost == null)
-			{
-				return true;
-			}
-			if (mod.Role is JesterRole)
-			{
-				return false;
-			}
-			return true;
-		}
-
-		public static void Postfix(Vent __instance, bool enabled)
-		{
-			if (!enabled)
-			{
-				return;
-			}
-
-			var localPlayer = PlayerControl.LocalPlayer;
-			if (!localPlayer.TryGetModifierOfType<IVesselPossessModifier>(out var mod) ||
-				mod.Vessel == null || mod.Ghost == null)
-			{
-				return;
-			}
-			if (mod.Role is JesterRole)
-			{
-				return;
-			}
-
-			var hasControl = VesselControlState.HasControl(localPlayer.PlayerId);
-
-			Vent[] nearbyVents = __instance.NearbyVents;
-			for (int i = 0; i < __instance.Buttons.Length; i++)
-			{
-				ButtonBehavior buttonBehavior = __instance.Buttons[i];
-				Vent vent = nearbyVents[i];
-				if (vent && vent.enabled)
-				{
-					buttonBehavior.spriteRenderer.color = hasControl ? Palette.EnabledColor : Palette.DisabledGrey;
-				}
-			}
-		}
 	}
 }

@@ -2,7 +2,7 @@
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Utilities;
 
-namespace VesselRoleMod.Patches.ControlSystem;
+namespace VesselRoleMod.Patches.ControlSystem.Interactions;
 
 [HarmonyPatch]
 public static class ControlledCanUsePatches

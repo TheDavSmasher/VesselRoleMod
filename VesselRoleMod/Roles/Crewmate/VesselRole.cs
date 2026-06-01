@@ -26,7 +26,7 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.Components;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
-using VesselRoleMod.Patches.ControlSystem;
+using VesselRoleMod.Patches.ControlSystem.Interactions;
 using VesselRoleMod.Utilities;
 using Object = UnityEngine.Object;
 

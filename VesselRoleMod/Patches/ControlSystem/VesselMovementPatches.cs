@@ -7,6 +7,7 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
 using VesselRoleMod.Roles.Crewmate;
@@ -259,5 +260,17 @@ public static class VesselMovementPatches
 		}
 
 		return false;
+	}
+
+	[HarmonyPatch(typeof(LogicOptions), nameof(LogicOptions.GetPlayerSpeedMod))]
+	[HarmonyPriority(Priority.Last)]
+	[HarmonyPostfix]
+	public static void GetGhostSpeedMod(PlayerControl pc, ref float __result)
+	{
+		if (pc.TryGetModifier<PoltergeistModifier>(out var mod) && mod.Vessel)
+		{
+			var vessel = mod.Vessel.MyPhysics;
+			__result = vessel.SpeedMod * vessel.Speed / vessel.GhostSpeed;
+		}
 	}
 }
