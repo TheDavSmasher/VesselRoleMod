@@ -114,7 +114,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 
 		var color = Palette.PlayerColors[vessel.GetDefaultAppearance().ColorId];
-		var allPlayers = PlayerControl.AllPlayerControls.ToArray().Where(x => x.PlayerId == vessel.PlayerId).ToList();
+		var allPlayers = PlayerControl.AllPlayerControls.ToArray().Where(x => x.PlayerId != vessel.PlayerId).ToList();
 
 		foreach (var (ghostId, ghostName) in ghosts)
 		{
