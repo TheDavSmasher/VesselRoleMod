@@ -543,6 +543,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 					return;
 				}
 				cooldown.CoolDown = cooldown.MaxCoolDown;
+
+				if (cooldown.TryCast<ZiplineConsole>() is { } zipline)
+				{
+					zipline.zipline.lastUsedConsole = zipline;
+				}
 			}
 			else if (interactable.TryCast<DeconControl>() is { } decon)
 			{
