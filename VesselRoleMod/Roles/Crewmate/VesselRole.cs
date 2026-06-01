@@ -528,6 +528,43 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		SetStateForGhost(ghost, interactable);
 	}
 
+	[MethodRpc((uint)VesselModRpc.VesselSetGhostState)]
+	public static void RpcVesselSetGhostState(PlayerControl ghost, PlayerControl vessel, Vector2 interactablePosition)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(vessel);
+			return;
+		}
+		if (!ghost.AmOwner)
+		{
+			return;
+		}
+
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcVesselSetState - Invalid poltergeist");
+			return;
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		if (VesselControlState.IsFullyControlling(ghost.PlayerId))
+		{
+			return;
+		}
+
+		var (interactable, _) = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
+		if (interactable == null)
+		{
+			return;
+		}
+
+		SetStateForGhost(ghost, interactable);
+	}
+
 	public static void SetStateForGhost(PlayerControl ghost, IUsable interactable)
 	{
 		if (ghost == null || interactable == null)
