@@ -524,35 +524,46 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		TriggerInteractionAsPlayer(vessel, ghost, interactable);
+		TriggerInteractionAsPlayer(vessel, interactable);
+		SetStateForGhost(ghost, interactable);
 	}
 
-	private static void TriggerInteractionAsPlayer(PlayerControl player, PlayerControl ghost, IUsable interactable)
+	public static void SetStateForGhost(PlayerControl ghost, IUsable interactable)
 	{
-		if (player == null || interactable == null)
+		if (ghost == null || interactable == null)
 		{
 			return;
 		}
 
-		if (ghost.AmOwner)
+		if (!ghost.AmOwner)
 		{
-			if (interactable.TryCast<IUsableCoolDown>() is { } cooldown)
-			{
-				if (cooldown.IsCoolingDown())
-				{
-					return;
-				}
-				cooldown.CoolDown = cooldown.MaxCoolDown;
+			return;
+		}
 
-				if (cooldown.TryCast<ZiplineConsole>() is { } zipline)
-				{
-					zipline.zipline.lastUsedConsole = zipline;
-				}
-			}
-			else if (interactable.TryCast<DeconControl>() is { } decon)
+		if (interactable.TryCast<IUsableCoolDown>() is { } cooldown)
+		{
+			if (cooldown.IsCoolingDown())
 			{
-				decon.cooldown = 6f;
+				return;
 			}
+			cooldown.CoolDown = cooldown.MaxCoolDown;
+
+			if (cooldown.TryCast<ZiplineConsole>() is { } zipline)
+			{
+				zipline.zipline.lastUsedConsole = zipline;
+			}
+		}
+		else if (interactable.TryCast<DeconControl>() is { } decon)
+		{
+			decon.cooldown = 6f;
+		}
+	}
+
+	private static void TriggerInteractionAsPlayer(PlayerControl player, IUsable interactable)
+	{
+		if (player == null || interactable == null)
+		{
+			return;
 		}
 
 		if (!player.AmOwner)
