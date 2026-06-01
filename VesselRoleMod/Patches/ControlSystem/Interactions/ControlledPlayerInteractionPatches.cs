@@ -198,6 +198,15 @@ public static class ControlledPlayerInteractionPatches
 	/// Find the closest interactable object near a player
 	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
 	/// </summary>
+	public static IUsable? FindClosestInteractable(PlayerControl player, Vector2 position)
+	{
+		return FindClosestInteractable(player, position, false).interactable;
+	}
+
+	/// <summary>
+	/// Find the closest interactable object near a player
+	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
+	/// </summary>
 	public static (IUsable? interactable, Vector2 position) FindClosestInteractable(
 		PlayerControl player,
 		Vector2? position = null,

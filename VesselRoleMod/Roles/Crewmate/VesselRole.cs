@@ -518,7 +518,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		var (interactable, _) = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
+		var interactable = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
 		if (interactable == null)
 		{
 			return;
@@ -556,7 +556,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		var (interactable, _) = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
+		var interactable = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
 		if (interactable == null)
 		{
 			return;
