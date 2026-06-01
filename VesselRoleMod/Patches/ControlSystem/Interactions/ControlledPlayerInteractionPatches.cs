@@ -37,8 +37,12 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
-				VesselControlState.IsFullyControlling(controller.PlayerId))
+				VesselControlState.IsControlling(controller.PlayerId, out _))
 			{
+				if (VesselControlState.HasControl(localPlayer.PlayerId))
+				{
+					return true;
+				}
 				return false;
 			}
 		}
@@ -77,8 +81,7 @@ public static class ControlledPlayerInteractionPatches
 			if (controller != null && controller.HasDied() &&
 				VesselControlState.IsFullyControlling(controller.PlayerId))
 			{
-				__result = false;
-				return false;
+				return (__result = false);
 			}
 		}
 
@@ -88,8 +91,7 @@ public static class ControlledPlayerInteractionPatches
 			if (controlled != null && !controlled.HasDied() &&
 				VesselControlState.IsControllingActionable(controlled.PlayerId))
 			{
-				__result = false;
-				return false;
+				return (__result = false);
 			}
 		}
 
