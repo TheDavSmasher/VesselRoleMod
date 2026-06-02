@@ -33,8 +33,11 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	public override void FixedUpdateHandler(PlayerControl playerControl)
 	{
 		TimerPaused = false;
-		if (PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>() &&
-			VesselControlState.IsPausingTimer(PlayerControl.LocalPlayer.PlayerId))
+		if ((PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>() &&
+			 VesselControlState.IsPausingTimer(PlayerControl.LocalPlayer.PlayerId)) ||
+			(PlayerControl.LocalPlayer.HasModifier<VesselPossessedModifier>() &&
+			 VesselControlState.IsControlled(PlayerControl.LocalPlayer.PlayerId, out _) &&
+			 VesselControlState.IsInInitialGrace(PlayerControl.LocalPlayer.PlayerId)))
 		{
 			TimerPaused = true;
 		}
