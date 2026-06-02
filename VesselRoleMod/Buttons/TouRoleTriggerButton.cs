@@ -64,6 +64,8 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		WaitingOnTrigger = false;
 	}
 
+	public virtual bool IsTriggerCancellable() => IsEffectCancellable();
+
 	public virtual void OnTriggerActivate()
 	{
 	}
@@ -225,6 +227,8 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		}
 
 		return PlayerControl.LocalPlayer.moveable &&
-			   (EffectActive || WaitingOnTrigger || !LimitedUses || UsesLeft > 0);
+			   (EffectActive ? IsEffectCancellable() :
+			    WaitingOnTrigger ? IsTriggerCancellable() :
+			    (!LimitedUses || UsesLeft > 0));
 	}
 }

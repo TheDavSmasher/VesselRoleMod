@@ -42,6 +42,16 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>, IPossessio
 		base.FixedUpdateHandler(playerControl);
 	}
 
+	public override bool IsEffectCancellable()
+	{
+		return Timer <= EffectDuration - MinDuration;
+	}
+
+	public override bool IsTriggerCancellable()
+	{
+		return Timer <= TriggerWindow - 2f;
+	}
+
 	protected override void OnClick()
 	{
 		if (EffectActive)
