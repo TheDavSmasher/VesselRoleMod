@@ -31,6 +31,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 	{
 		return VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out _) &&
 			   OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent &&
+			   (PlayerControl.LocalPlayer.Data.IsDead || PlayerControl.LocalPlayer.inVent) &&
 			   Modifier!.Role.HasVentingAbility();
 	}
 
