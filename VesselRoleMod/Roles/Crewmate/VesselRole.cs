@@ -381,7 +381,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		if (vessel.TryGetModifier<VesselPossessedModifier>(out var mod1))
 		{
 			VesselControlState.ClearControl(vessel.PlayerId);
-			vessel.RemoveExistingModifier<VesselPossessedModifier>();
+			mod1.RemoveSelf();
 
 			if (vessel.MyPhysics != null)
 			{
