@@ -326,17 +326,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		var pos = (Vector2)vessel.transform.position;
 		if (vessel.AmOwner)
 		{
-			if (vessel.NetTransform != null)
-			{
-				try
-				{
-					vessel.NetTransform.SnapTo(pos);
-				}
-				catch
-				{
-					// ignored
-				}
-			}
+			vessel.NetTransform?.SnapTo(pos);
 		}
 		else if (ghost.AmOwner)
 		{
@@ -347,17 +337,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			NetTransformBacklogUtils.FlushBacklog(vessel);
 		}
 
-		if (ghost.NetTransform != null)
-		{
-			try
-			{
-				ghost.NetTransform.SnapTo(pos);
-			}
-			catch
-			{
-				// ignored
-			}
-		}
+		ghost.NetTransform?.SnapTo(pos);
 
 		if (ghost.AmOwner)
 		{
@@ -410,29 +390,20 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			}
 
 			var finalPos = (Vector2)vessel.transform.position;
-			if (vessel.NetTransform != null)
-			{
-				try
-				{
-					NetTransformBacklogUtils.FlushBacklog(vessel);
 
-					if (vessel.AmOwner)
-					{
-						vessel.NetTransform.SnapTo(finalPos);
-					}
-					else if (ghost.AmOwner)
-					{
-						NetTransformBacklogUtils.FlushAndSnap(vessel);
-					}
-					else
-					{
-						NetTransformBacklogUtils.FlushAndSnap(vessel);
-					}
-				}
-				catch
-				{
-					// ignored
-				}
+			NetTransformBacklogUtils.FlushBacklog(vessel);
+
+			if (vessel.AmOwner)
+			{
+				vessel.NetTransform?.SnapTo(finalPos);
+			}
+			else if (ghost.AmOwner)
+			{
+				NetTransformBacklogUtils.FlushAndSnap(vessel);
+			}
+			else
+			{
+				NetTransformBacklogUtils.FlushAndSnap(vessel);
 			}
 		}
 
@@ -441,17 +412,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		if (ghost.AmOwner)
 		{
 			var pos = (Vector2)ghost.transform.position;
-			if (ghost.NetTransform != null)
-			{
-				try
-				{
-					ghost.NetTransform.SnapTo(pos);
-				}
-				catch
-				{
-					// ignored
-				}
-			}
+			ghost.NetTransform?.SnapTo(pos);
 		}
 		else
 		{
