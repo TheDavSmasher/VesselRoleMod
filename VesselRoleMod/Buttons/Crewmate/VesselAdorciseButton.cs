@@ -16,7 +16,6 @@ using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
-using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Crewmate;
 
@@ -130,7 +129,10 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>, IPossessio
 	{
 		base.OnTriggerEnd();
 
-		PlayerControl.LocalPlayer.RpcRemoveExistingModifier<VesselAdorcismModifier>();
+		if (PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>())
+		{
+			VesselRole.RpcVesselClosed(PlayerControl.LocalPlayer);
+		}
 
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());

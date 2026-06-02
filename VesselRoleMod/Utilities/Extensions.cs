@@ -71,24 +71,11 @@ public static class Extensions
 		modifier.ModifierComponent?.RemoveModifier(modifier);
 	}
 
-	public static void RpcRemoveSelf<T>(this T modifier) where T : BaseModifier
-	{
-		modifier.Player.RpcRemoveModifier<T>();
-	}
-
 	public static void RemoveExistingModifier<T>(this PlayerControl player, Func<T, bool>? predicate = null) where T : BaseModifier
 	{
 		if (player.TryGetModifier(out var modifier, predicate))
 		{
 			modifier.RemoveSelf();
-		}
-	}
-
-	public static void RpcRemoveExistingModifier<T>(this PlayerControl player, Func<T, bool>? predicate = null) where T : BaseModifier
-	{
-		if (player.TryGetModifier(out var modifier, predicate))
-		{
-			modifier.RpcRemoveSelf();
 		}
 	}
 }

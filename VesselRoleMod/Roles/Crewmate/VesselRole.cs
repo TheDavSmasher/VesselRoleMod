@@ -140,6 +140,23 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 	}
 
+	[MethodRpc((uint)VesselModRpc.AdorcismEnd)]
+	public static void RpcVesselClosed(PlayerControl vessel)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(vessel);
+			return;
+		}
+		if (vessel.Data.Role is not VesselRole)
+		{
+			Error($"RpcSeekVessel - Invalid Vessel target");
+			return;
+		}
+
+		vessel.RemoveExistingModifier<VesselAdorcismModifier>();
+	}
+
 	public static void VesselClosed(PlayerControl vessel, PlayerControl? ghost = null)
 	{
 		foreach (var validMod in ModifierUtils.GetActiveModifiers
