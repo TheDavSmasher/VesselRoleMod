@@ -91,6 +91,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossession
 		}
 		catch { /* ignored */ }
 
+		Player.MyPhysics.ExitAllVents();
 		CustomButtonSingleton<FakeVentButton>.Instance.Show = true;
 	}
 
