@@ -228,7 +228,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 
 		return PlayerControl.LocalPlayer.moveable &&
 			   (EffectActive ? IsEffectCancellable() :
-			    WaitingOnTrigger ? IsTriggerCancellable() :
-			    (!LimitedUses || UsesLeft > 0));
+				WaitingOnTrigger ? IsTriggerCancellable() :
+				(!LimitedUses || UsesLeft > 0));
 	}
 }
