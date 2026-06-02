@@ -55,6 +55,12 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 		base.OnDeactivate();
 
 		ClearNotification();
+
+		if (Player.AmOwner && Player.inVent)
+		{
+			Player.MyPhysics.RpcExitVent(Vent.currentVent.Id);
+			Player.MyPhysics.ExitAllVents();
+		}
 	}
 
 	public override void CreateNotification()
