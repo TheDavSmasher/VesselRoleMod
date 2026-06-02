@@ -8,6 +8,7 @@ using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Modifiers;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
@@ -91,7 +92,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossession
 		}
 		catch { /* ignored */ }
 
-		Player.MyPhysics.ExitAllVents();
+		Player.MyPhysics.ClearVentState(true);
 		CustomButtonSingleton<FakeVentButton>.Instance.Show = true;
 	}
 

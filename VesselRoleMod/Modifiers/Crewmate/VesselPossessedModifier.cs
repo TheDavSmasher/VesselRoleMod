@@ -37,11 +37,8 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 
 			if (MapBehaviour.Instance)
 				MapBehaviour.Instance.Close();
-			if (Player.inVent)
-			{
-				Player.MyPhysics.RpcExitVent(Vent.currentVent.Id);
-				Player.MyPhysics.ExitAllVents();
-			}
+
+			Player.MyPhysics.ClearVentState();
 
 			Player.RemoveExistingModifier<VesselAdorcismModifier>();
 		}
@@ -55,12 +52,6 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 		base.OnDeactivate();
 
 		ClearNotification();
-
-		if (Player.AmOwner && Player.inVent)
-		{
-			Player.MyPhysics.RpcExitVent(Vent.currentVent.Id);
-			Player.MyPhysics.ExitAllVents();
-		}
 	}
 
 	public override void CreateNotification()

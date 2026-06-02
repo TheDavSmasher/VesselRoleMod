@@ -318,10 +318,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		VesselClosed(vessel, ghost);
 
-		if (vessel.inVent)
-		{
-			vessel.MyPhysics.ExitAllVents();
-		}
+		vessel.MyPhysics.ClearVentState();
 
 		var pos = (Vector2)vessel.transform.position;
 		if (vessel.AmOwner)
@@ -385,8 +382,15 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 			if (vessel.MyPhysics != null)
 			{
-				vessel.MyPhysics.body?.velocity = Vector2.zero;
-				vessel.MyPhysics.SetNormalizedVelocity(Vector2.zero);
+				if (vessel.inVent)
+				{
+					vessel.MyPhysics.ClearVentState();
+				}
+				else
+				{
+					vessel.MyPhysics.body?.velocity = Vector2.zero;
+					vessel.MyPhysics.SetNormalizedVelocity(Vector2.zero);
+				}
 			}
 
 			var finalPos = (Vector2)vessel.transform.position;

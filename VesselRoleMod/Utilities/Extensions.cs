@@ -78,4 +78,29 @@ public static class Extensions
 			modifier.RemoveSelf();
 		}
 	}
+
+	public static void ClearVentState(this PlayerPhysics physics, bool exitAlways = false)
+	{
+		if (!physics.AmOwner)
+		{
+			return;
+		}
+		if (physics.myPlayer.inVent)
+		{
+			physics.RpcExitVent(Vent.currentVent.Id);
+		}
+		if (physics.myPlayer.inVent || exitAlways)
+		{
+			/// Exit All Vents
+			ConsoleJoystick.SetMode_Gameplay();
+			Vent.currentVent = null;
+			physics.ResetMoveState(false);
+			physics.myPlayer.moveable = true;
+			Vent[] allVents = ShipStatus.Instance.AllVents;
+			for (int i = 0; i < allVents.Length; i++)
+			{
+				allVents[i].SetButtons(enabled: false);
+			}
+		}
+	}
 }
