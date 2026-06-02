@@ -12,7 +12,7 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossessionModifier<PoltergeistPossessButton>, IVesselSeekingModifier
+public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossessionModifier, IVesselSeekingModifier
 {
 	private static readonly int PlayerLayer = LayerMask.NameToLayer("Players");
 	private static readonly int GhostLayer = LayerMask.NameToLayer("Ghost");
@@ -58,6 +58,12 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossession
 		catch { /* ignored */ }
 
 		CustomButtonSingleton<FakeVentButton>.Instance.Show = false;
+
+		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
+		if (button != null && !button.EffectActive)
+		{
+			button.OnSuccess();
+		}
 	}
 
 	public override void OnDeactivate()
@@ -94,6 +100,12 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossession
 
 		Player.MyPhysics.ClearVentState(true);
 		CustomButtonSingleton<FakeVentButton>.Instance.Show = true;
+
+		var button = CustomButtonSingleton<PoltergeistPossessButton>.Instance;
+		if (button != null && button.EffectActive)
+		{
+			button.ResetCooldownAndOrEffect();
+		}
 	}
 
 	private void SetVisibility(bool visible)

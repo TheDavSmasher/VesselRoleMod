@@ -342,6 +342,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<PoltergeistVentButton>.Instance.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
 		}
+		else if (vessel.AmOwner)
+		{
+			CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
+		}
 
 		if (!VesselControlState.CanShareControl && (ghost.AmOwner || vessel.AmOwner))
 		{

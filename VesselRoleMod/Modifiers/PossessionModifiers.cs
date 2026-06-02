@@ -1,10 +1,8 @@
 ﻿using MiraAPI.GameOptions;
-using MiraAPI.Hud;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.PluginLoading;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
-using VesselRoleMod.Buttons;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Utilities;
@@ -49,15 +47,13 @@ public abstract class OpenAdorcismModifier : PossessionModifier
 }
 
 [MiraIgnore]
-public abstract class ActivePossessionModifier<TButton> : PossessionModifier, IVesselPossessModifier where TButton : CustomActionButton, IPossessionButton
+public abstract class ActivePossessionModifier : PossessionModifier, IVesselPossessModifier
 {
 	public override bool HideOnUi => true;
 	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 
 	public abstract PlayerControl Target { get; }
 	public abstract PlayerControl Ghost { get; }
-
-	protected TButton Button => CustomButtonSingleton<TButton>.Instance;
 
 	protected LobbyNotificationMessage? notification;
 
@@ -70,32 +66,6 @@ public abstract class ActivePossessionModifier<TButton> : PossessionModifier, IV
 
 		return VesselControlState.HasControl(Player.PlayerId) &&
 			   (Player.Data.IsDead || Player.inVent);
-	}
-
-	public override void OnActivate()
-	{
-		if (!Player.AmOwner)
-		{
-			return;
-		}
-
-		if (Button != null && !Button.EffectActive)
-		{
-			Button.OnSuccess();
-		}
-	}
-
-	public override void OnDeactivate()
-	{
-		if (!Player.AmOwner)
-		{
-			return;
-		}
-
-		if (Button != null && Button.EffectActive)
-		{
-			Button.ResetCooldownAndOrEffect();
-		}
 	}
 
 	public abstract void CreateNotification();

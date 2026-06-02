@@ -20,7 +20,7 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
 
-public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSeekingModifier, PlayerControl>, IAftermathablePlayerButton, IPossessionButton
+public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSeekingModifier, PlayerControl>, IAftermathablePlayerButton
 {
 	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;
