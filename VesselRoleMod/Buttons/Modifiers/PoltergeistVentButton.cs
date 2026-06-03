@@ -92,6 +92,8 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 		_ = Vent.currentVent.CanUse(PlayerControl.LocalPlayer.Data, out _, out var couldUse);
 		Vent.currentVent.SetButtons(false);
 
+		Vent toExit = Vent.currentVent;
+
 		if (!couldUse)
 		{
 			Error($"Current vent {Vent.currentVent.name} ({Vent.currentVent.Id}) cannot be exited, finding alternate route.");
@@ -113,11 +115,10 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 
 			if (newVent != null)
 			{
-				Modifier.Vessel.MyPhysics.RpcExitVent(newVent.Id);
-				return;
+				toExit = newVent;
 			}
 		}
 
-		Modifier.Vessel.MyPhysics.RpcExitVent(Vent.currentVent.Id);
+		Modifier.Vessel.MyPhysics.RpcExitVent(toExit.Id);
 	}
 }
