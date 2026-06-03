@@ -7,6 +7,7 @@ using MiraAPI.Utilities.Assets;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
+using TownOfUs.Roles.Crewmate;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modules.ControlSystem;
@@ -19,10 +20,10 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
-	public override float Cooldown => Modifier?.Role is EngineerRole && (HasEffect || Modifier.Vessel != null && Modifier.Vessel.inVent)
+	public override float Cooldown => Modifier?.Role is EngineerTouRole && (HasEffect || Modifier.Vessel != null && Modifier.Vessel.inVent)
 		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown
 		: base.Cooldown;
-	public override float EffectDuration => Modifier?.Role is EngineerRole
+	public override float EffectDuration => Modifier?.Role is EngineerTouRole
 		? CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration
 		: base.EffectDuration;
 	public override LoadableAsset<Sprite> Sprite => TouCrewAssets.EngiVentSprite;

@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TownOfUs.Roles;
+using TownOfUs.Roles.Crewmate;
 using TownOfUs.Utilities;
 using UnityEngine;
 
@@ -46,6 +47,7 @@ public static class Extensions
 		return role.CanVent ||
 			   role is ICustomRole custom && custom.Configuration.CanUseVent ||
 			   role is EngineerRole ||
+			   role is EngineerTouRole ||
 			   role.Player.HasModifier<BaseModifier>(x => x.CanVent() == true);
 	}
 
