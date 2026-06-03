@@ -336,10 +336,11 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		ghost.NetTransform?.SnapTo(pos);
 
+		var ventButton = CustomButtonSingleton<PoltergeistVentButton>.Instance;
 		if (ghost.AmOwner)
 		{
 			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(true, ghost.Data.Role);
-			CustomButtonSingleton<PoltergeistVentButton>.Instance.SetActive(true, ghost.Data.Role);
+			ventButton.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
 		}
 		else if (vessel.AmOwner)
@@ -347,9 +348,13 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
 		}
 
-		if (!VesselControlState.CanShareControl && (ghost.AmOwner || vessel.AmOwner))
+		if (ghost.AmOwner || vessel.AmOwner)
 		{
-			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(true, PlayerControl.LocalPlayer.Data.Role);
+			ventButton.SetTimer(ventButton.InitialCooldown);
+			if (!VesselControlState.CanShareControl)
+			{
+				CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(true, PlayerControl.LocalPlayer.Data.Role);
+			}
 		}
 	}
 	#endregion
