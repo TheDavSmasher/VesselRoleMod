@@ -64,8 +64,7 @@ public abstract class ActivePossessionModifier : PossessionModifier, IVesselPoss
 			return null;
 		}
 
-		return VesselControlState.HasControl(Player.PlayerId) &&
-			   (Player.Data.IsDead || Player.inVent);
+		return Player.Data.IsDead || Player.inVent;
 	}
 
 	public abstract void CreateNotification();

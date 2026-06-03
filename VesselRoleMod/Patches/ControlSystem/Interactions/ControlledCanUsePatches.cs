@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using VesselRoleMod.Modifiers;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem.Interactions;
@@ -7,6 +8,21 @@ namespace VesselRoleMod.Patches.ControlSystem.Interactions;
 [HarmonyPatch]
 public static class ControlledCanUsePatches
 {
+	[HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
+	[HarmonyPostfix]
+	public static void GhostCanUseVentPostfix(NetworkedPlayerInfo pc, ref bool canUse)
+	{
+		if (pc == null)
+		{
+			return;
+		}
+
+		if (pc.Object.HasModifierOfType<IVesselPossessModifier>())
+		{
+			canUse &= VesselControlState.HasControl(pc.PlayerId);
+		}
+	}
+
 	[HarmonyPatch(typeof(Console), nameof(Console.FindTask))]
 	[HarmonyPrefix]
 	public static bool ConsoleFindTaskPrefix(PlayerControl pc, ref PlayerTask __result)
