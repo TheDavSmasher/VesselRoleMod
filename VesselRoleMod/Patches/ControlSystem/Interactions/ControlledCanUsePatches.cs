@@ -24,4 +24,25 @@ public static class ControlledCanUsePatches
 
 		return true;
 	}
+
+	[HarmonyPatch(typeof(OptionsConsole), nameof(OptionsConsole.CanUse))] // Lobby only (I think?)
+	[HarmonyPatch(typeof(SystemConsole), nameof(SystemConsole.CanUse))] // Cams + Others (I think?)
+	[HarmonyPatch(typeof(MapConsole), nameof(MapConsole.CanUse))] // Admin Table
+	[HarmonyPrefix]
+	public static bool VesselCanUseConsolePrefix(NetworkedPlayerInfo pc, ref bool canUse, ref bool couldUse)
+	{
+		if (pc == null)
+		{
+			return true;
+		}
+
+		if (pc.Object.HasModifierOfType<IVesselPossessModifier>())
+		{
+			canUse = false;
+			couldUse = false;
+			return false;
+		}
+
+		return true;
+	}
 }
