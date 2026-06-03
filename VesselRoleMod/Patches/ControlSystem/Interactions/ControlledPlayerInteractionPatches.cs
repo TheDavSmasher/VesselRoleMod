@@ -145,15 +145,17 @@ public static class ControlledPlayerInteractionPatches
 		}
 
 		var isControlling = false;
+		var isActionable = false;
 		PlayerControl? controlledPlayer = null;
 
 		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod))
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsControllingActionable(localPlayer.PlayerId))
+				VesselControlState.IsControlling(localPlayer.PlayerId, out _))
 			{
 				isControlling = true;
+				isActionable = VesselControlState.HasControl(localPlayer.PlayerId);
 				controlledPlayer = controlled;
 			}
 		}
@@ -163,11 +165,19 @@ public static class ControlledPlayerInteractionPatches
 			return;
 		}
 
-		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: true);
+		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: isActionable);
 		useButton.currentTarget = usable;
 		if (usable != null)
 		{
-			useButton.SetEnabled();
+			if (isActionable)
+			{
+				useButton.SetEnabled();
+			}
+			else
+			{
+				useButton.SetDisabled();
+			}
+
 			if (usable.TryCast<IUsableCoolDown>() is { } usableCoolDown)
 			{
 				useButton.SetCoolDown(usableCoolDown.CoolDown, usableCoolDown.MaxCoolDown);
