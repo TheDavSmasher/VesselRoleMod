@@ -644,6 +644,88 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	#endregion
 
 	#region Vents
+	[MethodRpc((uint)VesselModRpc.VesselEnterVent)]
+	public static void RpcVesselEnterVent(PlayerControl ghost, PlayerControl vessel, int id)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(ghost);
+			return;
+		}
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcVesselVentEnter - Invalid poltergeist");
+			return;
+		}
+		if (mod.Vessel.PlayerId != vessel.PlayerId)
+		{
+			Error("RpcVesselVentEnter - Vessel is not controlled by ghost.");
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		if (!vessel.AmOwner)
+		{
+			return;
+		}
+
+		vessel.MyPhysics.RpcEnterVent(id);
+
+		var button = CustomButtonSingleton<PoltergeistVentButton>.Instance;
+		if (button.HasEffect)
+		{
+			button.EffectActive = true;
+			button.Timer = button.EffectDuration;
+		}
+		else
+		{
+			button.Timer = button.Cooldown;
+		}
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselExitVent)]
+	public static void RpcVesselExitVent(
+		PlayerControl source,
+		PlayerControl ghost, PlayerControl vessel,
+		int id
+		)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(source);
+			return;
+		}
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcVesselVentExit - Invalid poltergeist");
+			return;
+		}
+		if (mod.Vessel.PlayerId != vessel.PlayerId)
+		{
+			Error("RpcVesselVentExit - Vessel is not controlled by ghost.");
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		if (source.AmOwner)
+		{
+			vessel.MyPhysics.RpcExitVent(id);
+		}
+		else if (ghost.AmOwner || vessel.AmOwner)
+		{
+			var button = CustomButtonSingleton<PoltergeistVentButton>.Instance;
+			if (!button.HasEffect || button.EffectActive)
+			{
+				button.EffectActive = false;
+			}
+			button.Timer = button.Cooldown;
+		}
+	}
+
 	[MethodRpc((uint)VesselModRpc.VesselMoveVent)]
 	public static void RpcVesselTryMoveToVent(
 		PlayerControl source,

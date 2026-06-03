@@ -10,6 +10,8 @@ public enum VesselModRpc : uint
 	VesselEndPossession,
 	VesselTriggerInteraction,
 	VesselSetGhostState,
+	VesselEnterVent,
+	VesselExitVent,
 	VesselMoveVent,
 	ChangePossessionControl
 }

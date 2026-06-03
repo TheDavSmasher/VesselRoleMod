@@ -12,6 +12,7 @@ using UnityEngine;
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Buttons.Modifiers;
@@ -68,7 +69,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 		{
 			if (Target != null)
 			{
-				Modifier.Vessel.MyPhysics.RpcEnterVent(Target.Id);
+				VesselRole.RpcVesselEnterVent(Modifier.Ghost, Modifier.Vessel, Target.Id);
 			}
 		}
 		else if (!HasEffect || Timer > 0)
@@ -119,6 +120,6 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 			}
 		}
 
-		Modifier.Vessel.MyPhysics.RpcExitVent(toExit.Id);
+		VesselRole.RpcVesselExitVent(PlayerControl.LocalPlayer, Modifier.Ghost, Modifier.Vessel, toExit.Id);
 	}
 }
