@@ -3,6 +3,7 @@ using MiraAPI.Events.Vanilla.Usables;
 using MiraAPI.GameOptions;
 using MiraAPI.Hud;
 using MiraAPI.Keybinds;
+using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
@@ -10,6 +11,7 @@ using TownOfUs.Buttons.Crewmate;
 using TownOfUs.Roles.Crewmate;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
@@ -21,6 +23,10 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
+	public override float InitialCooldown =>
+		PlayerControl.LocalPlayer.TryGetModifier<GhostEngineerCooldownModifier>(out var mod)
+		? mod.TimeRemaining
+		: base.InitialCooldown;
 	public override float Cooldown => Modifier?.Role is EngineerTouRole && (HasEffect || Modifier.Vessel != null && Modifier.Vessel.inVent)
 		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown
 		: base.Cooldown;
