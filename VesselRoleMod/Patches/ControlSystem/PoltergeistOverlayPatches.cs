@@ -26,7 +26,9 @@ using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using TownOfUs.Utilities.Appearances;
 using UnityEngine;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -469,19 +471,73 @@ public static class PoltergeistOverlayPatches
 		}
 	}
 
+	[HarmonyPatch(typeof(OpenDoorConsole), nameof(OpenDoorConsole.SetOutline))]
+	[HarmonyPatch(typeof(PlatformConsole), nameof(PlatformConsole.SetOutline))]
+	[HarmonyPatch(typeof(ZiplineConsole), nameof(ZiplineConsole.SetOutline))]
+	[HarmonyPatch(typeof(DeconControl), nameof(DeconControl.SetOutline))]
+	[HarmonyPatch(typeof(DoorConsole), nameof(DoorConsole.SetOutline))]
+	[HarmonyPatch(typeof(Ladder), nameof(Ladder.SetOutline))]
 	[HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
+	[HarmonyPriority(Priority.Last)]
 	[HarmonyPostfix]
-	public static void SetOutlinePostfix(Vent __instance, bool on, bool mainTarget)
+	public static void SetOutlinePostfix(MonoBehaviour __instance, bool on, bool mainTarget)
 	{
-		if (!PlayerControl.LocalPlayer.HasModifier<PoltergeistModifier>())
+		if (__instance.TryCast<IUsable>() == null)
 		{
 			return;
 		}
 
-		var color = VesselRoleModColors.Vessel;
+		if (!PlayerControl.LocalPlayer.HasModifierOfType<IVesselPossessModifier>() ||
+			!VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out var isVessel))
+		{
+			return;
+		}
 
-		__instance.myRend.material.SetFloat(ShaderID.Outline, on ? 1 : 0);
-		__instance.myRend.material.SetColor(ShaderID.OutlineColor, color);
-		__instance.myRend.material.SetColor(ShaderID.AddColor, mainTarget ? color : Color.clear);
+		Color color = Color.white;
+		float onVal = 1f;
+		SpriteRenderer image;
+		if (__instance.TryCast<Ladder>() is { } ladder)
+		{
+			image = ladder.Image;
+		}
+		else if (__instance.TryCast<ZiplineConsole>() is { } zipline)
+		{
+			image = zipline.image;
+		}
+		else if (__instance.TryCast<DeconControl>() is { } decon && decon.Image)
+		{
+			image = decon.Image;
+		}
+		else if (__instance.TryCast<DoorConsole>() is { } doorConsole && doorConsole.Image)
+		{
+			image = doorConsole.Image;
+		}
+		else if (__instance.TryCast<OpenDoorConsole>() is { } openDoorConsole && openDoorConsole.image)
+		{
+			image = openDoorConsole.image;
+		}
+		else if (__instance.TryCast<PlatformConsole>() is { } platform && platform.Image)
+		{
+			image = platform.Image;
+		}
+		else if (__instance.TryCast<Vent>() is { } vent)
+		{
+			image = vent.myRend;
+			color = VesselRoleModColors.Vessel;
+		}
+		else
+		{
+			return;
+		}
+
+		if (!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
+		{
+			color = Palette.DisabledGrey;
+			onVal = 0.3f;
+		}
+
+		image.material.SetFloat(ShaderID.Outline, on ? onVal : 0);
+		image.material.SetColor(ShaderID.OutlineColor, color);
+		image.material.SetColor(ShaderID.AddColor, mainTarget ? color : Color.clear);
 	}
 }

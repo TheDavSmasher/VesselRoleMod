@@ -137,7 +137,6 @@ public static class ControlledPlayerInteractionPatches
 			if (controller != null && controller.HasDied() &&
 				VesselControlState.IsFullyControlling(controller.PlayerId))
 			{
-				ClearInteractableOutlines();
 				useButton.currentTarget = null;
 				useButton.SetDisabled();
 			}
@@ -165,7 +164,7 @@ public static class ControlledPlayerInteractionPatches
 			return;
 		}
 
-		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: isActionable);
+		var (usable, _) = FindClosestInteractable(controlledPlayer, setOutlines: true);
 		useButton.currentTarget = usable;
 		if (usable != null)
 		{
