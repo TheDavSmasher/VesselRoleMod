@@ -27,7 +27,7 @@ public static class PoltergeistVentPatches
 				Vent.currentVent = __instance;
 				ConsoleJoystick.SetMode_Vent();
 			}
-			else if (mod.Vessel.AmOwner && ((IVesselModifier)mod).Role is not JesterRole)
+			if (mod.Vessel.AmOwner || mod.Ghost.AmOwner)
 			{
 				Vent.currentVent.SetButtons(true);
 			}

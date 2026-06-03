@@ -69,7 +69,6 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 			if (Target != null)
 			{
 				Modifier.Vessel.MyPhysics.RpcEnterVent(Target.Id);
-				Target.SetButtons(true);
 			}
 		}
 		else if (!HasEffect || Timer > 0)
