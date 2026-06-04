@@ -166,6 +166,7 @@ public static class RoleSpecificPatches
 			}
 
 			var mod = source.GetModifier<PoltergeistModifier>()!;
+			source = mod.ReportedKiller;
 
 			// Execute logic previously skipped
 			if (mirrorcaster.Data.Role is not MirrorcasterRole role)

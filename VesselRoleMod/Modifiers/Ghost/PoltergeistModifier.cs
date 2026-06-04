@@ -22,6 +22,8 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossession
 	public override PlayerControl Ghost => Player;
 	public override PlayerControl Vessel => vessel;
 
+	public PlayerControl ReportedKiller => Ghost;
+
 	public override void OnActivate()
 	{
 		base.OnActivate();
