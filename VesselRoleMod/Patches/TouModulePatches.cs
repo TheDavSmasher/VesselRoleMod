@@ -3,6 +3,7 @@ using MiraAPI.Modifiers;
 using System.Linq;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
+using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
@@ -75,6 +76,11 @@ public static class TouModulePatches
 				MiscUtils.PlayerById(killer.VesselId) is not { } Vessel)
 			{
 				return;
+			}
+
+			if (Vessel.TryGetModifier<VesselPossessedModifier>(out var mod))
+			{
+				mod.ShowCurrentAsCached();
 			}
 
 			br.Killer = VesselRole.GetReportedKiller(Vessel, Ghost);
