@@ -11,6 +11,7 @@ using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
 using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
@@ -26,8 +27,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 	public override PlayerControl Vessel => Player;
 	public override PlayerControl Ghost => ghost;
 
-	public static bool ShowGhostRoleAsCached => true;
-	private bool showCachedRole = ShowGhostRoleAsCached;
+	private bool showCachedRole = VesselRole.ShowGhostRole;
 
 	public bool ShowCurrentRoleFirst => true;
 	public bool Visible => true;
@@ -43,7 +43,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 
 	public void ResetShownCached()
 	{
-		showCachedRole = ShowGhostRoleAsCached;
+		showCachedRole = VesselRole.ShowGhostRole;
 	}
 
 	public override void OnActivate()

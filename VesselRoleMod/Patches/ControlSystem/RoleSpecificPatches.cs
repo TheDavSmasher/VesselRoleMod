@@ -123,7 +123,7 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		source = mod.ReportedKiller;
+		source = mod.ReportedPlayer;
 	}
 
 	[HarmonyPatch(typeof(TelepathEvents), nameof(TelepathEvents.AfterMurderEventHandler))]
@@ -183,7 +183,7 @@ public static class RoleSpecificPatches
 			}
 
 			var mod = source.GetModifier<PoltergeistModifier>()!;
-			source = mod.ReportedKiller;
+			source = mod.ReportedPlayer;
 
 			// Execute logic previously skipped
 			if (mirrorcaster.Data.Role is not MirrorcasterRole role)

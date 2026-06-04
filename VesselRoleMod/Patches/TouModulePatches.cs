@@ -92,7 +92,7 @@ public static class TouModulePatches
 				__state = new(Vessel.PlayerId, true);
 			}
 
-			br.Killer = VesselRole.GetReportedKiller(Vessel, Ghost);
+			br.Killer = VesselRole.GetReportedPlayer(Vessel, Ghost);
 		}
 
 		public static void Postfix(ReportState __state)
