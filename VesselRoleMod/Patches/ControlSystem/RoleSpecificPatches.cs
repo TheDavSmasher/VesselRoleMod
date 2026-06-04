@@ -65,7 +65,7 @@ public static class RoleSpecificPatches
 		target = mod.Target;
 	}
 
-	//[HarmonyPatch(typeof(LookoutEvents), nameof(LookoutEvents.CheckForLookoutWatched))]
+	[HarmonyPatch(typeof(LookoutEvents), nameof(LookoutEvents.CheckForLookoutWatched))]
 	[HarmonyPatch(typeof(PlaguebearerRole), nameof(PlaguebearerRole.CheckInfected))]
 	[HarmonyPatch(typeof(HunterRole), nameof(HunterRole.RpcCatchPlayer))]
 	[HarmonyPrefix]
