@@ -9,34 +9,38 @@ namespace VesselRoleMod.Patches;
 [HarmonyPatch]
 public static class TouModulePatches
 {
-	[HarmonyPatch(typeof(GameHistory), nameof(GameHistory.AddMurder))]
-	[HarmonyPostfix]
-	public static void AddVesselMurderPostfix(PlayerControl killer, PlayerControl victim)
+	[HarmonyPatch(typeof(GameHistory))]
+	public static class GameHistoryPatches
 	{
-		if (!killer.Data.IsDead || killer.Data.Disconnected)
+		[HarmonyPatch(nameof(GameHistory.AddMurder))]
+		[HarmonyPostfix]
+		public static void AddVesselMurderPostfix(PlayerControl killer, PlayerControl victim)
 		{
-			return;
+			if (!killer.Data.IsDead || killer.Data.Disconnected)
+			{
+				return;
+			}
+
+			if (!killer.TryGetModifier<PoltergeistModifier>(out var mod))
+			{
+				return;
+			}
+
+			PossessionHistory.AddMurder(killer, mod.Vessel, victim);
 		}
 
-		if (!killer.TryGetModifier<PoltergeistModifier>(out var mod))
+		[HarmonyPatch(nameof(GameHistory.ClearMurder))]
+		[HarmonyPostfix]
+		public static void ClearVesselMurderPostfix(PlayerControl player)
 		{
-			return;
+			PossessionHistory.ClearMurder(player);
 		}
 
-		PossessionHistory.AddMurder(killer, mod.Vessel, victim);
-	}
-
-	[HarmonyPatch(typeof(GameHistory), nameof(GameHistory.ClearMurder))]
-	[HarmonyPostfix]
-	public static void ClearVesselMurderPostfix(PlayerControl player)
-	{
-		PossessionHistory.ClearMurder(player);
-	}
-
-	[HarmonyPatch(typeof(GameHistory), nameof(GameHistory.ClearAll))]
-	[HarmonyPostfix]
-	public static void ClearAllPostfix()
-	{
-		PossessionHistory.ClearAll();
+		[HarmonyPatch(nameof(GameHistory.ClearAll))]
+		[HarmonyPostfix]
+		public static void ClearAllPostfix()
+		{
+			PossessionHistory.ClearAll();
+		}
 	}
 }
