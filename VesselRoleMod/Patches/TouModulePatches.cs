@@ -1,8 +1,11 @@
 ﻿using HarmonyLib;
 using MiraAPI.Modifiers;
+using System.Linq;
 using TownOfUs.Modules;
+using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Patches;
 
@@ -41,6 +44,42 @@ public static class TouModulePatches
 		public static void ClearAllPostfix()
 		{
 			PossessionHistory.ClearAll();
+		}
+	}
+
+	[HarmonyPatch(typeof(BodyReport))]
+	public static class BodyReportPatches
+	{
+		[HarmonyPatch(nameof(BodyReport.ParseMedicReport))]
+		[HarmonyPatch(nameof(BodyReport.ParseForensicReport))]
+		[HarmonyPrefix]
+		public static void ParseBodyReportPrefix(ref BodyReport br)
+		{
+			if (br.Body == null)
+			{
+				return;
+			}
+
+			var deadPlayerId = br.Body.PlayerId;
+			var matches = PossessionHistory.GhostVesselKills.Where(x => x.VictimId == deadPlayerId).ToArray();
+
+			PossessionKill? killer = null;
+
+			if (matches.Length > 0)
+			{
+				killer = matches[0];
+			}
+
+			if (killer == null ||
+				MiscUtils.PlayerById(killer.KillerId) is not { } Ghost ||
+				MiscUtils.PlayerById(killer.VesselId) is not { } Vessel)
+			{
+				return;
+			}
+
+			br.Killer = VesselRole.GetReportedKiller(Vessel, Ghost);
+
+			return;
 		}
 	}
 }
