@@ -65,6 +65,7 @@ public static class RoleSpecificPatches
 		target = mod.Vessel;
 	}
 
+	[HarmonyPatch(typeof(LookoutEvents), nameof(LookoutEvents.CheckForLookoutWatched))]
 	[HarmonyPatch(typeof(PlaguebearerRole), nameof(PlaguebearerRole.CheckInfected))]
 	[HarmonyPatch(typeof(HunterRole), nameof(HunterRole.RpcCatchPlayer))]
 	[HarmonyPrefix]
