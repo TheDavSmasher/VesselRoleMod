@@ -129,28 +129,6 @@ public static class RoleSpecificPatches
 		return true;
 	}
 
-	[HarmonyPatch(typeof(RottingModifier), nameof(RottingModifier.StartRotting))]
-	[HarmonyPrefix]
-	public static void GhostKilledRottingPrefix(ref PlayerControl? killer)
-	{
-		if (killer == null)
-		{
-			return;
-		}
-
-		if (!killer.Data.IsDead || killer.Data.Disconnected)
-		{
-			return;
-		}
-
-		if (!killer.TryGetModifier<PoltergeistModifier>(out var mod))
-		{
-			return;
-		}
-
-		killer = mod.Target;
-	}
-
 	[HarmonyPatch(typeof(MirrorcasterRole), nameof(MirrorcasterRole.RpcMagicMirrorAttacked))]
 	public static class GhostAttackMagicMirrorPatch
 	{
