@@ -85,7 +85,6 @@ public static class RoleSpecificPatches
 	}
 
 	//[HarmonyPatch(typeof(CelebrityEvents), nameof(CelebrityEvents.AfterMurderEventHandler))]
-	[HarmonyPatch(typeof(TelepathEvents), nameof(TelepathEvents.AfterMurderEventHandler))]
 	[HarmonyPatch(typeof(DeputyEvents), nameof(DeputyEvents.AfterMurderEventHandler))]
 	[HarmonyPatch(typeof(FrostyEvents), nameof(FrostyEvents.AfterMurderEventHandler))]
 	[HarmonyPatch(typeof(BaitEvents), nameof(BaitEvents.AfterMurderEventHandler))]
@@ -110,6 +109,24 @@ public static class RoleSpecificPatches
 			@event.Target,
 			@event.DeadBody
 		);
+	}
+
+	[HarmonyPatch(typeof(TelepathEvents), nameof(TelepathEvents.AfterMurderEventHandler))]
+	[HarmonyPrefix]
+	public static bool GhostImpostorKillPrefix(ref AfterMurderEvent @event)
+	{
+		var source = @event.Source;
+		if (!source.Data.IsDead || source.Data.Disconnected)
+		{
+			return true;
+		}
+
+		if (!source.TryGetModifier<PoltergeistModifier>(out var mod))
+		{
+			return true;
+		}
+
+		return true;
 	}
 
 	[HarmonyPatch(typeof(RottingModifier), nameof(RottingModifier.StartRotting))]
