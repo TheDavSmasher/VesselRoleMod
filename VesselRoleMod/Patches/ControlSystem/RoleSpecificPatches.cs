@@ -109,6 +109,23 @@ public static class RoleSpecificPatches
 		);
 	}
 
+	[HarmonyPatch(typeof(CelebrityModifier), nameof(CelebrityModifier.CelebrityKilled))]
+	[HarmonyPrefix]
+	public static void GhostKillPlayerTrackingKillerPrefix(ref PlayerControl source) // After Murder
+	{
+		if (!source.Data.IsDead || source.Data.Disconnected)
+		{
+			return;
+		}
+
+		if (!source.TryGetModifier<PoltergeistModifier>(out var mod))
+		{
+			return;
+		}
+
+		source = mod.ReportedKiller;
+	}
+
 	[HarmonyPatch(typeof(TelepathEvents), nameof(TelepathEvents.AfterMurderEventHandler))]
 	[HarmonyPrefix]
 	public static bool GhostImpostorKillPrefix(ref AfterMurderEvent @event)
