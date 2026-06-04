@@ -62,7 +62,7 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		target = mod.Target;
+		target = mod.Vessel;
 	}
 
 	[HarmonyPatch(typeof(LookoutEvents), nameof(LookoutEvents.CheckForLookoutWatched))]
@@ -81,7 +81,7 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		source = mod.Target;
+		source = mod.Vessel;
 	}
 
 	//[HarmonyPatch(typeof(CelebrityEvents), nameof(CelebrityEvents.AfterMurderEventHandler))]
@@ -102,7 +102,7 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		source = mod.Target;
+		source = mod.Vessel;
 
 		@event = new(
 			source,
