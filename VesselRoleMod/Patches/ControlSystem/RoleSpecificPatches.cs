@@ -66,6 +66,7 @@ public static class RoleSpecificPatches
 	}
 
 	[HarmonyPatch(typeof(PlaguebearerRole), nameof(PlaguebearerRole.CheckInfected))]
+	[HarmonyPatch(typeof(HunterRole), nameof(HunterRole.RpcCatchPlayer))]
 	[HarmonyPrefix]
 	public static void GhostKillPlayerTrackedByRolePrefix(ref PlayerControl source)
 	{

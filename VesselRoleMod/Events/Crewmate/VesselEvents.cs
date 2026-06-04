@@ -8,6 +8,7 @@ using MiraAPI.Utilities;
 using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Events.TouEvents;
+using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -47,6 +48,24 @@ public static class VesselEvents
 		{
 			VesselRole.GhostEndPossession(player, mod.Vessel);
 		}
+	}
+
+	[RegisterEvent]
+	public static void HunterStalkVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.HunterStalk)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifier<VesselPossessedModifier>(out var mod) ||
+			!mod.Ghost.AmOwner)
+		{
+			return;
+		}
+
+		mod.Ghost.AddModifier<HunterStalkedModifier>(@event.Player); // Only locally
 	}
 
 	[RegisterEvent]
