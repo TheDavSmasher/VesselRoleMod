@@ -47,6 +47,11 @@ public static class RoleSpecificPatches
 	[HarmonyPrefix]
 	public static void TryMurderVesselGhostPrefix(PlayerControl source, ref PlayerControl target)
 	{
+		if (source.Data.Role is not VeteranRole)
+		{
+			return;
+		}
+
 		if (!target.Data.IsDead || target.Data.Disconnected)
 		{
 			return;
@@ -57,17 +62,10 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		if (source.Data.Role is not VeteranRole)
-		{
-			return;
-		}
-
 		target = mod.Vessel;
 	}
 
-	[HarmonyPatch(typeof(LookoutEvents), nameof(LookoutEvents.CheckForLookoutWatched))]
 	[HarmonyPatch(typeof(PlaguebearerRole), nameof(PlaguebearerRole.CheckInfected))]
-	[HarmonyPatch(typeof(HunterRole), nameof(HunterRole.RpcCatchPlayer))]
 	[HarmonyPrefix]
 	public static void GhostKillPlayerTrackedByRolePrefix(ref PlayerControl source)
 	{
@@ -84,7 +82,6 @@ public static class RoleSpecificPatches
 		source = mod.Vessel;
 	}
 
-	//[HarmonyPatch(typeof(CelebrityEvents), nameof(CelebrityEvents.AfterMurderEventHandler))]
 	[HarmonyPatch(typeof(DeputyEvents), nameof(DeputyEvents.AfterMurderEventHandler))]
 	[HarmonyPatch(typeof(FrostyEvents), nameof(FrostyEvents.AfterMurderEventHandler))]
 	[HarmonyPatch(typeof(BaitEvents), nameof(BaitEvents.AfterMurderEventHandler))]
@@ -168,7 +165,6 @@ public static class RoleSpecificPatches
 			}
 
 			var mod = source.GetModifier<PoltergeistModifier>()!;
-			source = mod.Target;
 
 			// Execute logic previously skipped
 			if (mirrorcaster.Data.Role is not MirrorcasterRole role)
