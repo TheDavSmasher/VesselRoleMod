@@ -5,7 +5,6 @@ using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
-using System.Collections;
 using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Events.TouEvents;
@@ -102,6 +101,11 @@ public static class VesselEvents
 			return;
 		}
 
+		if (!mod.Ghost.AmOwner)
+		{
+			return;
+		}
+
 		mod.Ghost.AddModifier<HunterStalkedModifier>(@event.Player);
 	}
 
@@ -115,6 +119,11 @@ public static class VesselEvents
 
 		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
 			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (!mod.Ghost.AmOwner && !mod.Vessel.AmOwner)
 		{
 			return;
 		}
@@ -136,6 +145,11 @@ public static class VesselEvents
 			return;
 		}
 
+		if (!mod.Ghost.AmOwner && !mod.Vessel.AmOwner)
+		{
+			return;
+		}
+
 		mod.Target.GetModifier<GlitchHackedModifier>()!.ShowHacked();
 	}
 
@@ -149,6 +163,11 @@ public static class VesselEvents
 
 		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
 			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (!mod.Ghost.AmOwner)
 		{
 			return;
 		}
