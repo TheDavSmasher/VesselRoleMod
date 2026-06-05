@@ -35,6 +35,9 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 	[ModdedToggleOption("VesselOptionAllowSharedControl")]
 	public bool CanShareControl { get; set; } = true;
 
+	[ModdedToggleOption("VesselOptionGhostCanVent")]
+	public bool VentingGhostsCanVent { get; set; } = false;
+
 	public ModdedToggleOption KillingGhostsCanKill { get; set; } = new("VesselOptionGhostCanKill", true);
 
 	public ModdedEnumOption<VesselOnKillType> KillingGhostOnKill { get; set; } =
@@ -45,9 +48,6 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 		};
 
 	// public ModdedToggleOption KillingInvestigative shenanigans
-
-	[ModdedToggleOption("VesselOptionGhostCanVent")]
-	public bool VentingGhostsCanVent { get; set; } = false;
 
 	public ModdedEnumOption<VesselRejectionType> CanRejectPossession { get; set; } =
 		new("VesselOptionCanReject", VesselRejectionType.None,
