@@ -3,6 +3,7 @@ using MiraAPI.Modifiers;
 using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Patches.ControlSystem;
 
@@ -19,44 +20,28 @@ public static class VesselOverlayPatch
 			return;
 		}
 
-		var hasModifier = local.TryGetModifier<VesselPossessedModifier>(out var mod);
-		var isControlled = VesselControlState.IsControlled(local.PlayerId, out var ghostId);
-
-		if (hasModifier && !isControlled)
+		if (local.TryGetModifier<VesselPossessedModifier>(out var mod))
 		{
-			mod?.ClearNotification();
-			if (mod != null)
-				local.RemoveModifier(mod);
-			return;
-		}
-
-		if (hasModifier)
-		{
-			var shouldClear =
-				MeetingHud.Instance != null ||
-				ExileController.Instance != null ||
-				local.Data == null ||
-				local.Data.Disconnected ||
-				local.Data.IsDead;
-
-			if (!shouldClear)
+			if (VesselControlState.IsControlled(local.PlayerId, out var ghostId))
 			{
-				var ghost = MiscUtils.PlayerById(ghostId);
-				if (ghost == null || ghost.Data == null || ghost.Data.Disconnected || !ghost.HasDied())
+				if (MeetingHud.Instance == null &&
+					ExileController.Instance == null &&
+					local.Data != null &&
+					!local.Data.Disconnected &&
+					!local.Data.IsDead)
 				{
-					shouldClear = true;
+					var ghost = MiscUtils.PlayerById(ghostId);
+					if (ghost?.Data != null && !ghost.Data.Disconnected && ghost.HasDied())
+					{
+						return;
+					}
 				}
+
+				VesselControlState.ClearControl(local.PlayerId);
 			}
 
-			if (shouldClear)
-			{
-				mod?.ClearNotification();
-				if (mod != null)
-				{
-					VesselControlState.ClearControl(local.PlayerId);
-					local.RemoveModifier(mod);
-				}
-			}
+			mod.ClearNotification();
+			mod.RemoveSelf();
 		}
 	}
 }

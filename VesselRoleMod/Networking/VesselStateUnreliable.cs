@@ -1,39 +1,21 @@
 ﻿using Hazel;
 using Reactor.Networking.Attributes;
 using Reactor.Networking.Extensions;
-using Reactor.Networking.Rpc;
-using TownOfUs.Modules;
 using UnityEngine;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Networking;
 
-internal readonly struct VesselStatePacket
-{
-	public VesselStatePacket(byte vesselId, Vector2 position, bool inAnim, Vector2 velocity)
-	{
-		VesselId = vesselId;
-		Position = position;
-		InAnim = inAnim;
-		Velocity = velocity;
-	}
-
-	public byte VesselId { get; }
-	public Vector2 Position { get; }
-	public bool InAnim { get; }
-	public Vector2 Velocity { get; }
-}
+internal readonly record struct VesselStatePacket(byte TargetId, Vector2 Position, bool InAnim, Vector2 Velocity) : ITargetDataPacket;
 
 [RegisterCustomRpc((uint)VesselModInternalRpc.VesselStateUnreliable)]
 internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint id)
-	: PlayerCustomRpc<VesselRoleModPlugin, VesselStatePacket>(plugin, id)
+	: ControlDataUnreliableRpc<VesselStatePacket>(plugin, id)
 {
-	public override RpcLocalHandling LocalHandling => RpcLocalHandling.Before;
-
 	public override void Write(MessageWriter writer, VesselStatePacket data)
 	{
-		writer.Write(data.VesselId);
+		writer.Write(data.TargetId);
 		writer.Write(data.Position);
 		writer.Write(data.InAnim);
 		writer.Write(data.Velocity);
@@ -48,26 +30,14 @@ internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint 
 		return new VesselStatePacket(vesselId, pos, anim, vel);
 	}
 
-	public override void Handle(PlayerControl sender, VesselStatePacket data)
+	protected override void Store(PlayerControl sender, VesselStatePacket data)
 	{
-		var targetPlayerInfo = GameData.Instance?.GetPlayerById(data.VesselId);
-		var target = targetPlayerInfo?.Object;
-		if (target == null || sender == null)
+		if (!VesselControlState.IsControlled(data.TargetId, out _) ||
+			data.TargetId != sender.PlayerId)
 		{
 			return;
 		}
 
-		if (TimeLordRewindSystem.IsRewinding)
-		{
-			return;
-		}
-
-		if (!VesselControlState.IsControlled(data.VesselId, out _) ||
-			data.VesselId != sender.PlayerId)
-		{
-			return;
-		}
-
-		VesselControlState.SetMovementState(data.VesselId, data.Position, data.InAnim, data.Velocity);		
+		VesselControlState.SetMovementState(data.TargetId, data.Position, data.InAnim, data.Velocity);
 	}
 }

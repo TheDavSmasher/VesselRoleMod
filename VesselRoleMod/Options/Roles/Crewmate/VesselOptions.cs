@@ -1,10 +1,10 @@
-﻿using MiraAPI.Utilities;
-using MiraAPI.GameOptions;
+﻿using MiraAPI.GameOptions;
 using MiraAPI.GameOptions.Attributes;
 using MiraAPI.GameOptions.OptionTypes;
-using VesselRoleMod.Roles.Crewmate;
 using MiraAPI.Roles;
+using MiraAPI.Utilities;
 using UnityEngine;
+using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Options.Roles.Crewmate;
 
@@ -35,7 +35,15 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 	[ModdedToggleOption("VesselOptionAllowSharedControl")]
 	public bool CanShareControl { get; set; } = true;
 
+	[ModdedToggleOption("VesselOptionGhostCanVent")]
+	public bool VentingGhostsCanVent { get; set; } = false;
+
 	public ModdedToggleOption KillingGhostsCanKill { get; set; } = new("VesselOptionGhostCanKill", true);
+
+	public ModdedToggleOption ReportGhostInstead { get; set; } = new("VesselOptionReportGhost", true)
+	{
+		Visible = () => OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill.Value
+	};
 
 	public ModdedEnumOption<VesselOnKillType> KillingGhostOnKill { get; set; } =
 		new("VesselOptionOnGhostKill", VesselOnKillType.CannotKill,
@@ -43,8 +51,6 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 		{
 			Visible = () => OptionGroupSingleton<VesselOptions>.Instance.KillingGhostsCanKill.Value
 		};
-
-	// public ModdedToggleOption KillingInvestigative shenanigans
 
 	public ModdedEnumOption<VesselRejectionType> CanRejectPossession { get; set; } =
 		new("VesselOptionCanReject", VesselRejectionType.None,
@@ -60,8 +66,6 @@ public sealed class VesselOptions : AbstractOptionGroup<VesselRole>
 		{
 			Visible = () => OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession == VesselRejectionType.Free
 		};
-
-	public bool NotifHasName => CanRejectPossession == VesselRejectionType.Free || CanSeeGhostName;
 }
 
 public enum VesselRejectionType

@@ -5,9 +5,14 @@ using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking.Attributes;
+using Reactor.Utilities.Extensions;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
+using TownOfUs.Modifiers.Crewmate;
+using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
@@ -17,12 +22,13 @@ using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Buttons.Modifiers;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.Components;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
-using VesselRoleMod.Patches.ControlSystem;
+using VesselRoleMod.Patches.ControlSystem.Interactions;
 using VesselRoleMod.Utilities;
 using Object = UnityEngine.Object;
 
@@ -59,7 +65,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	{
 		RoleBehaviourStubs.Initialize(this, player);
 
-		if (OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.None && 
+		if (OptionGroupSingleton<VesselOptions>.Instance.CanRejectPossession != VesselRejectionType.None &&
 			!player.HasModifier<VesselBlacklistModifier>())
 		{
 			player.AddModifier<VesselBlacklistModifier>();
@@ -69,10 +75,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public override void Deinitialize(PlayerControl targetPlayer)
 	{
 		RoleBehaviourStubs.Deinitialize(this, targetPlayer);
-		if (targetPlayer.HasModifier<VesselBlacklistModifier>())
-		{
-			targetPlayer.RemoveModifier<VesselBlacklistModifier>();
-		}
+		targetPlayer.RemoveExistingModifier<VesselBlacklistModifier>();
 	}
 
 	public override void OnMeetingStart()
@@ -80,71 +83,117 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		RoleBehaviourStubs.OnMeetingStart(this);
 	}
 
+	#region Role RPCs
+
+	#region Vessel Seeking
+	public static void RpcSeekVessel(PlayerControl vessel, List<PlayerControl> ghosts)
+	{
+		RpcSeekVessel(vessel, ghosts.ToDictionary(x => x.PlayerId, x => x.Data.PlayerName));
+	}
+
 	[MethodRpc((uint)VesselModRpc.AdorcismStart)]
-	public static void RpcSeekVessel(PlayerControl player, PlayerControl target)
+	public static void RpcSeekVessel(PlayerControl vessel, Dictionary<byte, string> ghosts)
 	{
 		if (LobbyBehaviour.Instance)
 		{
-			MiscUtils.RunAnticheatWarning(player);
+			MiscUtils.RunAnticheatWarning(vessel);
 			return;
 		}
-		if (target.Data.Role is not VesselRole)
+		if (vessel.Data.Role is not VesselRole)
 		{
 			Error($"RpcSeekVessel - Invalid Vessel target");
 			return;
 		}
 
-		if (!player.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == target.PlayerId))
+		if (!vessel.HasModifier<VesselAdorcismModifier>())
 		{
-			player.AddModifier<ValidAdorcismGhostModifier>(target);
+			vessel.AddModifier<VesselAdorcismModifier>();
 		}
 
-		var color = Palette.PlayerColors[target.GetDefaultAppearance().ColorId];
-		if (player.AmOwner)
+		if (ghosts.Count == 0)
 		{
-			var mod = new PoltergeistArrowModifier(target, color);
-			player.AddModifier(mod);
+			return;
+		}
 
-			CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(true, player.Data.Role);
+		var color = Palette.PlayerColors[vessel.GetDefaultAppearance().ColorId];
+		var allPlayers = PlayerControl.AllPlayerControls.ToArray().Where(x => x.PlayerId != vessel.PlayerId).ToList();
+
+		foreach (var (ghostId, ghostName) in ghosts)
+		{
+			var ghost = allPlayers.FirstOrDefault(x => x.PlayerId == ghostId || x.Data.PlayerName == ghostName);
+			if (ghost == null)
+			{
+				continue;
+			}
+			allPlayers.Remove(ghost);
+
+			if (!ghost.HasModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId))
+			{
+				ghost.AddModifier<ValidAdorcismGhostModifier>(vessel);
+			}
+
+			if (ghost.AmOwner)
+			{
+				var mod = new PoltergeistArrowModifier(vessel, color);
+				ghost.AddModifier(mod);
+
+				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(true, ghost.Data.Role);
+			}
 		}
 	}
 
-	public static void VesselClosed(PlayerControl player, PlayerControl target)
+	[MethodRpc((uint)VesselModRpc.AdorcismEnd)]
+	public static void RpcVesselClosed(PlayerControl vessel)
 	{
 		if (LobbyBehaviour.Instance)
 		{
-			MiscUtils.RunAnticheatWarning(player);
+			MiscUtils.RunAnticheatWarning(vessel);
 			return;
 		}
-		if (target.Data.Role is not VesselRole)
+		if (vessel.Data.Role is not VesselRole)
 		{
-			Error($"RpcVesselClosed - Invalid Vessel target");
+			Error($"RpcSeekVessel - Invalid Vessel target");
 			return;
 		}
 
-		if (player.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == target.PlayerId))
-		{
-			player.RemoveModifier(mod);
-		}
-		else
-		{
-			Error($"RpcVesselClosed - Invalid ghost");
-		}
+		vessel.RemoveExistingModifier<VesselAdorcismModifier>();
+	}
 
-		if (player.AmOwner)
+	public static void VesselClosed(PlayerControl vessel, PlayerControl? ghost = null)
+	{
+		foreach (var validMod in ModifierUtils.GetActiveModifiers
+			<ValidAdorcismGhostModifier>(x => IsModifierToRemove(x, vessel, ghost)))
 		{
-			if (!player.HasModifier<VesselSeekingModifier>())
+			if (validMod == null)
 			{
-				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, player.Data.Role);
+				continue;
 			}
+			validMod.RemoveSelf();
 
-			if (player.GetModifier<PoltergeistArrowModifier>(m => m.Owner.PlayerId == target.PlayerId) is { } arrow)
+			var seekingGhost = validMod.Player;
+
+			if (seekingGhost.AmOwner)
 			{
-				player.RemoveModifier(arrow);
+				seekingGhost.RemoveExistingModifier<PoltergeistArrowModifier>(x => IsModifierToRemove(x, vessel, ghost));
+
+				if (!seekingGhost.HasModifierOfType<IVesselSeekingModifier>())
+				{
+					CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, seekingGhost.Data.Role);
+				}
 			}
 		}
 	}
 
+	private static bool IsModifierToRemove<T>(T modifier, PlayerControl vessel, PlayerControl? ghost) where T : BaseModifier, IVesselModifier
+	{
+		return vessel.PlayerId == modifier.Vessel.PlayerId ||
+			   ghost?.PlayerId == modifier.Player.PlayerId;
+	}
+	#endregion
+
+	#region Ghost Possession
+
+	#region Start Possession
 	[MethodRpc((uint)VesselModRpc.VesselTryPossessing)]
 	public static void RpcGhostTryPossessing(PlayerControl ghost, PlayerControl vessel)
 	{
@@ -153,7 +202,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (ghost.GetModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcPossess - Invalid poltergeist");
 			return;
@@ -205,10 +254,10 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	{
 		if (LobbyBehaviour.Instance)
 		{
-			MiscUtils.RunAnticheatWarning(ghost);
+			MiscUtils.RunAnticheatWarning(vessel);
 			return;
 		}
-		if (ghost.GetModifier<ValidAdorcismGhostModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<ValidAdorcismGhostModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcPossess - Invalid poltergeist");
 			return;
@@ -267,39 +316,25 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		{
 			vessel.AddModifier<VesselPossessedModifier>(ghost);
 		}
-		if (vessel.HasModifier<VesselAdorcismModifier>())
+		vessel.RemoveExistingModifier<VesselAdorcismModifier>();
+
+		VesselClosed(vessel, ghost);
+
+		if (vessel.TryGetModifier<GlitchHackedModifier>(out var hackMod))
 		{
-			vessel.RemoveModifier<VesselAdorcismModifier>();
+			ghost.AddModifier<GlitchHackedModifier>(hackMod.GlitchId);
+		}
+		if (vessel.TryGetModifier<HunterStalkedModifier>(out var stalkMod))
+		{
+			ghost.AddModifier<HunterStalkedModifier>(stalkMod.Hunter);
 		}
 
-		foreach (var validmod in ModifierUtils.GetActiveModifiers<ValidAdorcismGhostModifier>(m => m.Vessel.PlayerId == vessel.PlayerId))
-		{
-			VesselClosed(validmod.Player, vessel);
-		}
-		foreach (var validmod2 in ghost.GetModifiers<ValidAdorcismGhostModifier>())
-		{
-			VesselClosed(ghost, validmod2.Vessel);
-		}
-
-		if (vessel.inVent)
-		{
-			vessel.MyPhysics.ExitAllVents();
-		}
+		vessel.MyPhysics.ClearVentState();
 
 		var pos = (Vector2)vessel.transform.position;
 		if (vessel.AmOwner)
 		{
-			if (vessel.NetTransform != null)
-			{
-				try
-				{
-					vessel.NetTransform.SnapTo(pos);
-				}
-				catch
-				{
-					// ignored
-				}
-			}
+			vessel.NetTransform?.SnapTo(pos);
 		}
 		else if (ghost.AmOwner)
 		{
@@ -310,21 +345,13 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			NetTransformBacklogUtils.FlushBacklog(vessel);
 		}
 
-		if (ghost.NetTransform != null)
-		{
-			try
-			{
-				ghost.NetTransform.SnapTo(pos);
-			}
-			catch
-			{
-				// ignored
-			}
-		}
+		ghost.NetTransform?.SnapTo(pos);
 
+		var ventButton = CustomButtonSingleton<PoltergeistVentButton>.Instance;
 		if (ghost.AmOwner)
 		{
 			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(true, ghost.Data.Role);
+			ventButton.SetActive(true, ghost.Data.Role);
 			mod.CreateNotification();
 		}
 		else if (vessel.AmOwner)
@@ -332,12 +359,18 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			CustomButtonSingleton<VesselAdorciseButton>.Instance.ActivateTriggerEffect();
 		}
 
-		if (!VesselControlState.CanShareControl && (ghost.AmOwner || vessel.AmOwner))
+		if (ghost.AmOwner || vessel.AmOwner)
 		{
-			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(true, PlayerControl.LocalPlayer.Data.Role);
+			ventButton.SetTimer(ventButton.InitialCooldown);
+			if (!VesselControlState.CanShareControl)
+			{
+				CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(true, PlayerControl.LocalPlayer.Data.Role);
+			}
 		}
 	}
+	#endregion
 
+	#region End Possession
 	[MethodRpc((uint)VesselModRpc.VesselEndPossession)]
 	public static void RpcGhostEndPossession(PlayerControl ghost, PlayerControl vessel, bool onKill = false)
 	{
@@ -352,100 +385,93 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 	public static void GhostEndPossession(PlayerControl ghost, PlayerControl vessel, bool onKill = false)
 	{
-		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (vessel == null || ghost == null)
 		{
 			return;
 		}
 
-		if (vessel != null && vessel.GetModifier<VesselPossessedModifier>() is { } mod1)
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			return;
+		}
+
+		if (vessel.TryGetModifier<VesselPossessedModifier>(out var mod1))
 		{
 			VesselControlState.ClearControl(vessel.PlayerId);
-			if (vessel.TryGetModifier<VesselPossessedModifier>(out var mod2))
-			{
-				vessel.RemoveModifier(mod2);
-			}
+			mod1.RemoveSelf();
 
 			if (vessel.MyPhysics != null)
 			{
-				if (vessel.MyPhysics.body != null)
+				if (vessel.inVent)
 				{
-					vessel.MyPhysics.body.velocity = Vector2.zero;
+					vessel.MyPhysics.ClearVentState();
+
+					if (ghost.AmOwner &&
+						CustomButtonSingleton<PoltergeistVentButton>.Instance.HasEffect)
+					{
+						ghost.AddModifier<GhostEngineerCooldownModifier>();
+					}
 				}
-				vessel.MyPhysics.SetNormalizedVelocity(Vector2.zero);
+				else
+				{
+					vessel.MyPhysics.body?.velocity = Vector2.zero;
+					vessel.MyPhysics.SetNormalizedVelocity(Vector2.zero);
+				}
 			}
 
 			var finalPos = (Vector2)vessel.transform.position;
-			if (vessel.NetTransform != null)
-			{
-				try
-				{
-					NetTransformBacklogUtils.FlushBacklog(vessel);
 
-					if (vessel.AmOwner)
-					{
-						vessel.NetTransform.SnapTo(finalPos);
-					}
-					else if (ghost != null && ghost.AmOwner)
-					{
-						NetTransformBacklogUtils.FlushAndSnap(vessel);
-					}
-					else
-					{
-						NetTransformBacklogUtils.FlushAndSnap(vessel);
-					}
-				}
-				catch
-				{
-					// ignored
-				}
+			NetTransformBacklogUtils.FlushBacklog(vessel);
+
+			if (vessel.AmOwner)
+			{
+				vessel.NetTransform?.SnapTo(finalPos);
 			}
-		}
-
-		if (ghost != null)
-		{
-			ghost.RemoveModifier(mod);
-
-			if (ghost.AmOwner)
+			else if (ghost.AmOwner)
 			{
-				var pos = (Vector2)ghost.transform.position;
-				if (ghost.NetTransform != null)
-				{
-					try
-					{
-						ghost.NetTransform.SnapTo(pos);
-					}
-					catch
-					{
-						// ignored
-					}
-				}
+				NetTransformBacklogUtils.FlushAndSnap(vessel);
 			}
 			else
 			{
-				NetTransformBacklogUtils.FlushBacklog(ghost);
+				NetTransformBacklogUtils.FlushAndSnap(vessel);
 			}
+		}
 
-			if (ghost.AmOwner)
-			{
-				CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(false, ghost.Data.Role);
-				CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, ghost.Data.Role);
-				ControlledPlayerInteractionPatches.ClearInteractableOutlines();
-			}
+		mod.RemoveSelf();
+
+		if (ghost.AmOwner)
+		{
+			var pos = (Vector2)ghost.transform.position;
+			ghost.NetTransform?.SnapTo(pos);
+		}
+		else
+		{
+			NetTransformBacklogUtils.FlushBacklog(ghost);
+		}
+
+		if (ghost.AmOwner)
+		{
+			CustomButtonSingleton<PoltergeistKillButton>.Instance.SetActive(false, ghost.Data.Role);
+			CustomButtonSingleton<PoltergeistVentButton>.Instance.SetActive(false, ghost.Data.Role);
+			CustomButtonSingleton<PoltergeistPossessButton>.Instance.SetActive(false, ghost.Data.Role);
+			ControlledPlayerInteractionPatches.ClearInteractableOutlines();
 		}
 
 		mod.ClearNotification();
 
-		if (!VesselControlState.CanShareControl && (ghost != null && ghost.AmOwner || vessel != null && vessel.AmOwner))
+		if (!VesselControlState.CanShareControl && (ghost.AmOwner || vessel.AmOwner))
 		{
 			CustomButtonSingleton<VesselChangeControlButton>.Instance.SetActive(false, PlayerControl.LocalPlayer.Data.Role);
 		}
 
-		if (vessel != null && ghost != null && onKill)
+		if (onKill)
 		{
 			ghost.AddModifier<GhostKillerBlockModifier>(vessel.AmOwner);
 		}
 	}
+	#endregion
 
+	#region Possession Control
 	[MethodRpc((uint)VesselModRpc.ChangePossessionControl)]
 	public static void RpcChangeControl(PlayerControl ghost, PlayerControl vessel)
 	{
@@ -454,7 +480,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcChangeControl - Invalid poltergeist");
 			return;
@@ -465,8 +491,16 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 
 		VesselControlState.SwapControlOver(ghost.PlayerId, vessel.PlayerId);
+
+		if ((ghost.AmOwner || vessel.AmOwner) && vessel.inVent)
+		{
+			Vent.currentVent.SetButtons(true);
+		}
 	}
 
+	#region Possession Interactions
+
+	#region Usables
 	[MethodRpc((uint)VesselModRpc.VesselTriggerInteraction)]
 	public static void RpcGhostTriggerInteraction(PlayerControl ghost, PlayerControl vessel, Vector2 interactablePosition)
 	{
@@ -475,7 +509,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			MiscUtils.RunAnticheatWarning(ghost);
 			return;
 		}
-		if (ghost.GetModifier<PoltergeistModifier>(x => x.Vessel.PlayerId == vessel.PlayerId) is not { } mod)
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
 		{
 			Error($"RpcVesselInteraction - Invalid poltergeist");
 			return;
@@ -490,13 +524,86 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		var (interactable, _) = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
+		var interactable = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
 		if (interactable == null)
 		{
 			return;
 		}
 
 		TriggerInteractionAsPlayer(vessel, interactable);
+		SetStateForGhost(ghost, interactable);
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselSetGhostState)]
+	public static void RpcVesselSetGhostState(PlayerControl ghost, PlayerControl vessel, Vector2 interactablePosition)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(vessel);
+			return;
+		}
+		if (!ghost.AmOwner)
+		{
+			return;
+		}
+
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcVesselSetState - Invalid poltergeist");
+			return;
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		if (VesselControlState.IsFullyControlling(ghost.PlayerId))
+		{
+			return;
+		}
+
+		var interactable = ControlledPlayerInteractionPatches.FindClosestInteractable(vessel, interactablePosition);
+		if (interactable == null)
+		{
+			return;
+		}
+
+		SetStateForGhost(ghost, interactable);
+	}
+
+	public static void SetStateForGhost(PlayerControl ghost, IUsable interactable)
+	{
+		if (ghost == null || interactable == null)
+		{
+			return;
+		}
+
+		if (!ghost.AmOwner)
+		{
+			return;
+		}
+
+		if (interactable.TryCast<Ladder>() is { } ladder)
+		{
+			if (ladder.IsCoolingDown())
+			{
+				return;
+			}
+			ladder.CoolDown = ladder.MaxCoolDown;
+		}
+		else if (interactable.TryCast<ZiplineConsole>() is { } zipline)
+		{
+			if (zipline.IsCoolingDown())
+			{
+				return;
+			}
+			zipline.CoolDown = zipline.MaxCoolDown;
+			zipline.zipline.lastUsedConsole = zipline;
+		}
+		else if (interactable.TryCast<DeconControl>() is { } decon)
+		{
+			decon.cooldown = 6f;
+		}
 	}
 
 	private static void TriggerInteractionAsPlayer(PlayerControl player, IUsable interactable)
@@ -506,9 +613,14 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
+		if (!player.AmOwner)
+		{
+			return;
+		}
+
 		if (interactable.TryCast<Ladder>() is { } ladder)
 		{
-			if (!player.AmOwner || ladder.IsCoolingDown())
+			if (ladder.IsCoolingDown())
 			{
 				return;
 			}
@@ -517,7 +629,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else if (interactable.TryCast<ZiplineConsole>() is { } ziplineConsole)
 		{
-			if (!player.AmOwner || ziplineConsole.IsCoolingDown())
+			if (ziplineConsole.IsCoolingDown())
 			{
 				return;
 			}
@@ -526,55 +638,23 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 		else if (interactable.TryCast<OpenDoorConsole>() is { } openDoorConsole)
 		{
-			if (AmongUsClient.Instance == null || !AmongUsClient.Instance.AmHost)
-			{
-				return;
-			}
+			ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, (byte)(openDoorConsole.myDoor.Id | 0x40));
 			openDoorConsole.myDoor.SetDoorway(true);
 		}
 		else if (interactable.TryCast<DoorConsole>() is { } doorConsole)
 		{
-			if (player.AmOwner)
-			{
-				player.NetTransform.Halt();
-				var minigame = Object.Instantiate(doorConsole.MinigamePrefab, Camera.main.transform);
-				minigame.transform.localPosition = new Vector3(0f, 0f, -50f);
-
-				try
-				{
-					minigame.Cast<IDoorMinigame>().SetDoor(doorConsole.MyDoor);
-				}
-				catch (InvalidCastException)
-				{
-					/* ignored */
-				}
-
-				minigame.Begin(null);
-			}
+			player.NetTransform.Halt();
+			var minigame = Object.Instantiate(doorConsole.MinigamePrefab, Camera.main.transform);
+			minigame.transform.localPosition = new Vector3(0f, 0f, -50f);
+			minigame.TryCast<IDoorMinigame>()?.SetDoor(doorConsole.MyDoor);
+			minigame.Begin(null);
 		}
 		else if (interactable.TryCast<PlatformConsole>() is { } platformConsole)
 		{
-			if (AmongUsClient.Instance == null || !AmongUsClient.Instance.AmHost)
-			{
-				return;
-			}
-			var platform = platformConsole.Platform;
-			if (platform != null)
-			{
-				var vector = platform.transform.position - player.transform.position;
-				if (!platform.Target && vector.magnitude <= 3f)
-				{
-					platform.IsDirty = true;
-					platform.StartCoroutine(platform.UsePlatform(player));
-				}
-			}
+			platformConsole.Platform.Use();
 		}
 		else if (interactable.TryCast<DeconControl>() is { } deconControl)
 		{
-			if (AmongUsClient.Instance == null || !AmongUsClient.Instance.AmHost)
-			{
-				return;
-			}
 			deconControl.cooldown = 6f;
 			if (Constants.ShouldPlaySfx())
 			{
@@ -583,6 +663,151 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			deconControl.OnUse.Invoke();
 		}
 	}
+	#endregion
+
+	#region Vents
+	[MethodRpc((uint)VesselModRpc.VesselEnterVent)]
+	public static void RpcVesselEnterVent(PlayerControl ghost, PlayerControl vessel, int id)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(ghost);
+			return;
+		}
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcVesselVentEnter - Invalid poltergeist");
+			return;
+		}
+		if (mod.Vessel.PlayerId != vessel.PlayerId)
+		{
+			Error("RpcVesselVentEnter - Vessel is not controlled by ghost.");
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		if (!vessel.AmOwner)
+		{
+			return;
+		}
+
+		vessel.MyPhysics.RpcEnterVent(id);
+
+		var button = CustomButtonSingleton<PoltergeistVentButton>.Instance;
+		if (button.HasEffect)
+		{
+			button.EffectActive = true;
+			button.Timer = button.EffectDuration;
+		}
+		else
+		{
+			button.Timer = button.Cooldown;
+		}
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselExitVent)]
+	public static void RpcVesselExitVent(
+		PlayerControl source,
+		PlayerControl ghost, PlayerControl vessel,
+		int id
+		)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(source);
+			return;
+		}
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcVesselVentExit - Invalid poltergeist");
+			return;
+		}
+		if (mod.Vessel.PlayerId != vessel.PlayerId)
+		{
+			Error("RpcVesselVentExit - Vessel is not controlled by ghost.");
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		if (source.AmOwner)
+		{
+			vessel.MyPhysics.RpcExitVent(id);
+		}
+		else if (ghost.AmOwner || vessel.AmOwner)
+		{
+			var button = CustomButtonSingleton<PoltergeistVentButton>.Instance;
+			if (!button.HasEffect || button.EffectActive)
+			{
+				button.EffectActive = false;
+			}
+			button.Timer = button.Cooldown;
+
+			if (ghost.AmOwner && button.HasEffect)
+			{
+				ghost.AddModifier<GhostEngineerCooldownModifier>();
+			}
+		}
+	}
+
+	[MethodRpc((uint)VesselModRpc.VesselMoveVent)]
+	public static void RpcVesselTryMoveToVent(
+		PlayerControl source,
+		PlayerControl ghost, PlayerControl vessel,
+		int ventId, int otherVentId)
+	{
+		if (LobbyBehaviour.Instance)
+		{
+			MiscUtils.RunAnticheatWarning(source);
+			return;
+		}
+		if (!ghost.TryGetModifier<PoltergeistModifier>(out var mod, x => x.Vessel.PlayerId == vessel.PlayerId))
+		{
+			Error($"RpcVesselVentMove - Invalid poltergeist");
+			return;
+		}
+		if (mod.Vessel.PlayerId != vessel.PlayerId)
+		{
+			Error("RpcVesselVentMove - Vessel is not controlled by ghost.");
+		}
+		if (vessel == null || vessel.Data == null || vessel.HasDied())
+		{
+			return;
+		}
+
+		Vent vent = ShipStatus.Instance.AllVents.First(v => v.Id == ventId);
+		Vent otherVent = ShipStatus.Instance.AllVents.First(v => v.Id == otherVentId);
+
+		Vector3 position = otherVent.transform.position;
+		position -= (Vector3)vessel.Collider.offset;
+		vessel.NetTransform.SnapTo(position);
+
+		if (!ghost.AmOwner && !vessel.AmOwner)
+		{
+			return;
+		}
+
+		if (Constants.ShouldPlaySfx())
+		{
+			SoundManager.Instance.PlaySound(ShipStatus.Instance.VentMoveSounds.ToArray().Random(), loop: false).pitch = FloatRange.Next(0.8f, 1.2f);
+		}
+		vent.SetButtons(enabled: false);
+		otherVent.SetButtons(enabled: true);
+		Vent.currentVent = otherVent;
+		VentilationSystem.Update(VentilationSystem.Operation.Move, Vent.currentVent.Id);
+	}
+	#endregion
+
+	#endregion
+
+	#endregion
+
+	#endregion
+
+	#endregion
 
 	public void LobbyStart()
 	{
@@ -590,7 +815,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 		foreach (var ghostMod in ModifierUtils.GetActiveModifiers<PoltergeistModifier>())
 		{
-			ghostMod.Player.RemoveModifier(ghostMod);
+			ghostMod.RemoveSelf();
 		}
 	}
 }

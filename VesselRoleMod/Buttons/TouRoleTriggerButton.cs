@@ -5,12 +5,13 @@ using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
 using System.Globalization;
-using System.Linq;
 using TownOfUs;
 using TownOfUs.Buttons;
 using TownOfUs.Modifiers;
 using TownOfUs.Modifiers.Neutral;
+using TownOfUs.Modules;
 using TownOfUs.Options;
+using TownOfUs.Utilities;
 using UnityEngine;
 
 namespace VesselRoleMod.Buttons;
@@ -30,6 +31,8 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 	/// Similar to <see cref="CustomActionButton.EffectActive"/>
 	/// </summary>
 	public bool WaitingOnTrigger { get; set; }
+
+	public virtual float MinDuration { get; set; }
 
 	public virtual void EndTriggerWindow()
 	{
@@ -60,6 +63,8 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		base.ResetCooldownAndOrEffect();
 		WaitingOnTrigger = false;
 	}
+
+	public virtual bool IsTriggerCancellable() => IsEffectCancellable();
 
 	public virtual void OnTriggerActivate()
 	{
@@ -132,7 +137,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 	public override void ClickHandler()
 	{
 		if (!CanClick() || PlayerControl.LocalPlayer.HasModifier<GlitchHackedModifier>() ||
-			PlayerControl.LocalPlayer.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
+			PlayerControl.LocalPlayer.HasModifier<DisabledModifier>(x => !x.CanUseAbilities))
 		{
 			return;
 		}
@@ -145,10 +150,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 			if (TextOutlineColor != Color.clear)
 			{
 				SetTextOutline(TextOutlineColor);
-				if (Button != null)
-				{
-					Button.usesRemainingSprite.color = TextOutlineColor;
-				}
+				Button?.usesRemainingSprite.color = TextOutlineColor;
 			}
 
 			TownOfUsColors.UseBasic = LocalSettingsTabSingleton<TownOfUsLocalRoleSettings>.Instance
@@ -156,6 +158,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		}
 
 		OnClick();
+		Button?.SetDisabled();
 
 		if (HasTrigger && !WaitingOnTrigger)
 		{
@@ -169,7 +172,63 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 		}
 		else
 		{
+			WaitingOnTrigger = false;
 			Timer = Cooldown;
 		}
+	}
+
+	public override bool CanClick()
+	{
+		if (!CanUse())
+		{
+			return false;
+		}
+
+		if (EffectActive)
+		{
+			return Timer <= EffectDuration - MinDuration;
+		}
+		else if (WaitingOnTrigger)
+		{
+			return Timer <= TriggerWindow - 2f;
+		}
+		else
+		{
+			return Timer <= 0;
+		}
+	}
+
+	public override bool CanUse()
+	{
+		if (PlayerControl.LocalPlayer == null)
+		{
+			return false;
+		}
+
+		if (TimeLordRewindSystem.IsRewinding)
+		{
+			return false;
+		}
+
+		if (HudManager.Instance.Chat.IsOpenOrOpening || MeetingHud.Instance)
+		{
+			return false;
+		}
+
+		if (PlayerControl.LocalPlayer.HasDied() && !UsableInDeath)
+		{
+			return false;
+		}
+
+		if (!PlayerControl.LocalPlayer.CanMove ||
+			PlayerControl.LocalPlayer.HasModifier<DisabledModifier>(x => !x.CanUseAbilities))
+		{
+			return false;
+		}
+
+		return PlayerControl.LocalPlayer.moveable &&
+			   (EffectActive ? IsEffectCancellable() :
+				WaitingOnTrigger ? IsTriggerCancellable() :
+				(!LimitedUses || UsesLeft > 0));
 	}
 }

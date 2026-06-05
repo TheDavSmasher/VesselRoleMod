@@ -7,6 +7,7 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
+using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Networking;
 using VesselRoleMod.Roles.Crewmate;
@@ -22,11 +23,11 @@ public static class VesselMovementPatches
 	private const float MovementChangeEpsilonSqr = 0.0001f * 0.0001f;
 	private const float MovementKeepAliveSeconds = 0.03f;
 
-	private static readonly Dictionary<byte, Vector2> _lastSentDir = new();
-	private static readonly Dictionary<byte, Vector2> _lastSentPos = new();
-	private static readonly Dictionary<byte, Vector2> _lastSentVel = new();
-	private static readonly Dictionary<byte, float> _lastSentDirAt = new();
-	private static readonly Dictionary<byte, float> _lastSentStateAt = new();
+	private static readonly Dictionary<byte, Vector2> _lastSentDir = [];
+	private static readonly Dictionary<byte, Vector2> _lastSentPos = [];
+	private static readonly Dictionary<byte, Vector2> _lastSentVel = [];
+	private static readonly Dictionary<byte, float> _lastSentDirAt = [];
+	private static readonly Dictionary<byte, float> _lastSentStateAt = [];
 
 
 	private static void SendVesselInputIfNeeded(byte targetId, bool fromVessel, Vector2 dir)
@@ -105,7 +106,7 @@ public static class VesselMovementPatches
 
 		if (TimeLordRewindSystem.IsRewinding)
 		{
-			if (player.HasModifierOfType<IVesselModifier>() && player.AmOwner)
+			if (player.HasModifierOfType<IVesselPossessModifier>() && player.AmOwner)
 			{
 				return true;
 			}
@@ -117,7 +118,7 @@ public static class VesselMovementPatches
 
 		if (player.AmOwner &&
 			PlayerControl.LocalPlayer &&
-			PlayerControl.LocalPlayer.GetModifierOfType<IVesselModifier>() is { } mod &&
+			PlayerControl.LocalPlayer.TryGetModifierOfType<IVesselPossessModifier>(out var mod) &&
 			mod.Vessel != null)
 		{
 			if (TimeLordRewindSystem.IsRewinding)
@@ -228,10 +229,7 @@ public static class VesselMovementPatches
 			if (delta.magnitude > 0.5f)
 			{
 				__instance.myPlayer.transform.position = pos;
-				if (__instance.body != null)
-				{
-					__instance.body.position = pos;
-				}
+				__instance.body?.position = pos;
 			}
 		}
 	}
@@ -262,5 +260,17 @@ public static class VesselMovementPatches
 		}
 
 		return false;
+	}
+
+	[HarmonyPatch(typeof(LogicOptions), nameof(LogicOptions.GetPlayerSpeedMod))]
+	[HarmonyPriority(Priority.Last)]
+	[HarmonyPostfix]
+	public static void GetGhostSpeedMod(PlayerControl pc, ref float __result)
+	{
+		if (pc.TryGetModifier<PoltergeistModifier>(out var mod) && mod.Vessel)
+		{
+			var vessel = mod.Vessel.MyPhysics;
+			__result = vessel.SpeedMod * vessel.Speed / vessel.GhostSpeed;
+		}
 	}
 }

@@ -7,9 +7,8 @@ using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
-using UnityObject = UnityEngine.Object;
 
-namespace VesselRoleMod.Patches.ControlSystem;
+namespace VesselRoleMod.Patches.ControlSystem.Interactions;
 
 /// <summary>
 /// Patches to allow vessel poltergeists to trigger interactions for controlled vessels
@@ -20,8 +19,6 @@ public static class ControlledPlayerInteractionPatches
 	private static List<IUsable>? _cachedInteractables;
 	private static float _lastCacheRefresh;
 	private const float CacheRefreshInterval = 10f;
-	private const float UpdateThrottle = 0.1f;
-	private static float _lastUpdateTime;
 
 	/// <summary>
 	/// Allow UseButton to work for poltergeist when controlling a vessel
@@ -36,17 +33,23 @@ public static class ControlledPlayerInteractionPatches
 			return true;
 		}
 
-		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var vesselMod) && vesselMod.Ghost != null)
+		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var vesselMod))
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
-				VesselControlState.IsFullyControlling(controller.PlayerId))
+				VesselControlState.IsControlling(controller.PlayerId, out _))
 			{
+				if (VesselControlState.HasControl(localPlayer.PlayerId) &&
+					__instance.currentTarget.TryCast<MonoBehaviour>() is { } obj)
+				{
+					VesselRole.RpcVesselSetGhostState(controller, localPlayer, obj.transform.position);
+					return true;
+				}
 				return false;
 			}
 		}
 
-		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
+		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod))
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
@@ -74,25 +77,23 @@ public static class ControlledPlayerInteractionPatches
 			return true;
 		}
 
-		if (__instance.TryGetModifier<VesselPossessedModifier>(out var vesselMod) && vesselMod.Ghost != null)
+		if (__instance.TryGetModifier<VesselPossessedModifier>(out var vesselMod))
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
 				VesselControlState.IsFullyControlling(controller.PlayerId))
 			{
-				__result = false;
-				return false;
+				return (__result = false);
 			}
 		}
 
-		if (__instance.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
+		if (__instance.TryGetModifier<PoltergeistModifier>(out var poltergeistMod))
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
 				VesselControlState.IsControllingActionable(controlled.PlayerId))
 			{
-				__result = false;
-				return false;
+				return (__result = false);
 			}
 		}
 
@@ -122,29 +123,6 @@ public static class ControlledPlayerInteractionPatches
 		_lastCacheRefresh = 0f;
 	}
 
-	/// <summary>
-	/// Also patch HudManager Update to continuously check for interactables near controlled player
-	/// Throttled to avoid performance issues
-	/// </summary>
-	[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
-	[HarmonyPriority(Priority.Last)]
-	[HarmonyPostfix]
-	public static void HudManagerUpdatePostfix(HudManager __instance)
-	{
-		// Throttle updates to avoid stuttering
-		var now = Time.time;
-		if (now - _lastUpdateTime < UpdateThrottle)
-		{
-			return;
-		}
-		_lastUpdateTime = now;
-
-		if (__instance?.UseButton != null)
-		{
-			UpdateUseButtonTarget(__instance.UseButton);
-		}
-	}
-
 	private static void UpdateUseButtonTarget(UseButton useButton)
 	{
 		var localPlayer = PlayerControl.LocalPlayer;
@@ -153,13 +131,12 @@ public static class ControlledPlayerInteractionPatches
 			return;
 		}
 
-		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var possessedMod) && possessedMod.Ghost != null)
+		if (localPlayer.TryGetModifier<VesselPossessedModifier>(out var possessedMod))
 		{
 			var controller = possessedMod.Ghost;
 			if (controller != null && controller.HasDied() &&
 				VesselControlState.IsFullyControlling(controller.PlayerId))
 			{
-				ClearInteractableOutlines();
 				useButton.currentTarget = null;
 				useButton.SetDisabled();
 			}
@@ -167,15 +144,17 @@ public static class ControlledPlayerInteractionPatches
 		}
 
 		var isControlling = false;
+		var isActionable = false;
 		PlayerControl? controlledPlayer = null;
 
-		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod) && poltergeistMod.Vessel != null)
+		if (localPlayer.TryGetModifier<PoltergeistModifier>(out var poltergeistMod))
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsControllingActionable(localPlayer.PlayerId))
+				VesselControlState.IsControlling(localPlayer.PlayerId, out _))
 			{
 				isControlling = true;
+				isActionable = VesselControlState.HasControl(localPlayer.PlayerId);
 				controlledPlayer = controlled;
 			}
 		}
@@ -189,7 +168,15 @@ public static class ControlledPlayerInteractionPatches
 		useButton.currentTarget = usable;
 		if (usable != null)
 		{
-			useButton.SetEnabled();
+			if (isActionable)
+			{
+				useButton.SetEnabled();
+			}
+			else
+			{
+				useButton.SetDisabled();
+			}
+
 			if (usable.TryCast<IUsableCoolDown>() is { } usableCoolDown)
 			{
 				useButton.SetCoolDown(usableCoolDown.CoolDown, usableCoolDown.MaxCoolDown);
@@ -220,6 +207,15 @@ public static class ControlledPlayerInteractionPatches
 	/// Find the closest interactable object near a player
 	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
 	/// </summary>
+	public static IUsable? FindClosestInteractable(PlayerControl player, Vector2 position)
+	{
+		return FindClosestInteractable(player, position, false).interactable;
+	}
+
+	/// <summary>
+	/// Find the closest interactable object near a player
+	/// Uses cached interactables list to avoid expensive FindObjectsOfType every call
+	/// </summary>
 	public static (IUsable? interactable, Vector2 position) FindClosestInteractable(
 		PlayerControl player,
 		Vector2? position = null,
@@ -243,8 +239,6 @@ public static class ControlledPlayerInteractionPatches
 		Vector2 closestPosition = Vector2.zero;
 		Vector2 usePosition = position ?? (Vector2)player.transform.position;
 
-		const float maxCheckDistance = 5f;
-
 		foreach (var usable in cachedInteractables)
 		{
 			if (usable == null)
@@ -261,14 +255,14 @@ public static class ControlledPlayerInteractionPatches
 			var objPos = (Vector2)obj.transform.position;
 			var distance = Vector2.Distance(usePosition, objPos);
 
-			usable.CanUse(player.Data, out bool canUse, out bool couldUse);		
+			usable.CanUse(player.Data, out bool canUse, out bool couldUse);
 
 			if (setOutlines)
 			{
-				usable.SetOutline(couldUse && distance <= maxCheckDistance, false);
+				usable.SetOutline(couldUse && distance <= player.MaxReportDistance, false);
 			}
 
-			if (!canUse || distance > maxCheckDistance || distance > usable.UsableDistance)
+			if (!canUse || distance > player.MaxReportDistance || distance > usable.UsableDistance)
 			{
 				continue;
 			}
@@ -297,21 +291,24 @@ public static class ControlledPlayerInteractionPatches
 		if (_cachedInteractables == null || Time.time - _lastCacheRefresh > CacheRefreshInterval)
 		{
 			_cachedInteractables = GetInteractablesList();
+			_lastCacheRefresh = Time.time;
 		}
 		return _cachedInteractables!;
 	}
 
 	public static List<IUsable> GetInteractablesList()
 	{
-		var result = new List<IUsable>();
+		List<IUsable> interactables = [];
 		var allUsables = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
 		foreach (var obj in allUsables)
 		{
-			if (obj.TryCast<IUsable>() is { } usable && usable.TryCast<Vent>() == null)
+			if (obj.TryCast<IUsable>() is { } usable &&
+				usable.TryCast<Vent>() == null &&
+				!obj.name.Contains("Vent"))
 			{
-				result.Add(usable);
+				interactables.Add(usable);
 			}
 		}
-		return result;
+		return interactables;
 	}
 }

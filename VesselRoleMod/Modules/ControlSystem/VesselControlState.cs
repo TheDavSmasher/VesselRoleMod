@@ -18,23 +18,23 @@ public static class VesselControlState
 
 	public static bool CanShareControl => OptionGroupSingleton<VesselOptions>.Instance.CanShareControl;
 
-	private static readonly Dictionary<byte, byte> ControlledBy = new();
-	private static readonly Dictionary<byte, byte> Controlling = new();
+	private static readonly Dictionary<byte, byte> ControlledBy = [];
+	private static readonly Dictionary<byte, byte> Controlling = [];
 
-	private static readonly Dictionary<byte, bool> InControl = new();
+	private static readonly Dictionary<byte, bool> InControl = [];
 
-	private static readonly Dictionary<byte, bool> TimerPaused = new();
+	private static readonly Dictionary<byte, bool> TimerPaused = [];
 
-	private static readonly Dictionary<byte, Vector2> ControlledDirection = new();
-	private static readonly Dictionary<byte, Vector2> SelfDirection = new();
+	private static readonly Dictionary<byte, Vector2> ControlledDirection = [];
+	private static readonly Dictionary<byte, Vector2> SelfDirection = [];
 
-	private static readonly Dictionary<byte, Vector2> ControlledPosition = new();
+	private static readonly Dictionary<byte, Vector2> ControlledPosition = [];
 
-	private static readonly Dictionary<byte, bool> ControlledInAnim = new();
+	private static readonly Dictionary<byte, bool> ControlledInAnim = [];
 
-	private static readonly Dictionary<byte, Vector2> ControlledVelocity = new();
+	private static readonly Dictionary<byte, Vector2> ControlledVelocity = [];
 
-	private static readonly Dictionary<byte, float> ControlledSince = new();
+	private static readonly Dictionary<byte, float> ControlledSince = [];
 
 	#region Set Control
 	public static void SetControl(byte controlledId, byte controllerId)

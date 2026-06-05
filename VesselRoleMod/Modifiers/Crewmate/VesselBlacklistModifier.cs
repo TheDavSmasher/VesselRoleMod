@@ -8,6 +8,7 @@ using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules;
+using VesselRoleMod.Utilities;
 namespace VesselRoleMod.Modifiers.Crewmate;
 
 public sealed class VesselBlacklistModifier : BaseModifier
@@ -65,7 +66,7 @@ public sealed class VesselBlacklistModifier : BaseModifier
 
 	public override void OnDeath(DeathReason reason)
 	{
-		ModifierComponent?.RemoveModifier(this);
+		this.RemoveSelf();
 	}
 
 	public override void OnDeactivate()

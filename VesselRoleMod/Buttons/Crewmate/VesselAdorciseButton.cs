@@ -6,8 +6,6 @@ using System;
 using System.Linq;
 using TownOfUs;
 using TownOfUs.Buttons;
-using TownOfUs.Modifiers;
-using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
@@ -28,15 +26,18 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	public override Color TextOutlineColor => TownOfUsColors.Impostor;
 	public override float Cooldown => Math.Clamp(OptionGroupSingleton<VesselOptions>.Instance.AdorciseCooldown + MapCooldown, 5f, 120f);
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
-	public static float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
+	public override float MinDuration => OptionGroupSingleton<VesselOptions>.Instance.MinPossessionLength;
 	public override float TriggerWindow => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 	public override LoadableAsset<Sprite> Sprite => VesselCrewAssets.AdorciseSprite;
 
 	public override void FixedUpdateHandler(PlayerControl playerControl)
 	{
 		TimerPaused = false;
-		if (PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>() &&
-			VesselControlState.IsPausingTimer(PlayerControl.LocalPlayer.PlayerId))
+		if ((PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>() &&
+			 VesselControlState.IsPausingTimer(PlayerControl.LocalPlayer.PlayerId)) ||
+			(PlayerControl.LocalPlayer.HasModifier<VesselPossessedModifier>() &&
+			 VesselControlState.IsControlled(PlayerControl.LocalPlayer.PlayerId, out _) &&
+			 VesselControlState.IsInInitialGrace(PlayerControl.LocalPlayer.PlayerId)))
 		{
 			TimerPaused = true;
 		}
@@ -44,48 +45,14 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		base.FixedUpdateHandler(playerControl);
 	}
 
-	public override void ClickHandler()
+	public override bool IsEffectCancellable()
 	{
-		if (!CanUse())
-		{
-			return;
-		}
-
-		OnClick();
-		Button?.SetDisabled();
-		if (HasEffect && EffectActive && Timer > 0)
-		{
-			EffectActive = false;
-			Timer = Cooldown;
-		}
-		else if (HasTrigger && !WaitingOnTrigger && Timer <= 0)
-		{
-			WaitingOnTrigger = true;
-			Timer = TriggerWindow;
-		}
-		else
-		{
-			WaitingOnTrigger = false;
-			Timer = Cooldown;
-		}
+		return Timer <= EffectDuration - MinDuration;
 	}
 
-	public override bool CanUse()
+	public override bool IsTriggerCancellable()
 	{
-		if (HudManager.Instance.Chat.IsOpenOrOpening || MeetingHud.Instance)
-		{
-			return false;
-		}
-
-		if (PlayerControl.LocalPlayer.HasModifier<GlitchHackedModifier>() || PlayerControl.LocalPlayer
-				.GetModifiers<DisabledModifier>().Any(x => !x.CanUseAbilities))
-		{
-			return false;
-		}
-
-		return ((Timer <= 0 && !EffectActive && !WaitingOnTrigger) ||
-			(EffectActive && Timer <= EffectDuration - MinDuration) ||
-			(WaitingOnTrigger && Timer <= TriggerWindow - 2f));
+		return Timer <= TriggerWindow - 2f;
 	}
 
 	protected override void OnClick()
@@ -102,40 +69,63 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			return;
 		}
 
-		var deadPlayers = PlayerControl.AllPlayerControls.ToArray()
-			.Where(plr => plr.Data.IsDead && !plr.Data.Disconnected && plr.PlayerId != PlayerControl.LocalPlayer.PlayerId &&
-						  !plr.HasModifier<GhostKillerBlockModifier>() &&
-						  (plr.Data.Role is IGhostRole { Caught: true } || plr.Data.Role is not IGhostRole));
+		var deadPlayers = PlayerControl.AllPlayerControls.ToArray().Where(IsValidGhost).ToList();
 
-		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist))
-		{
-			deadPlayers = deadPlayers.Where(x => !blacklist.BlacklistedPlrIds.Contains(x.PlayerId));
-		}
-
-		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostImpostors)
-		{
-			deadPlayers = deadPlayers.Where(x => !x.IsImpostor());
-		}
-
-		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostNeutrals)
-		{
-			deadPlayers = deadPlayers.Where(x => !x.IsNeutral());
-		}
-
-		if (!deadPlayers.Any())
+		if (deadPlayers.Count == 0)
 		{
 			return;
 		}
 
-		if (!PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>())
+		VesselRole.RpcSeekVessel(PlayerControl.LocalPlayer, deadPlayers);
+	}
+
+	private static bool IsValidGhost(PlayerControl plr)
+	{
+		if (plr.AmOwner)
 		{
-			PlayerControl.LocalPlayer.RpcAddModifier<VesselAdorcismModifier>();
+			return false;
+		}
+		if (!plr.Data.IsDead || plr.Data.Disconnected)
+		{
+			return false;
+		}
+		if (plr.Data.Role is IGhostRole role && !role.Caught)
+		{
+			return false;
+		}
+		if (plr.HasModifier<GhostKillerBlockModifier>())
+		{
+			return false;
+		}
+		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostImpostors && plr.IsImpostor())
+		{
+			return false;
+		}
+		if (!OptionGroupSingleton<VesselOptions>.Instance.CanHostNeutrals && plr.IsNeutral())
+		{
+			return false;
+		}
+		if (PlayerControl.LocalPlayer.TryGetModifier<VesselBlacklistModifier>(out var blacklist) &&
+			blacklist.BlacklistedPlrIds.Contains(plr.PlayerId))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public override bool CanUse()
+	{
+		if (PlayerControl.LocalPlayer.IsInTargetingAnimState())
+		{
+			return false;
 		}
 
-		foreach (var ghost in deadPlayers)
+		if (PlayerControl.LocalPlayer.inVent)
 		{
-			VesselRole.RpcSeekVessel(ghost, PlayerControl.LocalPlayer);
+			return true;
 		}
+
+		return base.CanUse();
 	}
 
 	public override void OnTriggerActivate()
@@ -150,11 +140,10 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnTriggerEnd();
 
-		if (PlayerControl.LocalPlayer.GetModifier<VesselAdorcismModifier>() is not { } mod)
+		if (PlayerControl.LocalPlayer.HasModifier<VesselAdorcismModifier>())
 		{
-			return;
+			VesselRole.RpcVesselClosed(PlayerControl.LocalPlayer);
 		}
-		PlayerControl.LocalPlayer.RpcRemoveModifier<VesselAdorcismModifier>();
 
 		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
@@ -165,7 +154,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 		base.OnEffectEnd();
 
 		if (PlayerControl.LocalPlayer.Data.Role is VesselRole &&
-			PlayerControl.LocalPlayer.GetModifier<VesselPossessedModifier>() is { } mod)
+			PlayerControl.LocalPlayer.TryGetModifier<VesselPossessedModifier>(out var mod))
 		{
 			VesselRole.RpcGhostEndPossession(mod.Ghost, PlayerControl.LocalPlayer);
 		}

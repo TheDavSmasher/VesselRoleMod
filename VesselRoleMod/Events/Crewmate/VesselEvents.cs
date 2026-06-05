@@ -8,20 +8,27 @@ using MiraAPI.Utilities;
 using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Events.TouEvents;
+using TownOfUs.Modifiers.Crewmate;
+using TownOfUs.Modifiers.Game;
+using TownOfUs.Modifiers.Impostor;
+using TownOfUs.Modifiers.Neutral;
+using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Buttons.Crewmate;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Events.Crewmate;
 
 public static class VesselEvents
 {
 	[RegisterEvent]
-	public static void VotingCompleteHandler(VotingCompleteEvent @event)
+	public static void VotingCompleteHandler(VotingCompleteEvent _)
 	{
 		ModifierUtils.GetActiveModifiers<VesselBlacklistModifier>().Do(x => x.OnVotingComplete());
 	}
@@ -39,6 +46,37 @@ public static class VesselEvents
 	}
 
 	[RegisterEvent]
+	public static void AfterMurderEventHandler(AfterMurderEvent @event)
+	{
+		var source = @event.Source;
+
+		if (!source.Data.IsDead || !source.TryGetModifier<PoltergeistModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (mod.Vessel.TryGetModifier<AllianceGameModifier>(out var allyMod) && !allyMod.GetsPunished)
+		{
+			return;
+		}
+
+		var target = @event.Target;
+
+		if (GameHistory.PlayerStats.TryGetValue(mod.Vessel.PlayerId, out var stats))
+		{
+			if (!target.IsCrewmate() ||
+				(target.TryGetModifier<AllianceGameModifier>(out var allyMod2) && !allyMod2.GetsPunished))
+			{
+				stats.CorrectKills += 1;
+			}
+			else if (source != target)
+			{
+				stats.IncorrectKills += 1;
+			}
+		}
+	}
+
+	[RegisterEvent]
 	public static void PoltergeistReviveHandler(PlayerReviveEvent @event)
 	{
 		var player = @event.Player;
@@ -46,6 +84,112 @@ public static class VesselEvents
 		if (player.TryGetModifier<PoltergeistModifier>(out var mod))
 		{
 			VesselRole.GhostEndPossession(player, mod.Vessel);
+		}
+	}
+
+	[RegisterEvent]
+	public static void HunterStalkVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.HunterStalk)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (!mod.Ghost.AmOwner)
+		{
+			return;
+		}
+
+		mod.Ghost.AddModifier<HunterStalkedModifier>(@event.Player);
+	}
+
+	[RegisterEvent]
+	public static void GlitchHackVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.GlitchInitialHack)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (!mod.Ghost.AmOwner && !mod.Vessel.AmOwner)
+		{
+			return;
+		}
+
+		mod.Ghost.AddModifier<GlitchHackedModifier>(@event.Player.PlayerId);
+	}
+
+	[RegisterEvent]
+	public static void HackedShowVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.GlitchHackTrigger)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifierOfType<IVesselPossessModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (!mod.Ghost.AmOwner && !mod.Vessel.AmOwner)
+		{
+			return;
+		}
+
+		mod.Target.GetModifier<GlitchHackedModifier>()!.ShowHacked();
+	}
+
+	[RegisterEvent]
+	public static void ClericCleanseVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.ClericCleanse)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (!mod.Ghost.AmOwner)
+		{
+			return;
+		}
+
+		var effects = ClericCleanseModifier.FindNegativeEffects(mod.Ghost);
+		if (effects.Contains(ClericCleanseModifier.EffectType.Hack))
+		{
+			mod.Ghost.RemoveModifier<GlitchHackedModifier>();
+		}
+		if (effects.Contains(ClericCleanseModifier.EffectType.Blind))
+		{
+			mod.Ghost.RpcRemoveModifier<EclipsalBlindModifier>();
+		}
+
+		if (effects.Contains(ClericCleanseModifier.EffectType.Flash))
+		{
+			mod.Ghost.RemoveModifier<GrenadierFlashModifier>();
+		}
+
+		if (effects.Contains(ClericCleanseModifier.EffectType.Hypnosis))
+		{
+			mod.Ghost.RemoveModifier<HypnotisedModifier>();
 		}
 	}
 

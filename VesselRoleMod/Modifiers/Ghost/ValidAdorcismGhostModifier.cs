@@ -1,32 +1,20 @@
-﻿using MiraAPI.GameOptions;
-using MiraAPI.Utilities;
+﻿using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
-using VesselRoleMod.Modules.ControlSystem;
-using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class ValidAdorcismGhostModifier(PlayerControl vessel) : VesselSeekingModifier(vessel)
+public sealed class ValidAdorcismGhostModifier(PlayerControl vessel) : OpenAdorcismModifier, IVesselSeekingModifier
 {
-	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
 	public override string ModifierName => "ValidAdorcismGhost";
 	public override bool Unique => false;
+	public PlayerControl Ghost => Player;
+	public override PlayerControl Vessel => vessel;
 
 	private LobbyNotificationMessage? decisionNotification;
-
-	public override void FixedUpdate()
-	{
-		TimerActive = true;
-		if (VesselControlState.IsPausingTimer(Vessel.PlayerId))
-		{
-			TimerActive = false;
-		}
-		base.FixedUpdate();
-	}
 
 	public void CreateNotification()
 	{

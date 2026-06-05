@@ -4,6 +4,7 @@ using Reactor.Utilities.Extensions;
 using System;
 using TownOfUs.Utilities;
 using UnityEngine;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers;
 
@@ -35,7 +36,7 @@ public abstract class ArrowSourceModifier(PlayerControl owner, Color color, floa
 
 	public override void OnDeath(DeathReason reason)
 	{
-		ModifierComponent!.RemoveModifier(this);
+		this.RemoveSelf();
 	}
 
 	public override void OnDeactivate()
@@ -54,7 +55,7 @@ public abstract class ArrowSourceModifier(PlayerControl owner, Color color, floa
 		base.FixedUpdate();
 		if (Owner == null)
 		{
-			ModifierComponent!.RemoveModifier(this);
+			this.RemoveSelf();
 			return;
 		}
 

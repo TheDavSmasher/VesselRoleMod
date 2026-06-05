@@ -1,9 +1,7 @@
 ﻿using MiraAPI.Events;
-using MiraAPI.GameOptions;
 using MiraAPI.Hud;
-using MiraAPI.Modifiers;
+using TownOfUs.Extensions;
 using TownOfUs.Interfaces;
-using TownOfUs.Modifiers;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using TownOfUs.Utilities.ControlSystem;
@@ -12,6 +10,7 @@ using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
 using VesselRoleMod.Options.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
 
@@ -19,22 +18,24 @@ namespace VesselRoleMod.Modifiers.Crewmate;
 /// Applied to the vessel while they are controlled by a Poltergeist.
 /// Movement/input suppression is handled by Harmony patches while this modifier is present.
 /// </summary>
-public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModifier, IUncontrollable, IVesselModifier
+public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossessionModifier, IUncontrollable, ICachedRole
 {
-	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
 	public override string ModifierName => "Possessed";
-	public override bool CanUseAbilities => true;
-	public override bool CanReport => true;
-	public override bool HideOnUi => true;
-	public override bool AutoStart => true;
-	public PlayerControl Target => Ghost;
-	public PlayerControl Vessel => Player;
-	public PlayerControl Ghost => ghost;
+	public override PlayerControl Target => Ghost;
+	public override PlayerControl Vessel => Player;
+	public override PlayerControl Ghost => ghost;
 
-	private LobbyNotificationMessage? _possessedNotification;
+	public bool ShowCurrentRoleFirst => true;
+	public bool Visible => true;
+	public CacheRoleGuess GuessMode => CacheRoleGuess.ActiveRole;
+	public RoleBehaviour CachedRole => Options.ReportGhostInstead
+		? (this as IVesselModifier).Role
+		: Player.Data.Role;
 
 	public override void OnActivate()
 	{
+		base.OnActivate();
+
 		if (Player.AmOwner)
 		{
 			CreateNotification();
@@ -44,16 +45,10 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 
 			if (MapBehaviour.Instance)
 				MapBehaviour.Instance.Close();
-			if (Player.inVent)
-			{
-				Player.MyPhysics.RpcExitVent(Vent.currentVent.Id);
-				Player.MyPhysics.ExitAllVents();
-			}
 
-			if (Player.HasModifier<VesselAdorcismModifier>())
-			{
-				Player.RemoveModifier<VesselAdorcismModifier>();
-			}
+			Player.MyPhysics.ClearVentState();
+
+			Player.RemoveExistingModifier<VesselAdorcismModifier>();
 		}
 
 		var vesselAbilityEvent = new CustomAbilityEvent<VesselAbilityType>(VesselAbilityType.AdorcismSuccess, Ghost, Player);
@@ -62,49 +57,33 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : DisabledModif
 
 	public override void OnDeactivate()
 	{
-		ClearNotification();
-		if (Player.AmOwner)
-		{
-			var button = CustomButtonSingleton<VesselAdorciseButton>.Instance;
+		base.OnDeactivate();
 
-			if (button != null && button.EffectActive)
-			{
-				button.ResetCooldownAndOrEffect();
-			}
+		ClearNotification();
+
+		var button = CustomButtonSingleton<VesselAdorciseButton>.Instance;
+		if (Player.AmOwner && button != null && button.EffectActive)
+		{
+			button.ResetCooldownAndOrEffect();
 		}
 	}
 
-	public override void OnDeath(DeathReason reason)
-	{
-		ModifierComponent?.RemoveModifier(this);
-	}
-
-	public override void OnMeetingStart()
-	{
-		ModifierComponent?.RemoveModifier(this);
-	}
-
-	public void CreateNotification()
+	public override void CreateNotification()
 	{
 		if (Player == null || !Player.AmOwner || PlayerControl.LocalPlayer == null)
 		{
 			return;
 		}
 
-		if (_possessedNotification == null)
+		if (notification == null)
 		{
-			var ghostName = OptionGroupSingleton<VesselOptions>.Instance.NotifHasName ? Ghost.Data.PlayerName :
+			var ghostName = (Options.CanRejectPossession == VesselRejectionType.Free || Options.CanSeeGhostName) ? Ghost.Data.PlayerName :
 				Ghost?.Data?.Role is ITownOfUsRole touRole ? touRole.RoleName : "Poltergeist";
-			_possessedNotification = ControlledFeedbackUtilities.ShowControlledByNotification(
+			notification = ControlledFeedbackUtilities.ShowControlledByNotification(
 				ghostName,
 				VesselRoleModColors.Vessel,
 				VesselRoleIcons.Vessel.LoadAsset());
-			_possessedNotification?.AdjustNotification();
+			notification?.AdjustNotification();
 		}
-	}
-
-	public void ClearNotification()
-	{
-		ControlledFeedbackUtilities.ClearNotification(ref _possessedNotification);
 	}
 }
