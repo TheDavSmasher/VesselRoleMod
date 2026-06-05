@@ -4,11 +4,27 @@ using System.Linq;
 
 namespace VesselRoleMod.Modules.ControlSystem;
 
+public record VesselStats(byte VesselId)
+{
+	public byte VesselId { get; } = VesselId;
+	public int GhostCorrectKills { get; set; }
+	public int GhostIncorrectKills { get; set; }
+}
+
 public record PossessionKill(byte KillerId, byte VesselId, byte VictimId, DateTime KillTime);
 
 public static class PossessionHistory
 {
 	public static readonly List<PossessionKill> GhostVesselKills = [];
+	public static readonly Dictionary<byte, VesselStats> VesselStats = [];
+
+	public static void RegisterPlayer(PlayerControl player)
+	{
+		if (!VesselStats.TryGetValue(player.PlayerId, out _))
+		{
+			VesselStats.Add(player.PlayerId, new VesselStats(player.PlayerId));
+		}
+	}
 
 	public static void AddMurder(PlayerControl killer, PlayerControl vessel, PlayerControl victim)
 	{
@@ -35,5 +51,6 @@ public static class PossessionHistory
 	public static void ClearAll()
 	{
 		GhostVesselKills.Clear();
+		VesselStats.Clear();
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using MiraAPI.Modifiers;
-using MS.Internal.Xml.XPath;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -19,6 +18,13 @@ public static class TouModulePatches
 	[HarmonyPatch(typeof(GameHistory))]
 	public static class GameHistoryPatches
 	{
+		[HarmonyPatch(nameof(GameHistory.RegisterRole))]
+		[HarmonyPostfix]
+		public static void RegisterRolePostfix(PlayerControl player)
+		{
+			PossessionHistory.RegisterPlayer(player);
+		}
+
 		[HarmonyPatch(nameof(GameHistory.AddMurder))]
 		[HarmonyPostfix]
 		public static void AddVesselMurderPostfix(PlayerControl killer, PlayerControl victim)
