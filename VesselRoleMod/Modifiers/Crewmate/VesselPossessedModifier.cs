@@ -1,5 +1,4 @@
 ﻿using MiraAPI.Events;
-using MiraAPI.GameOptions;
 using MiraAPI.Hud;
 using TownOfUs.Extensions;
 using TownOfUs.Interfaces;
@@ -10,7 +9,6 @@ using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
-using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
@@ -91,7 +89,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 
 		if (notification == null)
 		{
-			var ghostName = OptionGroupSingleton<VesselOptions>.Instance.NotifHasName ? Ghost.Data.PlayerName :
+			var ghostName = Options.NotifHasName ? Ghost.Data.PlayerName :
 				Ghost?.Data?.Role is ITownOfUsRole touRole ? touRole.RoleName : "Poltergeist";
 			notification = ControlledFeedbackUtilities.ShowControlledByNotification(
 				ghostName,

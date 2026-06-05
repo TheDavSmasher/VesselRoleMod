@@ -16,6 +16,8 @@ public abstract class PossessionModifier : TimedModifier
 
 	public abstract PlayerControl Vessel { get; }
 
+	protected static VesselOptions Options => OptionGroupSingleton<VesselOptions>.Instance;
+
 	public override void OnDeath(DeathReason reason)
 	{
 		this.RemoveSelf();
@@ -30,7 +32,7 @@ public abstract class PossessionModifier : TimedModifier
 [MiraIgnore]
 public abstract class OpenAdorcismModifier : PossessionModifier
 {
-	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.AdorciseWindow;
+	public override float Duration => Options.AdorciseWindow;
 	public override bool HideOnUi => true;
 	public override PlayerControl Vessel => Player;
 
@@ -50,7 +52,7 @@ public abstract class OpenAdorcismModifier : PossessionModifier
 public abstract class ActivePossessionModifier : PossessionModifier, IVesselPossessModifier
 {
 	public override bool HideOnUi => true;
-	public override float Duration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
+	public override float Duration => Options.PossessionDuration;
 
 	public abstract PlayerControl Target { get; }
 	public abstract PlayerControl Ghost { get; }
@@ -59,7 +61,7 @@ public abstract class ActivePossessionModifier : PossessionModifier, IVesselPoss
 
 	public override bool? CanVent()
 	{
-		if (!OptionGroupSingleton<VesselOptions>.Instance.VentingGhostsCanVent)
+		if (!Options.VentingGhostsCanVent)
 		{
 			return null;
 		}
