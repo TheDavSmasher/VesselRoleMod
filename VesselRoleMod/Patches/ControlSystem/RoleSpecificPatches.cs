@@ -178,7 +178,7 @@ public static class RoleSpecificPatches
 				return false;
 			}
 
-			source = mod.Target;
+			source = mod.ReportedPlayer;
 
 			return true;
 		}
