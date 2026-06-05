@@ -5,11 +5,13 @@ using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
+using System.Collections;
 using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Events.TouEvents;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Game;
+using TownOfUs.Modifiers.Impostor;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
@@ -135,6 +137,41 @@ public static class VesselEvents
 		}
 
 		mod.Target.GetModifier<GlitchHackedModifier>()!.ShowHacked();
+	}
+
+	[RegisterEvent]
+	public static void ClericCleanseVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.ClericCleanse)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
+		{
+			return;
+		}
+
+		var effects = ClericCleanseModifier.FindNegativeEffects(mod.Ghost);
+		if (effects.Contains(ClericCleanseModifier.EffectType.Hack))
+		{
+			mod.Ghost.RemoveModifier<GlitchHackedModifier>();
+		}
+		if (effects.Contains(ClericCleanseModifier.EffectType.Blind))
+		{
+			mod.Ghost.RpcRemoveModifier<EclipsalBlindModifier>();
+		}
+
+		if (effects.Contains(ClericCleanseModifier.EffectType.Flash))
+		{
+			mod.Ghost.RemoveModifier<GrenadierFlashModifier>();
+		}
+
+		if (effects.Contains(ClericCleanseModifier.EffectType.Hypnosis))
+		{
+			mod.Ghost.RemoveModifier<HypnotisedModifier>();
+		}
 	}
 
 	[RegisterEvent]
