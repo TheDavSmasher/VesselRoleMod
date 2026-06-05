@@ -22,6 +22,7 @@ using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Utilities;
 
 
@@ -251,10 +252,10 @@ public static class RoleSpecificPatches
 
 		var options = OptionGroupSingleton<OfficerOptions>.Instance;
 		var alignment = Target.Data.Role.GetRoleAlignment();
-		var hasKilled = GameHistory.PlayerStats.TryGetValue(Target.PlayerId, out var stats) &&
-						(stats.CorrectAssassinKills > 0 || stats.CorrectKills > 0 || stats.IncorrectKills > 0) ||
-						GameHistory.KilledPlayers.Any(x =>
-							x.KillerId == Target.PlayerId && x.VictimId != Target.PlayerId);
+		var hasKilled = PossessionHistory.VesselStats.TryGetValue(Target.PlayerId, out var stats) &&
+						(stats.GhostCorrectKills > 0 || stats.GhostIncorrectKills > 0) ||
+						PossessionHistory.GhostVesselKills.Any(x =>
+							x.VesselId == Target.PlayerId && x.VictimId != Target.PlayerId);
 		var evilOfficer = (PlayerControl.LocalPlayer.TryGetModifier<AllianceGameModifier>(out var allyMod) &&
 							!allyMod.GetsPunished);
 
