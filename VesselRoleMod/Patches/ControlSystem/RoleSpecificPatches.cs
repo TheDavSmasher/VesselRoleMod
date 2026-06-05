@@ -23,7 +23,9 @@ using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
+using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
+using static Il2CppSystem.Net.Http.Headers.Parser;
 
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -131,7 +133,7 @@ public static class RoleSpecificPatches
 			return;
 		}
 
-		source = mod.ReportedPlayer;
+		source = VesselRole.GetReportedPlayer(mod.Vessel, mod.Ghost);
 	}
 
 	[HarmonyPatch(typeof(TelepathEvents), nameof(TelepathEvents.AfterMurderEventHandler))]
@@ -178,7 +180,7 @@ public static class RoleSpecificPatches
 				return false;
 			}
 
-			source = mod.ReportedPlayer;
+			source = VesselRole.GetReportedPlayer(mod.Vessel, mod.Ghost);
 
 			return true;
 		}
@@ -191,7 +193,7 @@ public static class RoleSpecificPatches
 			}
 
 			var mod = source.GetModifier<PoltergeistModifier>()!;
-			source = mod.ReportedPlayer;
+			source = VesselRole.GetReportedPlayer(mod.Vessel, mod.Ghost);
 
 			// Execute logic previously skipped
 			if (mirrorcaster.Data.Role is not MirrorcasterRole role)
