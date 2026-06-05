@@ -10,14 +10,17 @@ using TownOfUs.Assets;
 using TownOfUs.Events.TouEvents;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Game;
+using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Buttons.Crewmate;
+using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Events.Crewmate;
 
@@ -92,13 +95,46 @@ public static class VesselEvents
 		}
 
 		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
-			!target.TryGetModifier<VesselPossessedModifier>(out var mod) ||
-			!mod.Ghost.AmOwner)
+			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
 		{
 			return;
 		}
 
-		mod.Ghost.AddModifier<HunterStalkedModifier>(@event.Player); // Only locally
+		mod.Ghost.AddModifier<HunterStalkedModifier>(@event.Player);
+	}
+
+	[RegisterEvent]
+	public static void GlitchHackVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.GlitchInitialHack)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifier<VesselPossessedModifier>(out var mod))
+		{
+			return;
+		}
+
+		mod.Ghost.AddModifier<GlitchHackedModifier>(@event.Player.PlayerId);
+	}
+
+	[RegisterEvent]
+	public static void HackedShowVesselHandler(TouAbilityEvent @event)
+	{
+		if (@event.AbilityType != AbilityType.GlitchHackTrigger)
+		{
+			return;
+		}
+
+		if (@event.Target?.TryCast<PlayerControl>() is not { } target ||
+			!target.TryGetModifierOfType<IVesselPossessModifier>(out var mod))
+		{
+			return;
+		}
+
+		mod.Target.GetModifier<GlitchHackedModifier>()!.ShowHacked();
 	}
 
 	[RegisterEvent]
