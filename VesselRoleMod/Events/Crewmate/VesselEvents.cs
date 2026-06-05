@@ -12,6 +12,7 @@ using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Game;
 using TownOfUs.Modifiers.Impostor;
 using TownOfUs.Modifiers.Neutral;
+using TownOfUs.Modules;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -19,7 +20,6 @@ using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
-using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
@@ -62,16 +62,16 @@ public static class VesselEvents
 
 		var target = @event.Target;
 
-		if (PossessionHistory.VesselStats.TryGetValue(mod.Vessel.PlayerId, out var stats))
+		if (GameHistory.PlayerStats.TryGetValue(mod.Vessel.PlayerId, out var stats))
 		{
 			if (!target.IsCrewmate() ||
 				(target.TryGetModifier<AllianceGameModifier>(out var allyMod2) && !allyMod2.GetsPunished))
 			{
-				stats.GhostCorrectKills += 1;
+				stats.CorrectKills += 1;
 			}
 			else if (source != target)
 			{
-				stats.GhostIncorrectKills += 1;
+				stats.IncorrectKills += 1;
 			}
 		}
 	}

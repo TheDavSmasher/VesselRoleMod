@@ -3,14 +3,8 @@ using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using MiraAPI.Networking;
-using Reactor.Utilities;
-using System.Collections;
-using System.Linq;
-using TownOfUs.Buttons.Crewmate;
 using TownOfUs.Events.Crewmate;
 using TownOfUs.Events.Modifiers;
-using TownOfUs.Modifiers;
-using TownOfUs.Modifiers.Game;
 using TownOfUs.Modifiers.Game.Crewmate;
 using TownOfUs.Modules;
 using TownOfUs.Modules.ControlSystem;
@@ -22,10 +16,8 @@ using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
-using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 using VesselRoleMod.Utilities;
-using static Il2CppSystem.Net.Http.Headers.Parser;
 
 
 namespace VesselRoleMod.Patches.ControlSystem;
@@ -225,99 +217,5 @@ public static class RoleSpecificPatches
 				MirrorcasterRole.DangerAnim();
 			}
 		}
-	}
-
-	[HarmonyPatch(typeof(OfficerShootButton), "OnClick")]
-	[HarmonyPrefix]
-	public static bool OfficerShootVesselPrefix(OfficerShootButton __instance)
-	{
-		var Target = __instance.Target;
-		if (Target == null)
-		{
-			return true;
-		}
-
-		if (Target.HasModifier<FirstDeadShield>())
-		{
-			return true;
-		}
-
-		if (Target.HasModifier<BaseShieldModifier>())
-		{
-			return true;
-		}
-
-		if (!Target.TryGetModifier<VesselPossessedModifier>(out var mod))
-		{
-			return true;
-		}
-
-		var options = OptionGroupSingleton<OfficerOptions>.Instance;
-		var alignment = Target.Data.Role.GetRoleAlignment();
-		var hasKilled = PossessionHistory.VesselStats.TryGetValue(Target.PlayerId, out var stats) &&
-						(stats.GhostCorrectKills > 0 || stats.GhostIncorrectKills > 0) ||
-						PossessionHistory.GhostVesselKills.Any(x =>
-							x.VesselId == Target.PlayerId && x.VictimId != Target.PlayerId);
-		var evilOfficer = (PlayerControl.LocalPlayer.TryGetModifier<AllianceGameModifier>(out var allyMod) &&
-							!allyMod.GetsPunished);
-
-		if (options.CanOnlyShootActiveKillers.Value)
-		{
-			if (!evilOfficer && Target.IsCrewmate() && options.CrewKillingAreInnocent.Value || !hasKilled)
-			{
-				__instance.CallMisfire();
-			}
-			else
-			{
-				__instance.CallShoot();
-			}
-		}
-		else if (!(Target.TryGetModifier<AllianceGameModifier>(out var allyMod2) && !allyMod2.GetsPunished))
-		{
-			var safeNeutral = options.NonKillingNeutralsAreInnocent.Value &&
-							  alignment is RoleAlignment.NeutralBenign
-								  or RoleAlignment.NeutralEvil or RoleAlignment.NeutralOutlier;
-			if (safeNeutral || !evilOfficer && Target.IsCrewmate())
-			{
-				__instance.CallMisfire();
-			}
-			else
-			{
-				__instance.CallShoot();
-			}
-		}
-		else
-		{
-			__instance.CallShoot();
-		}
-
-		if (!OptionGroupSingleton<OfficerOptions>.Instance.CanSelfReport.Value)
-		{
-			Coroutines.Start(__instance.CallCoSetBodyReportable(Target.PlayerId));
-		}
-
-		return false;
-	}
-}
-
-[HarmonyPatch]
-public static class OfficerShootReversePatch
-{
-	[HarmonyReversePatch]
-	[HarmonyPatch(typeof(OfficerShootButton), "Shoot")]
-	public static void CallShoot(this OfficerShootButton instance)
-	{
-	}
-
-	[HarmonyReversePatch]
-	[HarmonyPatch(typeof(OfficerShootButton), "Misfire")]
-	public static void CallMisfire(this OfficerShootButton instance)
-	{
-	}
-
-	[HarmonyPatch(typeof(OfficerShootButton), "CoSetBodyReportable")]
-	public static IEnumerator CallCoSetBodyReportable(this OfficerShootButton instance, byte bodyId)
-	{
-		throw new System.NotImplementedException();
 	}
 }
