@@ -9,12 +9,14 @@ using TownOfUs;
 using TownOfUs.Assets;
 using TownOfUs.Events.TouEvents;
 using TownOfUs.Modifiers.Crewmate;
+using TownOfUs.Modifiers.Game;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
+using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Roles.Crewmate;
 
 namespace VesselRoleMod.Events.Crewmate;
@@ -37,6 +39,37 @@ public static class VesselEvents
 
 		var button = CustomButtonSingleton<VesselAdorciseButton>.Instance;
 		button.ResetCooldownAndOrEffect();
+	}
+
+	[RegisterEvent]
+	public static void AfterMurderEventHandler(AfterMurderEvent @event)
+	{
+		var source = @event.Source;
+
+		if (!source.Data.IsDead || !source.TryGetModifier<PoltergeistModifier>(out var mod))
+		{
+			return;
+		}
+
+		if (mod.Vessel.TryGetModifier<AllianceGameModifier>(out var allyMod) && !allyMod.GetsPunished)
+		{
+			return;
+		}
+
+		var target = @event.Target;
+
+		if (PossessionHistory.VesselStats.TryGetValue(mod.Vessel.PlayerId, out var stats))
+		{
+			if (!target.IsCrewmate() ||
+				(target.TryGetModifier<AllianceGameModifier>(out var allyMod2) && !allyMod2.GetsPunished))
+			{
+				stats.GhostCorrectKills += 1;
+			}
+			else if (source != target)
+			{
+				stats.GhostIncorrectKills += 1;
+			}
+		}
 	}
 
 	[RegisterEvent]
