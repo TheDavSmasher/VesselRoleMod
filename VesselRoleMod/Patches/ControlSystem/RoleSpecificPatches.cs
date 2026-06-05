@@ -9,14 +9,13 @@ using TownOfUs.Modifiers.Game.Crewmate;
 using TownOfUs.Modules;
 using TownOfUs.Modules.ControlSystem;
 using TownOfUs.Options.Roles.Crewmate;
-using TownOfUs.Roles;
 using TownOfUs.Roles.Crewmate;
 using TownOfUs.Roles.Impostor;
 using TownOfUs.Roles.Neutral;
 using TownOfUs.Utilities;
 using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
-using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 
@@ -120,12 +119,17 @@ public static class RoleSpecificPatches
 			return;
 		}
 
+		if (OptionGroupSingleton<VesselOptions>.Instance.ReportGhostInstead)
+		{
+			return;
+		}
+
 		if (!source.TryGetModifier<PoltergeistModifier>(out var mod))
 		{
 			return;
 		}
 
-		source = VesselRole.GetReportedPlayer(mod.Vessel, mod.Ghost);
+		source = mod.Vessel;
 	}
 
 	[HarmonyPatch(typeof(TelepathEvents), nameof(TelepathEvents.AfterMurderEventHandler))]
@@ -149,9 +153,14 @@ public static class RoleSpecificPatches
 	[HarmonyPatch(typeof(MirrorcasterRole), nameof(MirrorcasterRole.RpcMagicMirrorAttacked))]
 	public static class GhostAttackMagicMirrorPatch
 	{
-		public static bool Prefix(ref PlayerControl source, ref bool __state)
+		public static bool Prefix(ref PlayerControl source, PlayerControl mirrorcaster)
 		{
 			if (LobbyBehaviour.Instance)
+			{
+				return true;
+			}
+
+			if (mirrorcaster.Data.Role is not MirrorcasterRole role)
 			{
 				return true;
 			}
@@ -161,61 +170,35 @@ public static class RoleSpecificPatches
 				return true;
 			}
 
+			if (OptionGroupSingleton<VesselOptions>.Instance.ReportGhostInstead)
+			{
+				return true;
+			}
+
 			if (!source.TryGetModifier<PoltergeistModifier>(out var mod))
 			{
 				return true;
 			}
 
-			if (mod.Player.AmOwner || mod.Target.AmOwner)
+			source = mod.Vessel;
+
+			if (mod.Vessel.AmOwner)
 			{
-				__state = true;
+				role.SetProtectedPlayer(null);
+				role.UnleashesAvailable++;
+
+				role.ContainedRole = source.GetRoleWhenAlive();
+
 				return false;
 			}
 
-			source = VesselRole.GetReportedPlayer(mod.Vessel, mod.Ghost);
-
-			return true;
-		}
-
-		public static void Postfix(PlayerControl source, PlayerControl mirrorcaster, bool __state)
-		{
-			if (!__state)
-			{
-				return;
-			}
-
-			var mod = source.GetModifier<PoltergeistModifier>()!;
-			source = VesselRole.GetReportedPlayer(mod.Vessel, mod.Ghost);
-
-			// Execute logic previously skipped
-			if (mirrorcaster.Data.Role is not MirrorcasterRole role)
-			{
-				Error("RpcMagicMirrorAttacked - Invalid mirrorcaster");
-				return;
-			}
-
-			role.SetProtectedPlayer(null);
-			role.UnleashesAvailable++;
-
-			var killerRole = source.GetRoleWhenAlive();
-			if (killerRole is MirrorcasterRole mirrorcaster2)
-			{
-				role.ContainedRole = mirrorcaster2.ContainedRole;
-				mirrorcaster2.ContainedRole = null;
-			}
-
-			if (source.Data.Role is IGhostRole)
-			{
-				killerRole = source.Data.Role;
-			}
-
-			role.ContainedRole = killerRole;
-
 			var opt = OptionGroupSingleton<MirrorcasterOptions>.Instance;
-			if (opt.WhoGetsNotification is MirrorOption.MirrorcasterAndKiller && mod.Player.AmOwner)
+			if (opt.WhoGetsNotification is MirrorOption.MirrorcasterAndKiller && mod.Ghost.AmOwner)
 			{
 				MirrorcasterRole.DangerAnim();
 			}
+
+			return true;
 		}
 	}
 }

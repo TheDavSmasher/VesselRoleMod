@@ -24,24 +24,12 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 	public override PlayerControl Vessel => Player;
 	public override PlayerControl Ghost => ghost;
 
-	private bool showCachedRole = Options.ReportGhostInstead;
-
 	public bool ShowCurrentRoleFirst => true;
 	public bool Visible => true;
 	public CacheRoleGuess GuessMode => CacheRoleGuess.ActiveRole;
-	public RoleBehaviour CachedRole => showCachedRole
+	public RoleBehaviour CachedRole => Options.ReportGhostInstead
 		? (this as IVesselModifier).Role
 		: Player.Data.Role;
-
-	public void ShowCurrentAsCached()
-	{
-		showCachedRole = false;
-	}
-
-	public void ResetShownCached()
-	{
-		showCachedRole = Options.ReportGhostInstead;
-	}
 
 	public override void OnActivate()
 	{

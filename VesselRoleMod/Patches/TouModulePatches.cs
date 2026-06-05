@@ -1,14 +1,12 @@
 ﻿using HarmonyLib;
+using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using TownOfUs.Modules;
 using TownOfUs.Utilities;
-using VesselRoleMod.Modifiers.Crewmate;
 using VesselRoleMod.Modifiers.Ghost;
 using VesselRoleMod.Modules.ControlSystem;
-using VesselRoleMod.Roles.Crewmate;
+using VesselRoleMod.Options.Roles.Crewmate;
 
 namespace VesselRoleMod.Patches;
 
@@ -50,62 +48,37 @@ public static class TouModulePatches
 		}
 	}
 
-	[HarmonyPatch]
-	public static class BodyReportPatches
+	[HarmonyPatch(typeof(BodyReport), nameof(BodyReport.ParseMedicReport))]
+	[HarmonyPatch(typeof(BodyReport), nameof(BodyReport.ParseForensicReport))]
+	[HarmonyPrefix]
+	public static void ParseBodyReportPrefix(ref BodyReport br)
 	{
-		public static IEnumerable<MethodBase> TargetMethods()
+		if (br.Body == null)
 		{
-			yield return AccessTools.Method(typeof(BodyReport), nameof(BodyReport.ParseMedicReport));
-			yield return AccessTools.Method(typeof(BodyReport), nameof(BodyReport.ParseForensicReport));
+			return;
 		}
 
-		public readonly record struct ReportState(byte VesselId, bool Reset);
-
-		public static void Prefix(ref BodyReport br, ref ReportState __state)
+		if (OptionGroupSingleton<VesselOptions>.Instance.ReportGhostInstead)
 		{
-			if (br.Body == null)
-			{
-				return;
-			}
-
-			var deadPlayerId = br.Body.PlayerId;
-			var matches = PossessionHistory.GhostVesselKills.Where(x => x.VictimId == deadPlayerId).ToArray();
-
-			PossessionKill? killer = null;
-
-			if (matches.Length > 0)
-			{
-				killer = matches[0];
-			}
-
-			if (killer == null ||
-				MiscUtils.PlayerById(killer.KillerId) is not { } Ghost ||
-				MiscUtils.PlayerById(killer.VesselId) is not { } Vessel)
-			{
-				return;
-			}
-
-			if (Vessel.TryGetModifier<VesselPossessedModifier>(out var mod))
-			{
-				mod.ShowCurrentAsCached();
-				__state = new(Vessel.PlayerId, true);
-			}
-
-			br.Killer = VesselRole.GetReportedPlayer(Vessel, Ghost);
+			return;
 		}
 
-		public static void Postfix(ReportState __state)
-		{
-			if (!__state.Reset ||
-				MiscUtils.PlayerById(__state.VesselId) is not { } Vessel)
-			{
-				return;
-			}
+		var deadPlayerId = br.Body.PlayerId;
+		var matches = PossessionHistory.GhostVesselKills.Where(x => x.VictimId == deadPlayerId).ToArray();
 
-			if (Vessel.TryGetModifier<VesselPossessedModifier>(out var mod))
-			{
-				mod.ResetShownCached();
-			}
+		PossessionKill? killer = null;
+
+		if (matches.Length > 0)
+		{
+			killer = matches[0];
 		}
+
+		if (killer == null ||
+			MiscUtils.PlayerById(killer.VesselId) is not { } Vessel)
+		{
+			return;
+		}
+
+		br.Killer = Vessel;
 	}
 }
