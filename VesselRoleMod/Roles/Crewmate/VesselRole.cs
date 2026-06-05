@@ -83,11 +83,9 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		RoleBehaviourStubs.OnMeetingStart(this);
 	}
 
-	public static bool ShowGhostRole => true;
-
 	public static PlayerControl GetReportedPlayer(PlayerControl vessel, PlayerControl ghost)
 	{
-		return ShowGhostRole ? ghost : vessel;
+		return OptionGroupSingleton<VesselOptions>.Instance.ReportGhostInstead ? ghost : vessel;
 	}
 
 	#region Role RPCs

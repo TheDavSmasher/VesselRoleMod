@@ -24,6 +24,7 @@
   <string name="VesselOptionAllowSharedControl">Vessel and Ghost share control</string>
   <string name="VesselOptionGhostCanVent">Venting ghosts can vent when possessing</string>
   <string name="VesselOptionGhostCanKill">Killing ghosts can kill through Vessel</string>
+  <string name="VesselOptionReportGhost">Report ghost instead of Vessel</string>
   <string name="VesselOptionOnGhostKill">On Ghost Kill</string>
   <string name="VesselOptionOnGhostKillEnumNone">Nothing</string>
   <string name="VesselOptionOnGhostKillEnumCannotKill">Cannot Kill</string>
