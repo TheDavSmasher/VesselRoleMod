@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TownOfUs.Assets;
 using TownOfUs.Extensions;
+using TownOfUs.Modifiers.Crewmate;
+using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules.Localization;
 using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
@@ -324,6 +326,15 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		vessel.RemoveExistingModifier<VesselAdorcismModifier>();
 
 		VesselClosed(vessel, ghost);
+
+		if (vessel.TryGetModifier<GlitchHackedModifier>(out var hackMod))
+		{
+			ghost.AddModifier<GlitchHackedModifier>(hackMod.GlitchId);
+		}
+		if (vessel.TryGetModifier<HunterStalkedModifier>(out var stalkMod))
+		{
+			ghost.AddModifier<HunterStalkedModifier>(stalkMod.Hunter);
+		}
 
 		vessel.MyPhysics.ClearVentState();
 
