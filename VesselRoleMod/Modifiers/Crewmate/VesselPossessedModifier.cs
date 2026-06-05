@@ -9,6 +9,7 @@ using VesselRoleMod.Assets;
 using VesselRoleMod.Buttons.Crewmate;
 using VesselRoleMod.Events;
 using VesselRoleMod.Events.Crewmate;
+using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Crewmate;
@@ -76,7 +77,7 @@ public sealed class VesselPossessedModifier(PlayerControl ghost) : ActivePossess
 
 		if (notification == null)
 		{
-			var ghostName = Options.NotifHasName ? Ghost.Data.PlayerName :
+			var ghostName = (Options.CanRejectPossession == VesselRejectionType.Free || Options.CanSeeGhostName) ? Ghost.Data.PlayerName :
 				Ghost?.Data?.Role is ITownOfUsRole touRole ? touRole.RoleName : "Poltergeist";
 			notification = ControlledFeedbackUtilities.ShowControlledByNotification(
 				ghostName,
