@@ -151,54 +151,52 @@ public static class RoleSpecificPatches
 	}
 
 	[HarmonyPatch(typeof(MirrorcasterRole), nameof(MirrorcasterRole.RpcMagicMirrorAttacked))]
-	public static class GhostAttackMagicMirrorPatch
+	[HarmonyPrefix]
+	public static bool GhostAttackMagicMirrorPrefix(ref PlayerControl source, PlayerControl mirrorcaster)
 	{
-		public static bool Prefix(ref PlayerControl source, PlayerControl mirrorcaster)
+		if (LobbyBehaviour.Instance)
 		{
-			if (LobbyBehaviour.Instance)
-			{
-				return true;
-			}
-
-			if (mirrorcaster.Data.Role is not MirrorcasterRole role)
-			{
-				return true;
-			}
-
-			if (!source.Data.IsDead || source.Data.Disconnected)
-			{
-				return true;
-			}
-
-			if (OptionGroupSingleton<VesselOptions>.Instance.ReportGhostInstead)
-			{
-				return true;
-			}
-
-			if (!source.TryGetModifier<PoltergeistModifier>(out var mod))
-			{
-				return true;
-			}
-
-			source = mod.Vessel;
-
-			if (mod.Vessel.AmOwner)
-			{
-				role.SetProtectedPlayer(null);
-				role.UnleashesAvailable++;
-
-				role.ContainedRole = source.GetRoleWhenAlive();
-
-				return false;
-			}
-
-			var opt = OptionGroupSingleton<MirrorcasterOptions>.Instance;
-			if (opt.WhoGetsNotification is MirrorOption.MirrorcasterAndKiller && mod.Ghost.AmOwner)
-			{
-				MirrorcasterRole.DangerAnim();
-			}
-
 			return true;
 		}
+
+		if (mirrorcaster.Data.Role is not MirrorcasterRole role)
+		{
+			return true;
+		}
+
+		if (!source.Data.IsDead || source.Data.Disconnected)
+		{
+			return true;
+		}
+
+		if (OptionGroupSingleton<VesselOptions>.Instance.ReportGhostInstead)
+		{
+			return true;
+		}
+
+		if (!source.TryGetModifier<PoltergeistModifier>(out var mod))
+		{
+			return true;
+		}
+
+		source = mod.Vessel;
+
+		if (mod.Vessel.AmOwner)
+		{
+			role.SetProtectedPlayer(null);
+			role.UnleashesAvailable++;
+
+			role.ContainedRole = source.GetRoleWhenAlive();
+
+			return false;
+		}
+
+		var opt = OptionGroupSingleton<MirrorcasterOptions>.Instance;
+		if (opt.WhoGetsNotification is MirrorOption.MirrorcasterAndKiller && mod.Ghost.AmOwner)
+		{
+			MirrorcasterRole.DangerAnim();
+		}
+
+		return true;
 	}
 }
