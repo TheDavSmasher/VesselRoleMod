@@ -4,12 +4,12 @@
     "net6.0": {
       "AllOfUs.MiraAPI": {
         "type": "Direct",
-        "requested": "[0.3.9-ci.904, )",
-        "resolved": "0.3.9-ci.904",
-        "contentHash": "pHldg5KSNNoVNfnqNktlVS3PAfwq8+bRX3hlA1Vrc9MZs6cy1mPzwMJoE6bgxjSc6z91vp4zqxCHxESm6ZaQcA==",
+        "requested": "[0.4.1, )",
+        "resolved": "0.4.1",
+        "contentHash": "Dt+EjS5e7N/oRVwXE0eXoBldKa+r8qVccwRELBP2N3+6Sr53oHwGxAhbcIeYPPwO0abpkpiVgmrzl/np0/G2RQ==",
         "dependencies": {
           "BepInEx.Unity.IL2CPP": "6.0.0-be.735",
-          "Reactor": "2.3.1"
+          "Reactor": "2.5.0-ci.371"
         }
       },
       "AmongUs.GameLibs.Steam": {

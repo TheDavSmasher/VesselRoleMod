@@ -21,4 +21,9 @@
     <None Include="C:\Users\David Higueros\Documents\.Personal Projects\AmongDiscord\VesselRoleMod\VesselRoleMod\.editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="AllOfUs.MiraAPI" Version="0.4.1" />
+    <PackageReference Update="AmongUs.GameLibs.Steam" Version="2026.3.31" />
+  </ItemGroup>
+
 </Project>
