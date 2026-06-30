@@ -55,7 +55,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 			return Vent.currentVent;
 		}
 
-		return DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.currentTarget;
+		return HudManager.Instance.ImpostorVentButton.currentTarget;
 	}
 
 	public override bool CanUse()
