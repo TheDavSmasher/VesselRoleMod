@@ -79,6 +79,12 @@ public static class TouModulePatches
 			return;
 		}
 
-		br.Killer = Vessel;
+		br = new()
+		{
+			Killer = Vessel,
+			Reporter = br.Reporter,
+			Body = br.Body,
+			KillAge = br.KillAge
+		};
 	}
 }

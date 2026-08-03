@@ -4,9 +4,9 @@
     "net6.0": {
       "AllOfUs.MiraAPI": {
         "type": "Direct",
-        "requested": "[0.4.1, )",
-        "resolved": "0.4.1",
-        "contentHash": "Dt+EjS5e7N/oRVwXE0eXoBldKa+r8qVccwRELBP2N3+6Sr53oHwGxAhbcIeYPPwO0abpkpiVgmrzl/np0/G2RQ==",
+        "requested": "[0.4.2, )",
+        "resolved": "0.4.2",
+        "contentHash": "5GUBSFVQW26iFWjvmdM4dFNcugS13+OgERpjab7SaU0HGZ9j0NUJ9o0Rj6+99jU71NwU2k7eGQkW89tS0Xp9tA==",
         "dependencies": {
           "BepInEx.Unity.IL2CPP": "6.0.0-be.735",
           "Reactor": "2.5.0-ci.371"
@@ -14,9 +14,9 @@
       },
       "AmongUs.GameLibs.Steam": {
         "type": "Direct",
-        "requested": "[2026.3.31, )",
-        "resolved": "2026.3.31",
-        "contentHash": "s5u9TPftqfgvDKBCJ6LCSbWMVLIP2U9++UglnQ7pFa/o9RFo++6vevsX3im+cbpoyznjoj64q2aqLwu7wbkqig=="
+        "requested": "[2026.6.5, )",
+        "resolved": "2026.6.5",
+        "contentHash": "c7rl48iCPUnKY19p+KeZNYsln30kiHkbemKHJCa2dtQ4nc+4b/6eHErOY3EGkZXUGkh/LBiQ/r3FUpdI0q1uAA=="
       },
       "BepInEx.AutoPlugin": {
         "type": "Direct",
@@ -49,20 +49,20 @@
       },
       "Reactor": {
         "type": "Direct",
-        "requested": "[2.5.0-ci.371, )",
-        "resolved": "2.5.0-ci.371",
-        "contentHash": "LMKHi2CPACJJkBK117HT6zKS8mkv1c/RUZusYlnFExS2nGCD/haqf+YkTXyK561T5+BSg0m0R4ubSG30cdYDNg==",
+        "requested": "[2.5.1-ci.384, )",
+        "resolved": "2.5.1-ci.384",
+        "contentHash": "OtNSjFanbNnphBnJwRrRpANLjk7x/DwG/6RJHLBrJzGwZrhdr3Qgr3YPFCqMTEri3cYSfgytu9rU8pP5HG96Dg==",
         "dependencies": {
           "BepInEx.Unity.IL2CPP": "6.0.0-be.735"
         }
       },
       "TownOfUsMira": {
         "type": "Direct",
-        "requested": "[1.5.9-sid, )",
-        "resolved": "1.5.9-sid",
-        "contentHash": "Iq57gWUqC9BocoARFjZEp8wHSGPGIVXQGH83HlKfJc+fawqg6ywvFbwrriDO6KbqLGlsGJnN9V1tZ3bH/cpoiQ==",
+        "requested": "[1.7.0-preview, )",
+        "resolved": "1.7.0-preview",
+        "contentHash": "fjaGjPEaLdABk2a8600t1amjHpOL4ZA6qAPAU41Yq9F4KpNNTTnxwXtaBWQIY6FbUOWGsEcNZHMBzzrj6bzR3A==",
         "dependencies": {
-          "AllOfUs.MiraAPI": "0.3.9-ci.904",
+          "AllOfUs.MiraAPI": "0.4.2",
           "BepInEx.Unity.IL2CPP": "6.0.0-be.735",
           "Reactor": "2.5.0-ci.371"
         }
