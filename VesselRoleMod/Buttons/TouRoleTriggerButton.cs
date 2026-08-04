@@ -153,7 +153,7 @@ public abstract class TouRoleTriggerButton<TRole> : TownOfUsRoleButton<TRole> wh
 				Button?.usesRemainingSprite.color = TextOutlineColor;
 			}
 
-			TownOfUsColors.UseBasic = LocalSettingsTabSingleton<TownOfUsLocalRoleSettings>.Instance
+			TownOfUsColors.UseBasic = LocalSettingsTabSingleton<TouLocalTabPlayers>.Instance
 				.UseCrewmateTeamColorToggle.Value;
 		}
 

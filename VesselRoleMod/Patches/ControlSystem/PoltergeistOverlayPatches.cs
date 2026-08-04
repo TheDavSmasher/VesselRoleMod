@@ -95,7 +95,7 @@ public static class PoltergeistOverlayPatches
 			return mod?.ExtraNameText ?? string.Empty;
 		}
 
-		var colorPlayerNames = LocalSettingsTabSingleton<TownOfUsLocalSettings>.Instance.ColorPlayerNameToggle.Value;
+		var colorPlayerNames = LocalSettingsTabSingleton<TouLocalTabPlayers>.Instance.ColorPlayerNameToggle.Value;
 		var localImp = PlayerControl.LocalPlayer.IsImpostorAligned() &&
 					   genOpt is
 					   { ImpsKnowRoles.Value: true, FFAImpostorMode: false };
