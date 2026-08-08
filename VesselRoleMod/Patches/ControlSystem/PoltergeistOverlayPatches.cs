@@ -58,7 +58,7 @@ public static class PoltergeistOverlayPatches
 
 		var local = PlayerControl.LocalPlayer;
 		var genOpt = OptionGroupSingleton<GeneralOptions>.Instance;
-		var taskOpt = OptionGroupSingleton<TaskTrackingOptions>.Instance;
+		var taskOpt = OptionGroupSingleton<PostmortemOptions>.Instance;
 
 		if (!local.HasDied() || !genOpt.TheDeadKnow || MeetingHud.Instance ||
 			!local.TryGetModifier<DeathHandlerModifier>(out var deathHandler) || deathHandler.DiedThisRound ||
@@ -95,7 +95,7 @@ public static class PoltergeistOverlayPatches
 			return mod?.ExtraNameText ?? string.Empty;
 		}
 
-		var colorPlayerNames = LocalSettingsTabSingleton<TownOfUsLocalSettings>.Instance.ColorPlayerNameToggle.Value;
+		var colorPlayerNames = LocalSettingsTabSingleton<TouLocalTabPlayers>.Instance.ColorPlayerNameToggle.Value;
 		var localImp = PlayerControl.LocalPlayer.IsImpostorAligned() &&
 					   genOpt is
 					   { ImpsKnowRoles.Value: true, FFAImpostorMode: false };
@@ -211,7 +211,7 @@ public static class PoltergeistOverlayPatches
 				roleName += $"<size=80%>{addedRoleNameText.ExtraRoleText}</size>";
 			}
 
-			if (taskOpt.ShowTaskRound && player.AmOwner &&
+			if (taskOpt.ShowTaskDead && player.AmOwner &&
 					(player.IsCrewmate() ||
 					 player.Data.Role is SpectreRole))
 			{
@@ -488,7 +488,7 @@ public static class PoltergeistOverlayPatches
 		}
 
 		if (!PlayerControl.LocalPlayer.HasModifierOfType<IVesselPossessModifier>() ||
-			!VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out var isVessel))
+			!VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out _))
 		{
 			return;
 		}
