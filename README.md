@@ -5,13 +5,16 @@
 An [Among Us](https://store.steampowered.com/app/945360/Among_Us/) mod that adds
 1 new role on top of [Town Of Us &ndash; Mira](https://github.com/AU-Avengers/TOU-Mira).
 
-This mod adds a new role to the existing Town of Us: Mira mod, called the Vessel.
+This 1 role is called the Vessel.
 
-The Vessel can open themselves to be possessed by the ghosts of dead players, giving the ghosts control over the Vessel's body. Depending on configuration, the ghost and vessel switch who has control at a given point, or even have the option to provide input for the same vessel at the same time.
+The Vessel can open themselves to be possessed by the ghosts of dead players, giving the ghosts control over the Vessel's body.
 
-Settings allow for impostors and neutrals to also be allowed to possess a Vessel.
-Another option is that if the ghost who is possessing them had the ability to kill prior, then they'll have a kill button while possessing a Vessel, without the consent of the Vessel.
+Settings allow for:
 
-Vessels, under certain settings can also block certain players from possessing them.
-The default is providing a "blacklist" that can be updated at the time of a meeting. When possessed, they optionally can see the name of the ghost who possessed them.
-A secondary setting allows the Vessel to accept or reject a possession attempt whenever it happens, giving the name and the two options, as well as a maximum decision timer.
+- Ghost and Vessel can switch who has control at a given point
+- Ghost and Vessel can share simultaneous control.
+- Impostors and neutrals to also be allowed to possess a Vessel.
+- If the ghost had the ability to kill when alive, they'll have a kill button while possessing a Vessel, without the consent of the Vessel.
+- If the ghost had the ability to vent when alive, they'll be allowed to vent under the same circumstances as when alive.
+- Vessel knows the name of the Ghost.
+- Vessel can block specific Ghosts from possessing them.
