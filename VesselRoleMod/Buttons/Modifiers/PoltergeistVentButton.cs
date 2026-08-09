@@ -25,15 +25,13 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 {
 	public override string Name => TranslationController.Instance.GetStringWithDefault(StringNames.VentLabel, "Vent");
 	public override BaseKeybind Keybind => Keybinds.VentAction;
-	public override float InitialCooldown =>
-		PlayerControl.LocalPlayer?.GetModifier<GhostVentCooldownModifier>() is { } mod
-		? mod.TimeRemaining
-		: base.InitialCooldown;
 
 	public override float Cooldown
 	{
 		get
 		{
+			if (PlayerControl.LocalPlayer.TryGetModifier<GhostVentCooldownModifier>(out var mod))
+				return mod.TimeRemaining;
 			if (EffectActive || HasEffect || (Modifier?.Vessel != null && Modifier.Vessel.inVent))
 			{
 				if (GetRoleButton() is { } button)
