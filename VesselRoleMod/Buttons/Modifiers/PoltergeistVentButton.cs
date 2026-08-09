@@ -36,12 +36,9 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 		{
 			if (EffectActive || HasEffect || (Modifier?.Vessel != null && Modifier.Vessel.inVent))
 			{
-				if (Modifier?.Role is EngineerTouRole)
-					return CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
-				if (Modifier?.Role is JesterRole)
-					return CustomButtonSingleton<JesterVentButton>.Instance.Cooldown;
+				if (GetRoleButton() is { } button)
+					return button.Cooldown;
 			}
-
 			return base.Cooldown;
 		}
 	}
@@ -50,15 +47,22 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 	{
 		get
 		{
-			if (Modifier?.Role is EngineerTouRole)
-				return CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration;
-			if (Modifier?.Role is JesterRole)
-				return CustomButtonSingleton<JesterVentButton>.Instance.EffectDuration;
+			if (GetRoleButton() is { } button)
+				return button.EffectDuration;
 			return base.EffectDuration;
 		}
 	}
 
 	public override LoadableAsset<Sprite> Sprite => TouCrewAssets.EngiVentSprite;
+
+	internal static CustomActionButton? GetRoleButton()
+	{
+		if (Modifier?.Role is EngineerTouRole)
+			return CustomButtonSingleton<EngineerVentButton>.Instance;
+		if (Modifier?.Role is JesterRole)
+			return CustomButtonSingleton<JesterVentButton>.Instance;
+		return null;
+	}
 
 	protected override bool CanUseAbility()
 	{
