@@ -34,7 +34,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 	{
 		get
 		{
-			if (HasEffect || Modifier?.Vessel != null && Modifier.Vessel.inVent)
+			if (EffectActive || HasEffect || (Modifier?.Vessel != null && Modifier.Vessel.inVent))
 			{
 				if (Modifier?.Role is EngineerTouRole)
 					return CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
