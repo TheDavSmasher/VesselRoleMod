@@ -9,7 +9,7 @@ public sealed class GhostVentCooldownModifier : TimedModifier
 {
 	public override float Duration => CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
 
-	public override string ModifierName => "Engineer Cooldown";
+	public override string ModifierName => "Vent Cooldown";
 
 	public override void OnDeath(DeathReason reason)
 	{
