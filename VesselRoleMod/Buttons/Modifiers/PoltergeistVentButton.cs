@@ -51,9 +51,9 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 		get
 		{
 			if (Modifier?.Role is EngineerTouRole)
-				return CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
+				return CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration;
 			if (Modifier?.Role is JesterRole)
-				return CustomButtonSingleton<JesterVentButton>.Instance.Cooldown;
+				return CustomButtonSingleton<JesterVentButton>.Instance.EffectDuration;
 			return base.EffectDuration;
 		}
 	}
