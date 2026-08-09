@@ -8,7 +8,9 @@ using MiraAPI.Utilities.Assets;
 using TownOfUs.Assets;
 using TownOfUs.Buttons;
 using TownOfUs.Buttons.Crewmate;
+using TownOfUs.Buttons.Neutral;
 using TownOfUs.Roles.Crewmate;
+using TownOfUs.Roles.Neutral;
 using UnityEngine;
 using VesselRoleMod.Modifiers;
 using VesselRoleMod.Modifiers.Ghost;
@@ -27,12 +29,35 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 		PlayerControl.LocalPlayer.TryGetModifier<GhostVentCooldownModifier>(out var mod)
 		? mod.TimeRemaining
 		: base.InitialCooldown;
-	public override float Cooldown => Modifier?.Role is EngineerTouRole && (HasEffect || Modifier.Vessel != null && Modifier.Vessel.inVent)
-		? CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown
-		: base.Cooldown;
-	public override float EffectDuration => Modifier?.Role is EngineerTouRole
-		? CustomButtonSingleton<EngineerVentButton>.Instance.EffectDuration
-		: base.EffectDuration;
+
+	public override float Cooldown
+	{
+		get
+		{
+			if (HasEffect || Modifier?.Vessel != null && Modifier.Vessel.inVent)
+			{
+				if (Modifier?.Role is EngineerTouRole)
+					return CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
+				if (Modifier?.Role is JesterRole)
+					return CustomButtonSingleton<JesterVentButton>.Instance.Cooldown;
+			}
+
+			return base.Cooldown;
+		}
+	}
+
+	public override float EffectDuration
+	{
+		get
+		{
+			if (Modifier?.Role is EngineerTouRole)
+				return CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
+			if (Modifier?.Role is JesterRole)
+				return CustomButtonSingleton<JesterVentButton>.Instance.Cooldown;
+			return base.EffectDuration;
+		}
+	}
+
 	public override LoadableAsset<Sprite> Sprite => TouCrewAssets.EngiVentSprite;
 
 	protected override bool CanUseAbility()
