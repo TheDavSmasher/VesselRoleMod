@@ -1,13 +1,13 @@
 ﻿using MiraAPI.Hud;
 using MiraAPI.Modifiers.Types;
-using TownOfUs.Buttons.Crewmate;
+using VesselRoleMod.Buttons.Modifiers;
 using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
 public sealed class GhostVentCooldownModifier : TimedModifier
 {
-	public override float Duration => CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
+	public override float Duration => CustomButtonSingleton<PoltergeistVentButton>.Instance.Cooldown;
 
 	public override string ModifierName => "Vent Cooldown";
 
