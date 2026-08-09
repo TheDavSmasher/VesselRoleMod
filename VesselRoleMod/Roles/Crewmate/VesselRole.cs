@@ -407,7 +407,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 					vessel.MyPhysics.ClearVentState();
 
 					if (ghost.AmOwner &&
-						CustomButtonSingleton<PoltergeistVentButton>.Instance.HasEffect)
+						CustomButtonSingleton<PoltergeistVentButton>.Instance.Cooldown > 0.001f)
 					{
 						ghost.AddModifier<GhostVentCooldownModifier>();
 					}
@@ -746,7 +746,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			}
 			button.Timer = button.Cooldown;
 
-			if (ghost.AmOwner && button.HasEffect)
+			if (ghost.AmOwner && button.Cooldown > 0.001f)
 			{
 				ghost.AddModifier<GhostVentCooldownModifier>();
 			}
