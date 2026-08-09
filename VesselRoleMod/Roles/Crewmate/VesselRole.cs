@@ -409,7 +409,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 					if (ghost.AmOwner &&
 						CustomButtonSingleton<PoltergeistVentButton>.Instance.HasEffect)
 					{
-						ghost.AddModifier<GhostEngineerCooldownModifier>();
+						ghost.AddModifier<GhostVentCooldownModifier>();
 					}
 				}
 				else
@@ -748,7 +748,7 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 
 			if (ghost.AmOwner && button.HasEffect)
 			{
-				ghost.AddModifier<GhostEngineerCooldownModifier>();
+				ghost.AddModifier<GhostVentCooldownModifier>();
 			}
 		}
 	}

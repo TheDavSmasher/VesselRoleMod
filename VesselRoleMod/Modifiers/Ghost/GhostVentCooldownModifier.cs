@@ -5,7 +5,7 @@ using VesselRoleMod.Utilities;
 
 namespace VesselRoleMod.Modifiers.Ghost;
 
-public sealed class GhostEngineerCooldownModifier : TimedModifier
+public sealed class GhostVentCooldownModifier : TimedModifier
 {
 	public override float Duration => CustomButtonSingleton<EngineerVentButton>.Instance.Cooldown;
 
