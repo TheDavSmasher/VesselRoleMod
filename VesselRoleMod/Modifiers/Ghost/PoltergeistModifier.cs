@@ -1,7 +1,7 @@
 ﻿using MiraAPI.Hud;
+using MiraAPI.Translation;
 using MiraAPI.Utilities;
 using TownOfUs.Buttons;
-using TownOfUs.Modules.Localization;
 using TownOfUs.Patches;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -178,7 +178,7 @@ public sealed class PoltergeistModifier(PlayerControl vessel) : ActivePossession
 
 		if (notification == null)
 		{
-			var controllerText = TouLocale.GetParsed("PoltergeistControlNotif", $"You are possessing {Vessel.Data.PlayerName}!");
+			var controllerText = MiraLocaleManager.Get("PoltergeistControlNotif", $"You are possessing {Vessel.Data.PlayerName}!");
 			notification = Helpers.CreateAndShowNotification(
 				$"<b>{VesselRoleModColors.Vessel.ToTextColor()}{controllerText.Replace("<player>", Vessel.Data.PlayerName)}</color></b>",
 				Color.white, new Vector3(0f, 2f, -20f), spr: VesselRoleIcons.Vessel.LoadAsset());

@@ -4,6 +4,7 @@ using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
+using MiraAPI.Translation;
 using MiraAPI.Utilities;
 using TownOfUs;
 using TownOfUs.Assets;
@@ -13,7 +14,6 @@ using TownOfUs.Modifiers.Game;
 using TownOfUs.Modifiers.Impostor;
 using TownOfUs.Modifiers.Neutral;
 using TownOfUs.Modules;
-using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Buttons.Crewmate;
@@ -221,7 +221,7 @@ public static class VesselEvents
 	private static void ShowGhostTransport()
 	{
 		var notif1 = Helpers.CreateAndShowNotification(
-				$"<b>{TownOfUsColors.Transporter.ToTextColor()}{TouLocale.GetParsed("VesselRoleTransportNotif")}</color></b>", Color.white,
+				$"<b>{TownOfUsColors.Transporter.ToTextColor()}{MiraLocaleManager.Get("VesselRoleTransportNotif")}</color></b>", Color.white,
 				new Vector3(0f, 1f, -20f), spr: TouRoleIcons.Transporter.LoadAsset());
 
 		notif1.AdjustNotification();

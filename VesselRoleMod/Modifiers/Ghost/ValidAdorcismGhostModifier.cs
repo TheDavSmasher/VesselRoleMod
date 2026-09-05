@@ -1,6 +1,6 @@
-﻿using MiraAPI.Utilities;
+﻿using MiraAPI.Translation;
+using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
-using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
@@ -25,7 +25,7 @@ public sealed class ValidAdorcismGhostModifier(PlayerControl vessel) : OpenAdorc
 
 		if (decisionNotification == null)
 		{
-			var decisionText = TouLocale.GetParsed("VesselRoleVesselIsDeciding");
+			var decisionText = MiraLocaleManager.Get("VesselRoleVesselIsDeciding");
 			decisionNotification = Helpers.CreateAndShowNotification(
 				$"<b>{VesselRoleModColors.Vessel.ToTextColor()}{decisionText.Replace("<player>", Vessel.Data.PlayerName)}</color></b>",
 				Color.white, new Vector3(0f, 2f, -20f), spr: VesselRoleIcons.Vessel.LoadAsset());

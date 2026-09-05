@@ -1,7 +1,7 @@
 ﻿using MiraAPI.Keybinds;
+using MiraAPI.Translation;
 using MiraAPI.Utilities.Assets;
 using TownOfUs.Buttons;
-using TownOfUs.Modules.Localization;
 using UnityEngine;
 using VesselRoleMod.Assets;
 using VesselRoleMod.Modifiers;
@@ -12,8 +12,8 @@ namespace VesselRoleMod.Buttons.Crewmate;
 
 public sealed class VesselChangeControlButton : VesselRoleButton<IVesselPossessModifier>
 {
-	private static readonly string _ctrlTakeName = TouLocale.GetParsed("VesselModTakeControl", "Take Control");
-	private static readonly string _ctrlGiveName = TouLocale.GetParsed("VesselModGiveControl", "Give Control");
+	private static readonly string _ctrlTakeName = MiraLocaleManager.Get("VesselModTakeControl", "Take Control");
+	private static readonly string _ctrlGiveName = MiraLocaleManager.Get("VesselModGiveControl", "Give Control");
 
 	public override string Name => _ctrlGiveName;
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;

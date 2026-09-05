@@ -138,34 +138,34 @@ public sealed class BlockedMeetingMenu : IDisposable
 
 	private void GenButton(PlayerVoteArea voteArea, MeetingHud __instance)
 	{
-		Actives.Add(voteArea.TargetPlayerId, false);
-		Blocked.Add(voteArea.TargetPlayerId, false);
+		Actives.Add(voteArea.PlayerId, false);
+		Blocked.Add(voteArea.PlayerId, false);
 
 		if (IsExempt(voteArea))
 		{
-			Buttons.Add(voteArea.TargetPlayerId, null!);
-			ButtonSprites.Add(voteArea.TargetPlayerId, null!);
+			Buttons.Add(voteArea.PlayerId, null!);
+			ButtonSprites.Add(voteArea.PlayerId, null!);
 			return;
 		}
 
 		var targetBox = UObject.Instantiate(
 			voteArea.Buttons.transform.Find("CancelButton").gameObject,
 			voteArea.transform);
-		targetBox.name = $"MeetingButton{Owner.GetRoleName().Replace(" ", "")}{voteArea.TargetPlayerId}";
+		targetBox.name = $"MeetingButton{Owner.GetRoleName().Replace(" ", "")}{voteArea.PlayerId}";
 		targetBox.transform.localPosition = Position;
 		var renderer = targetBox.GetComponent<SpriteRenderer>();
 
 		if (IsBlocked(voteArea))
 		{
-			Blocked[voteArea.TargetPlayerId] = true;
+			Blocked[voteArea.PlayerId] = true;
 
 			renderer.sprite = BlockedSprite.LoadAsset();
 			renderer.color = BlockedColor;
 
 			targetBox.transform.GetChild(0).gameObject.Destroy();
 
-			Buttons.Add(voteArea.TargetPlayerId, targetBox);
-			ButtonSprites.Add(voteArea.TargetPlayerId, renderer);
+			Buttons.Add(voteArea.PlayerId, targetBox);
+			ButtonSprites.Add(voteArea.PlayerId, renderer);
 			return;
 		}
 
@@ -174,7 +174,7 @@ public sealed class BlockedMeetingMenu : IDisposable
 		button.OverrideOnClickListeners(() => Click(voteArea, __instance));
 		button.OverrideOnMouseOverListeners(() => renderer.color = HoverColor);
 		button.OverrideOnMouseOutListeners(() => renderer.color =
-			Type == MeetingAbilityType.Toggle && Actives[voteArea.TargetPlayerId]
+			Type == MeetingAbilityType.Toggle && Actives[voteArea.PlayerId]
 				? ActiveColor
 				: DisabledColor);
 		var collider = targetBox.GetComponent<BoxCollider2D>();
@@ -194,8 +194,8 @@ public sealed class BlockedMeetingMenu : IDisposable
 		tmpText.fontSizeMax = 2.5f;
 		tmpText.fontSizeMin = 2.5f;
 		tmpText.m_enableWordWrapping = false;
-		Buttons.Add(voteArea.TargetPlayerId, targetBox);
-		ButtonSprites.Add(voteArea.TargetPlayerId, renderer);
+		Buttons.Add(voteArea.PlayerId, targetBox);
+		ButtonSprites.Add(voteArea.PlayerId, renderer);
 	}
 
 	public void GenButtons(MeetingHud meeting, bool usable)

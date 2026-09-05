@@ -3,6 +3,7 @@ using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
+using MiraAPI.Translation;
 using MiraAPI.Utilities;
 using Reactor.Networking.Attributes;
 using Reactor.Utilities.Extensions;
@@ -13,7 +14,6 @@ using TownOfUs.Assets;
 using TownOfUs.Extensions;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Neutral;
-using TownOfUs.Modules.Localization;
 using TownOfUs.Modules.Wiki;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
@@ -39,14 +39,14 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 	public override bool IsAffectedByComms => false;
 
 	public DoomableType DoomHintType => DoomableType.Death;
-	public string RoleName => TouLocale.Get("VesselRole");
-	public string RoleDescription => TouLocale.GetParsed("VesselRoleIntroBlurb");
-	public string RoleLongDescription => TouLocale.GetParsed("VesselRoleTabDescription");
+	public string RoleName => MiraLocaleManager.Get("VesselRole");
+	public string RoleDescription => MiraLocaleManager.Get("VesselRoleIntroBlurb");
+	public string RoleLongDescription => MiraLocaleManager.Get("VesselRoleTabDescription");
 
 	public string GetAdvancedDescription()
 	{
 		return
-			TouLocale.GetParsed("VesselRoleWikiDescription") +
+			MiraLocaleManager.Get("VesselRoleWikiDescription") +
 			MiscUtils.AppendOptionsText(GetType());
 	}
 
@@ -297,8 +297,8 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		}
 
 		var text = vessel.AmOwner ?
-			TouLocale.GetParsed("VesselRoleYouDeniedPossession").Replace("<player>", ghost.Data.PlayerName) :
-			TouLocale.GetParsed("VesselRoleVesselHasDenied").Replace("<player>", vessel.Data.PlayerName);
+			MiraLocaleManager.Get("VesselRoleYouDeniedPossession").Replace("<player>", ghost.Data.PlayerName) :
+			MiraLocaleManager.Get("VesselRoleVesselHasDenied").Replace("<player>", vessel.Data.PlayerName);
 
 		var notif1 = Helpers.CreateAndShowNotification(text, Color.white, new Vector3(0f, 1f, -20f),
 				spr: VesselRoleIcons.Vessel.LoadAsset());

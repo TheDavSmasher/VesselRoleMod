@@ -2,11 +2,11 @@
 using MiraAPI.Hud;
 using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
+using MiraAPI.Translation;
 using MiraAPI.Utilities.Assets;
 using System.Linq;
 using TownOfUs.Buttons;
 using TownOfUs.Interfaces;
-using TownOfUs.Modules.Localization;
 using TownOfUs.Utilities;
 using UnityEngine;
 using VesselRoleMod.Assets;
@@ -22,7 +22,7 @@ namespace VesselRoleMod.Buttons.Modifiers;
 
 public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSeekingModifier, PlayerControl>, IAftermathablePlayerButton
 {
-	public override string Name => TouLocale.GetParsed("VesselModGhostPossess", "Possess");
+	public override string Name => MiraLocaleManager.Get("VesselModGhostPossess", "Possess");
 	public override BaseKeybind Keybind => Keybinds.TertiaryAction;
 	public override bool HasEffect => EffectActive;
 	public override float EffectDuration => OptionGroupSingleton<VesselOptions>.Instance.PossessionDuration;
@@ -89,7 +89,7 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 			VesselRole.RpcGhostEndPossession(PlayerControl.LocalPlayer, Modifier.Vessel);
 		}
 
-		OverrideName(TouLocale.Get("VesselModGhostPossess", "Possess"));
+		OverrideName(MiraLocaleManager.Get("VesselModGhostPossess", "Possess"));
 		OverrideSprite(VesselCrewAssets.PossessButton.LoadAsset());
 	}
 
@@ -122,7 +122,7 @@ public sealed class PoltergeistPossessButton : PoltergeistTargetButton<IVesselSe
 
 	public void OnSuccess()
 	{
-		OverrideName(TouLocale.Get("VesselModGhostRelease", "Release"));
+		OverrideName(MiraLocaleManager.Get("VesselModGhostRelease", "Release"));
 		OverrideSprite(VesselCrewAssets.ReleaseButton.LoadAsset());
 		EffectActive = true;
 		Timer = EffectDuration;

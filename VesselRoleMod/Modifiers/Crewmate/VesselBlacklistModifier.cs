@@ -80,33 +80,33 @@ public sealed class VesselBlacklistModifier : BaseModifier
 
 	private bool IsExempt(PlayerVoteArea voteArea)
 	{
-		NetworkedPlayerInfo? player = GameData.Instance.GetPlayerById(voteArea.TargetPlayerId);
+		NetworkedPlayerInfo? player = GameData.Instance.GetPlayerById(voteArea.PlayerId);
 
-		return Player.Data.IsDead || voteArea.TargetPlayerId == Player.PlayerId ||
+		return Player.Data.IsDead || voteArea.PlayerId == Player.PlayerId ||
 			   !player || !player.Object || player.Object.Data.Disconnected;
 	}
 
 	private bool IsBlocked(PlayerVoteArea voteArea)
 	{
-		NetworkedPlayerInfo? player = GameData.Instance.GetPlayerById(voteArea.TargetPlayerId);
+		NetworkedPlayerInfo? player = GameData.Instance.GetPlayerById(voteArea.PlayerId);
 
 		return player != null && player.Object.Data.IsDead && player.Object.HasModifier<GhostKillerBlockModifier>(m => m.VesselOwner);
 	}
 
 	private void SetBlacklist(PlayerVoteArea voteArea, MeetingHud __instance)
 	{
-		if (meetingMenu == null || __instance.state == MeetingHud.VoteStates.Discussion || IsExempt(voteArea) || IsBlocked(voteArea))
+		if (meetingMenu == null || __instance.state == MeetingHud.MeetingStates.Discussion || IsExempt(voteArea) || IsBlocked(voteArea))
 		{
 			return;
 		}
 
-		if (meetingMenu.Actives[voteArea.TargetPlayerId] = !meetingMenu.Actives[voteArea.TargetPlayerId])
+		if (meetingMenu.Actives[voteArea.PlayerId] = !meetingMenu.Actives[voteArea.PlayerId])
 		{
-			BlacklistedPlrIds.Add(voteArea.TargetPlayerId);
+			BlacklistedPlrIds.Add(voteArea.PlayerId);
 		}
 		else
 		{
-			BlacklistedPlrIds.Remove(voteArea.TargetPlayerId);
+			BlacklistedPlrIds.Remove(voteArea.PlayerId);
 		}
 	}
 }

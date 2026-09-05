@@ -1,6 +1,7 @@
 ﻿using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.GameOptions;
 using MiraAPI.Patches.Stubs;
+using MiraAPI.Utilities;
 using Reactor.Utilities;
 using Reactor.Utilities.Attributes;
 using Reactor.Utilities.Extensions;
@@ -10,7 +11,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using TMPro;
 using TownOfUs.Assets;
-using TownOfUs.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using VesselRoleMod.Assets;

@@ -1,12 +1,12 @@
 ﻿using MiraAPI.GameOptions;
 using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
+using MiraAPI.Translation;
 using MiraAPI.Utilities.Assets;
 using System;
 using System.Linq;
 using TownOfUs;
 using TownOfUs.Buttons;
-using TownOfUs.Modules.Localization;
 using TownOfUs.Roles;
 using TownOfUs.Utilities;
 using UnityEngine;
@@ -21,7 +21,7 @@ namespace VesselRoleMod.Buttons.Crewmate;
 
 public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 {
-	public override string Name => TouLocale.GetParsed("VesselRoleAdorcise", "Adorcise");
+	public override string Name => MiraLocaleManager.Get("VesselRoleAdorcise", "Adorcise");
 	public override BaseKeybind? Keybind => Keybinds.SecondaryAction;
 	public override Color TextOutlineColor => TownOfUsColors.Impostor;
 	public override float Cooldown => Math.Clamp(OptionGroupSingleton<VesselOptions>.Instance.AdorciseCooldown + MapCooldown, 5f, 120f);
@@ -132,7 +132,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 	{
 		base.OnTriggerActivate();
 
-		OverrideName(TouLocale.Get("VesselRoleExorcise", "Exorcise"));
+		OverrideName(MiraLocaleManager.Get("VesselRoleExorcise", "Exorcise"));
 		OverrideSprite(VesselCrewAssets.ExorciseSprite.LoadAsset());
 	}
 
@@ -145,7 +145,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			VesselRole.RpcVesselClosed(PlayerControl.LocalPlayer);
 		}
 
-		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
+		OverrideName(MiraLocaleManager.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
 	}
 
@@ -159,7 +159,7 @@ public class VesselAdorciseButton : TouRoleTriggerButton<VesselRole>
 			VesselRole.RpcGhostEndPossession(mod.Ghost, PlayerControl.LocalPlayer);
 		}
 
-		OverrideName(TouLocale.Get("VesselRoleAdorcise", "Adorcise"));
+		OverrideName(MiraLocaleManager.Get("VesselRoleAdorcise", "Adorcise"));
 		OverrideSprite(VesselCrewAssets.AdorciseSprite.LoadAsset());
 	}
 }

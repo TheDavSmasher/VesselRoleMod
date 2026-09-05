@@ -23,7 +23,7 @@ public static class VesselModEventHandlers
 			return;
 		}
 
-		var pva = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == player.PlayerId);
+		var pva = MeetingHud.Instance.playerStates.First(x => x.PlayerId == player.PlayerId);
 
 		if (!pva)
 		{
