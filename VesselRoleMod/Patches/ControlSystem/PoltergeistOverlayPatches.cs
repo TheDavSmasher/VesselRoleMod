@@ -5,6 +5,7 @@ using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.Utilities;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using TownOfUs.Modifiers.Crewmate;
 using TownOfUs.Modifiers.Impostor;
 using TownOfUs.Modifiers.Impostor.Herbalist;
@@ -267,9 +268,20 @@ public static class PoltergeistOverlayPatches
 			return;
 		}
 
-		Color color = Color.white;
-		float onVal = 1f;
-		SpriteRenderer image;
+		if (!GetImageToOutline(__instance, out SpriteRenderer? image, out Color color, out float onVal))
+		{
+			return;
+		}
+
+		image.material.SetFloat(ShaderID.Outline, on ? onVal : 0);
+		image.material.SetColor(ShaderID.OutlineColor, color);
+		image.material.SetColor(ShaderID.AddColor, mainTarget ? color : Color.clear);
+	}
+
+	private static bool GetImageToOutline(MonoBehaviour __instance, [NotNullWhen(true)] out SpriteRenderer? image, out Color color, out float onVal)
+	{
+		onVal = 1f;
+		color = Color.white;
 		if (__instance.TryCast<Ladder>() is { } ladder)
 		{
 			image = ladder.Image;
@@ -301,7 +313,8 @@ public static class PoltergeistOverlayPatches
 		}
 		else
 		{
-			return;
+			image = null;
+			return false;
 		}
 
 		if (!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
@@ -310,8 +323,6 @@ public static class PoltergeistOverlayPatches
 			onVal = 0.3f;
 		}
 
-		image.material.SetFloat(ShaderID.Outline, on ? onVal : 0);
-		image.material.SetColor(ShaderID.OutlineColor, color);
-		image.material.SetColor(ShaderID.AddColor, mainTarget ? color : Color.clear);
+		return true;
 	}
 }
