@@ -25,12 +25,10 @@ public sealed class BlockedMeetingMenu : IDisposable
 		MeetingAbilityType abilityType,
 		LoadableAsset<Sprite> activeSprite,
 		LoadableAsset<Sprite> disabledSprite = null!,
-		LoadableAsset<Sprite> blockedSprite = null!,
 		Exemption exemption = null!,
 		Exemption blocking = null!,
 		Color? activeColor = null!,
 		Color? disabledColor = null!,
-		Color? blockedColor = null!,
 		Color? hoverColor = null!,
 		Vector3? position = null!)
 	{
@@ -40,10 +38,8 @@ public sealed class BlockedMeetingMenu : IDisposable
 		IsBlocked = blocking;
 		ActiveSprite = activeSprite;
 		DisabledSprite = disabledSprite;
-		BlockedSprite = blockedSprite;
 		ActiveColor = activeColor ?? Color.green;
 		DisabledColor = disabledColor ?? Color.white;
-		BlockedColor = blockedColor ?? Color.gray;
 		HoverColor = hoverColor ?? Color.red;
 		Type = abilityType;
 		Position = position ?? new Vector3(-0.95f, 0.03f, -3f);
@@ -59,12 +55,10 @@ public sealed class BlockedMeetingMenu : IDisposable
 		MeetingAbilityType abilityType,
 		LoadableAsset<Sprite> activeSprite,
 		LoadableAsset<Sprite> disabledSprite = null!,
-		LoadableAsset<Sprite> blockedSprite = null!,
 		Exemption exemption = null!,
 		Exemption blocking = null!,
 		Color? activeColor = null!,
 		Color? disabledColor = null!,
-		Color? blockedColor = null!,
 		Color? hoverColor = null!,
 		Vector3? position = null!)
 	{
@@ -74,10 +68,8 @@ public sealed class BlockedMeetingMenu : IDisposable
 		IsBlocked = blocking;
 		ActiveSprite = activeSprite;
 		DisabledSprite = disabledSprite;
-		BlockedSprite = blockedSprite;
 		ActiveColor = activeColor ?? Color.green;
 		DisabledColor = disabledColor ?? Color.white;
-		BlockedColor = blockedColor ?? Color.gray;
 		HoverColor = hoverColor ?? Color.red;
 		Type = abilityType;
 		Position = position ?? new Vector3(-0.95f, 0.03f, -3f);
@@ -94,16 +86,13 @@ public sealed class BlockedMeetingMenu : IDisposable
 	public Exemption IsBlocked { get; }
 	public LoadableAsset<Sprite> ActiveSprite { get; }
 	public LoadableAsset<Sprite> DisabledSprite { get; }
-	public LoadableAsset<Sprite> BlockedSprite { get; }
 	public string AbilityName { get; }
 	private Color ActiveColor { get; }
 	private Color DisabledColor { get; }
-	private Color BlockedColor { get; }
 	private Color HoverColor { get; }
 	public MeetingAbilityType Type { get; }
 	public Vector3 Position { get; set; }
 	public Dictionary<byte, bool> Actives { get; } = [];
-	public Dictionary<byte, bool> Blocked { get; } = [];
 	public Dictionary<byte, GameObject> Buttons { get; } = [];
 	private Dictionary<byte, SpriteRenderer> ButtonSprites { get; } = [];
 
@@ -117,7 +106,6 @@ public sealed class BlockedMeetingMenu : IDisposable
 		Buttons.Keys.ToList().ForEach(HideSingle);
 		Buttons.Clear();
 		Actives.Clear();
-		Blocked.Clear();
 		ButtonSprites.Clear();
 	}
 
@@ -139,7 +127,6 @@ public sealed class BlockedMeetingMenu : IDisposable
 	private void GenButton(PlayerVoteArea voteArea, MeetingHud __instance)
 	{
 		Actives.Add(voteArea.PlayerId, false);
-		Blocked.Add(voteArea.PlayerId, false);
 
 		if (IsExempt(voteArea))
 		{
@@ -157,10 +144,10 @@ public sealed class BlockedMeetingMenu : IDisposable
 
 		if (IsBlocked(voteArea))
 		{
-			Blocked[voteArea.PlayerId] = true;
+			Actives[voteArea.PlayerId] = true;
 
-			renderer.sprite = BlockedSprite.LoadAsset();
-			renderer.color = BlockedColor;
+			renderer.sprite = ActiveSprite.LoadAsset();
+			renderer.color = ActiveColor;
 
 			targetBox.transform.GetChild(0).gameObject.Destroy();
 
@@ -208,7 +195,6 @@ public sealed class BlockedMeetingMenu : IDisposable
 		}
 
 		Actives.Clear();
-		Blocked.Clear();
 		Buttons.Clear();
 		ButtonSprites.Clear();
 		meeting.playerStates.ToList().ForEach(x => GenButton(x, meeting));
@@ -228,8 +214,8 @@ public sealed class BlockedMeetingMenu : IDisposable
 				continue;
 			}
 
-			pair.Value.sprite = (Blocked[pair.Key] ? BlockedSprite : Actives[pair.Key] ? ActiveSprite : DisabledSprite).LoadAsset();
-			pair.Value.color = Blocked[pair.Key] ? BlockedColor : Actives[pair.Key] ? ActiveColor : DisabledColor;
+			pair.Value.sprite = (Actives[pair.Key] ? ActiveSprite : DisabledSprite).LoadAsset();
+			pair.Value.color = Actives[pair.Key] ? ActiveColor : DisabledColor;
 		}
 	}
 

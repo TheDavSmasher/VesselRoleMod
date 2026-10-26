@@ -31,7 +31,6 @@ public sealed class VesselBlacklistModifier : BaseModifier
 				MeetingAbilityType.Toggle,
 				VesselModAssets.VesselBlockedSprite,
 				VesselModAssets.VesselUnblockedSprite,
-				VesselModAssets.VesselBlockedSprite,
 				IsExempt,
 				IsBlocked,
 				Color.white,
