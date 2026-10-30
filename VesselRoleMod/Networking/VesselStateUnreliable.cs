@@ -30,10 +30,9 @@ internal sealed class VesselStateUnreliableRpc(VesselRoleModPlugin plugin, uint 
 		return new VesselStatePacket(vesselId, pos, anim, vel);
 	}
 
-	protected override void Store(PlayerControl sender, VesselStatePacket data)
+	protected override void Store(bool isControlled, VesselStatePacket data)
 	{
-		if (!VesselControlState.IsControlled(data.TargetId, out var ghostId) ||
-			ghostId != sender.PlayerId)
+		if (!isControlled)
 		{
 			return;
 		}

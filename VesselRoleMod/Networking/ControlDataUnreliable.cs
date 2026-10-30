@@ -1,5 +1,6 @@
 ﻿using Reactor.Networking.Rpc;
 using TownOfUs.Modules;
+using VesselRoleMod.Modules.ControlSystem;
 
 namespace VesselRoleMod.Networking;
 
@@ -32,8 +33,14 @@ internal abstract class ControlDataUnreliableRpc<TData>(VesselRoleModPlugin plug
 			return;
 		}
 
-		Store(sender, data);
+		if (!VesselControlState.IsUsingState(data.TargetId, out var otherId, out var isControlled) ||
+			otherId != sender.PlayerId)
+		{
+			return;
+		}
+
+		Store(isControlled, data);
 	}
 
-	protected abstract void Store(PlayerControl sender, TData data);
+	protected abstract void Store(bool isControlled, TData data);
 }
