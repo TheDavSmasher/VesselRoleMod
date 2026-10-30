@@ -20,27 +20,38 @@ public static class VesselOverlayPatch
 			return;
 		}
 
-		if (local.TryGetModifier<VesselPossessedModifier>(out var mod))
+		if (!local.TryGetModifier<VesselPossessedModifier>(out var mod))
 		{
-			if (VesselControlState.IsControlled(local.PlayerId, out var ghostId))
-			{
-				if (MeetingHud.Instance == null &&
-					ExileController.Instance == null &&
-					local.Data != null &&
-					!local.Data.Disconnected &&
-					!local.Data.IsDead)
-				{
-					var ghost = MiscUtils.PlayerById(ghostId);
-					if (ghost?.Data != null && !ghost.Data.Disconnected && ghost.HasDied())
-					{
-						return;
-					}
-				}
+			return;
+		}
 
-				VesselControlState.ClearControl(local.PlayerId);
-			}
-
+		if (!VesselControlState.IsControlled(local.PlayerId, out var ghostId))
+		{
 			mod.ClearNotification();
+			mod.RemoveSelf();
+			return;
+		}
+
+		var shouldClear =
+			MeetingHud.Instance ||
+			ExileController.Instance ||
+			local.Data == null ||
+			local.Data.Disconnected ||
+			local.Data.IsDead;
+
+		if (!shouldClear)
+		{
+			var ghost = MiscUtils.PlayerById(ghostId);
+			if (ghost == null || ghost.Data == null || ghost.Data.Disconnected || !ghost.HasDied())
+			{
+				shouldClear = true;
+			}
+		}
+
+		if (shouldClear)
+		{
+			mod.ClearNotification();
+			VesselControlState.ClearControl(local.PlayerId);
 			mod.RemoveSelf();
 		}
 	}
