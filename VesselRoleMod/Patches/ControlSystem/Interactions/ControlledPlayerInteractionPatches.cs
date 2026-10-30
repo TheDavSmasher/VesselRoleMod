@@ -81,7 +81,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controller = vesselMod.Ghost;
 			if (controller != null && controller.HasDied() &&
-				VesselControlState.IsFullyControlling(controller.PlayerId))
+				VesselControlState.IsControlling(controller.PlayerId, out _))
 			{
 				return (__result = false);
 			}
@@ -91,7 +91,7 @@ public static class ControlledPlayerInteractionPatches
 		{
 			var controlled = poltergeistMod.Vessel;
 			if (controlled != null && !controlled.HasDied() &&
-				VesselControlState.IsControllingActionable(controlled.PlayerId))
+				VesselControlState.IsControlled(controlled.PlayerId, out _))
 			{
 				return (__result = false);
 			}
