@@ -88,6 +88,7 @@ public static class VesselMovementPatches
 
 		_lastSentPos[vesselId] = position;
 		_lastSentVel[vesselId] = velocity;
+		_lastSentStateAt[vesselId] = now;
 
 		Rpc<VesselStateUnreliableRpc>.Instance.Send(
 			PlayerControl.LocalPlayer,
