@@ -2,6 +2,7 @@
 using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Utilities;
+using TownOfUs.Utilities.ControlSystem;
 using UnityEngine;
 using VesselRoleMod.Assets;
 
@@ -35,10 +36,6 @@ public sealed class ValidAdorcismGhostModifier(PlayerControl vessel) : OpenAdorc
 
 	public void ClearNotifications()
 	{
-		if (decisionNotification != null && decisionNotification.gameObject != null)
-		{
-			decisionNotification.gameObject.Destroy();
-			decisionNotification = null;
-		}
+		ControlledFeedbackUtilities.ClearNotification(ref decisionNotification);
 	}
 }

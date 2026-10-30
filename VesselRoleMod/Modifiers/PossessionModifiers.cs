@@ -3,6 +3,7 @@ using MiraAPI.Modifiers.Types;
 using MiraAPI.PluginLoading;
 using Reactor.Utilities.Extensions;
 using TownOfUs.Modules;
+using TownOfUs.Utilities.ControlSystem;
 using VesselRoleMod.Modules.ControlSystem;
 using VesselRoleMod.Options.Roles.Crewmate;
 using VesselRoleMod.Utilities;
@@ -73,11 +74,7 @@ public abstract class ActivePossessionModifier : PossessionModifier, IVesselPoss
 
 	public void ClearNotification()
 	{
-		if (notification != null && notification.gameObject != null)
-		{
-			notification.gameObject.Destroy();
-			notification = null;
-		}
+		ControlledFeedbackUtilities.ClearNotification(ref notification);
 	}
 }
 
