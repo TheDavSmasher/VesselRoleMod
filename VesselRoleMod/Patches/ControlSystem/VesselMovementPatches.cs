@@ -125,10 +125,10 @@ public static class VesselMovementPatches
 			{
 				return true;
 			}
-
+			
+			var vessel = mod.Vessel;
 			if (VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
 			{
-				var vessel = mod.Vessel;
 				if (vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
 				{
 					return true;
@@ -138,16 +138,16 @@ public static class VesselMovementPatches
 
 				SendVesselInputIfNeeded(mod.Target.PlayerId, vessel.AmOwner, dir);
 			}
-			if (mod is VesselPossessedModifier && player.Data.Role is VesselRole)
+			if (mod is PoltergeistModifier && vessel.Data.Role is VesselRole)
 			{
-				var vesselInAnim = player.IsInTargetingAnimState() || player.inVent;
+				var vesselInAnim = vessel.IsInTargetingAnimState() || vessel.inVent;
 
-				var vesselVel = vesselInAnim && player.MyPhysics != null
-					? player.MyPhysics.body.velocity
+				var vesselVel = vesselInAnim && vessel.MyPhysics != null
+					? vessel.MyPhysics.body.velocity
 					: Vector2.zero;
-				var vesselPos = player.MyPhysics?.body.position ?? player.transform.position;
+				var vesselPos = vessel.MyPhysics?.body.position ?? vessel.transform.position;
 
-				SendVesselStateIfNeeded(player.PlayerId, vesselPos, vesselInAnim, vesselVel);
+				SendVesselStateIfNeeded(vessel.PlayerId, vesselPos, vesselInAnim, vesselVel);
 			}
 		}
 
