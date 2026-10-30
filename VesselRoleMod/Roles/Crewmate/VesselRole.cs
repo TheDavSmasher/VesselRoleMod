@@ -395,45 +395,52 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 			return;
 		}
 
-		if (vessel.TryGetModifier<VesselPossessedModifier>(out var mod1))
+		VesselControlState.ClearControl(vessel.PlayerId);
+		vessel.RemoveExistingModifier<VesselPossessedModifier>();
+
+		if (vessel.MyPhysics != null)
 		{
-			VesselControlState.ClearControl(vessel.PlayerId);
-			mod1.RemoveSelf();
-
-			if (vessel.MyPhysics != null)
+			if (vessel.inVent)
 			{
-				if (vessel.inVent)
+				vessel.MyPhysics.ClearVentState();
+
+				if (ghost.AmOwner &&
+					CustomButtonSingleton<PoltergeistVentButton>.Instance.Cooldown > 0.001f)
 				{
-					vessel.MyPhysics.ClearVentState();
-
-					if (ghost.AmOwner &&
-						CustomButtonSingleton<PoltergeistVentButton>.Instance.Cooldown > 0.001f)
-					{
-						ghost.AddModifier<GhostVentCooldownModifier>();
-					}
+					ghost.AddModifier<GhostVentCooldownModifier>();
 				}
-				else
-				{
-					vessel.MyPhysics.body?.velocity = Vector2.zero;
-					vessel.MyPhysics.SetNormalizedVelocity(Vector2.zero);
-				}
-			}
-
-			var finalPos = (Vector2)vessel.transform.position;
-
-			NetTransformBacklogUtils.FlushBacklog(vessel);
-
-			if (vessel.AmOwner)
-			{
-				vessel.NetTransform?.SnapTo(finalPos);
-			}
-			else if (ghost.AmOwner)
-			{
-				NetTransformBacklogUtils.FlushAndSnap(vessel);
 			}
 			else
 			{
-				NetTransformBacklogUtils.FlushAndSnap(vessel);
+				vessel.MyPhysics.body?.velocity = Vector2.zero;
+				vessel.MyPhysics.SetNormalizedVelocity(Vector2.zero);
+			}
+		}
+
+		if (vessel.NetTransform != null)
+		{
+			try
+			{
+				var finalPos = (Vector2)vessel.transform.position;
+
+				NetTransformBacklogUtils.FlushBacklog(vessel);
+
+				if (vessel.AmOwner)
+				{
+					vessel.NetTransform?.SnapTo(finalPos);
+				}
+				else if (ghost.AmOwner)
+				{
+					NetTransformBacklogUtils.FlushAndSnap(vessel);
+				}
+				else
+				{
+					NetTransformBacklogUtils.FlushBacklog(vessel);
+				}
+			}
+			catch
+			{
+				// ignored
 			}
 		}
 
@@ -442,7 +449,17 @@ public sealed class VesselRole(IntPtr cppPtr) : CrewmateRole(cppPtr), ITownOfUsR
 		if (ghost.AmOwner)
 		{
 			var pos = (Vector2)ghost.transform.position;
-			ghost.NetTransform?.SnapTo(pos);
+			if (ghost.NetTransform != null)
+			{
+				try
+				{
+					ghost.NetTransform.SnapTo(pos);
+				}
+				catch
+				{
+					// ignored
+				}
+			}
 		}
 		else
 		{
