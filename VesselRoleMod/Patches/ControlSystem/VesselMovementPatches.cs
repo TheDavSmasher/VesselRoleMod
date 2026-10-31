@@ -107,26 +107,14 @@ public static class VesselMovementPatches
 
 		if (TimeLordRewindSystem.IsRewinding)
 		{
-			if (player.HasModifierOfType<IVesselPossessModifier>() && player.AmOwner)
-			{
-				return true;
-			}
-			if (player == PlayerControl.LocalPlayer)
-			{
-				return true;
-			}
+			return true;
 		}
 
 		if (player.AmOwner &&
 			PlayerControl.LocalPlayer &&
 			PlayerControl.LocalPlayer.TryGetModifierOfType<IVesselPossessModifier>(out var mod) &&
 			mod.Vessel != null)
-		{
-			if (TimeLordRewindSystem.IsRewinding)
-			{
-				return true;
-			}
-			
+		{			
 			var vessel = mod.Vessel;
 			if (VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
 			{
@@ -155,11 +143,6 @@ public static class VesselMovementPatches
 		// player is player ghost
 		if (VesselControlState.IsControlling(player.PlayerId, out var vesselId))
 		{
-			if (TimeLordRewindSystem.IsRewinding)
-			{
-				return true;
-			}
-
 			ApplyAllDataTo(__instance, vesselId);
 			return false;
 		}
@@ -167,11 +150,6 @@ public static class VesselMovementPatches
 		// player is player vessel
 		if (VesselControlState.IsControlled(player.PlayerId, out var ghostId))
 		{
-			if (TimeLordRewindSystem.IsRewinding)
-			{
-				return true;
-			}
-
 			if (player.IsInTargetingAnimState() || player.inVent)
 			{
 				return true;
@@ -184,11 +162,6 @@ public static class VesselMovementPatches
 		// player is vessel dummy
 		if (player.HasModifier<VesselPossessedModifier>() && player.GetComponent<DummyBehaviour>() != null)
 		{
-			if (TimeLordRewindSystem.IsRewinding)
-			{
-				return true;
-			}
-
 			if (player.IsInTargetingAnimState() || player.inVent)
 			{
 				return true;
