@@ -21,7 +21,7 @@ public static class VesselControlState
 	private static readonly Dictionary<byte, byte> ControlledBy = [];
 	private static readonly Dictionary<byte, byte> Controlling = [];
 
-	private static readonly Dictionary<byte, bool> InControl = [];
+	private static readonly Dictionary<byte, bool> Actionable = [];
 
 	private static readonly Dictionary<byte, bool> TimerPaused = [];
 
@@ -42,8 +42,8 @@ public static class VesselControlState
 		ControlledBy[controlledId] = controllerId;
 		Controlling[controllerId] = controlledId;
 
-		InControl[controlledId] = CanShareControl;
-		InControl[controllerId] = true;
+		Actionable[controlledId] = CanShareControl;
+		Actionable[controllerId] = true;
 
 		ControlledDirection[controlledId] = Vector2.zero;
 		SelfDirection[controllerId] = Vector2.zero;
@@ -62,8 +62,8 @@ public static class VesselControlState
 		ControlledBy.Remove(controlledId, out var controllerId);
 		Controlling.Remove(controllerId);
 
-		InControl.Remove(controlledId);
-		InControl.Remove(controllerId);
+		Actionable.Remove(controlledId);
+		Actionable.Remove(controllerId);
 
 		ControlledDirection.Remove(controlledId);
 		SelfDirection.Remove(controllerId);
@@ -96,19 +96,19 @@ public static class VesselControlState
 	}
 
 	#region State Control Check
-	public static bool HasControl(byte playerId)
+	public static bool IsActionable(byte playerId)
 	{
-		return InControl.TryGetValue(playerId, out bool has) && has;
+		return Actionable.TryGetValue(playerId, out bool has) && has;
 	}
 
 	public static bool IsFullyControlling(byte playerId)
 	{
-		return IsControlling(playerId, out byte otherId) && !HasControl(otherId);
+		return IsControlling(playerId, out byte otherId) && !IsActionable(otherId);
 	}
 
 	public static bool IsControllingActionable(byte playerId)
 	{
-		return IsControlling(playerId, out _) && HasControl(playerId);
+		return IsControlling(playerId, out _) && IsActionable(playerId);
 	}
 
 	public static void SwapControlOver(byte playerId, byte againstId)
@@ -118,7 +118,7 @@ public static class VesselControlState
 			return;
 		}
 
-		(InControl[playerId], InControl[againstId]) = (InControl[againstId], InControl[playerId]);
+		(Actionable[playerId], Actionable[againstId]) = (Actionable[againstId], Actionable[playerId]);
 	}
 	#endregion
 
@@ -164,7 +164,7 @@ public static class VesselControlState
 		{
 			return Vector2.ClampMagnitude(GetSelfDirection(controllerId) + GetForcedDirection(controlledId), 1f);
 		}
-		if (HasControl(controllerId))
+		if (IsActionable(controllerId))
 		{
 			return GetForcedDirection(controlledId);
 		}
@@ -234,7 +234,7 @@ public static class VesselControlState
 		ControlledBy.Clear();
 		Controlling.Clear();
 
-		InControl.Clear();
+		Actionable.Clear();
 
 		TimerPaused.Clear();
 

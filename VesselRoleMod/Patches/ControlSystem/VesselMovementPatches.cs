@@ -116,7 +116,7 @@ public static class VesselMovementPatches
 			mod.Vessel != null)
 		{			
 			var vessel = mod.Vessel;
-			if (VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
+			if (VesselControlState.IsActionable(PlayerControl.LocalPlayer.PlayerId))
 			{
 				if (vessel.Data == null || vessel.HasDied() || vessel.Data.Disconnected)
 				{

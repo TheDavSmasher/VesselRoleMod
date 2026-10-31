@@ -30,7 +30,7 @@ public sealed class VesselChangeControlButton : VesselRoleButton<IVesselPossessM
 
 		if (VesselControlState.IsUsingState(PlayerControl.LocalPlayer.PlayerId, out _, out bool isVessel))
 		{
-			var hasControl = VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId);
+			var hasControl = VesselControlState.IsActionable(PlayerControl.LocalPlayer.PlayerId);
 			var asset = hasControl == isVessel ? VesselCrewAssets.VesselControlSprite : VesselCrewAssets.GhostControlSprite;
 			var name = hasControl ? _ctrlGiveName : _ctrlTakeName;
 

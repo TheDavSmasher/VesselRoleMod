@@ -19,7 +19,7 @@ public static class ControlledCanUsePatches
 
 		if (pc.Object.HasModifierOfType<IVesselPossessModifier>())
 		{
-			canUse &= VesselControlState.HasControl(pc.PlayerId);
+			canUse &= VesselControlState.IsActionable(pc.PlayerId);
 		}
 	}
 

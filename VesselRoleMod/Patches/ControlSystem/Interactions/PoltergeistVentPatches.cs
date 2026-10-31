@@ -141,7 +141,7 @@ public static class PoltergeistVentPatches
 		{
 			return true;
 		}
-		if (!VesselControlState.HasControl(localPlayer.PlayerId))
+		if (!VesselControlState.IsActionable(localPlayer.PlayerId))
 		{
 			error = "Player does not have control.";
 			return (__result = false);
@@ -202,7 +202,7 @@ public static class PoltergeistVentPatches
 				return;
 			}
 
-			var hasControl = VesselControlState.HasControl(localPlayer.PlayerId);
+			var hasControl = VesselControlState.IsActionable(localPlayer.PlayerId);
 
 			Vent[] nearbyVents = __instance.NearbyVents;
 			for (int i = 0; i < __instance.Buttons.Length; i++)

@@ -87,7 +87,7 @@ public sealed class PoltergeistVentButton : PoltergeistTargetButton<IVesselPosse
 
 	public override bool CanUse()
 	{
-		return VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId) &&
+		return VesselControlState.IsActionable(PlayerControl.LocalPlayer.PlayerId) &&
 			   (base.CanUse() || Modifier!.Vessel.inVent);
 	}
 

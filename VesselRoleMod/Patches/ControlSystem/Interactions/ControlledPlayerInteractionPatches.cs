@@ -39,7 +39,7 @@ public static class ControlledPlayerInteractionPatches
 			if (controller != null && controller.HasDied() &&
 				VesselControlState.IsControlling(controller.PlayerId, out _))
 			{
-				if (VesselControlState.HasControl(localPlayer.PlayerId) &&
+				if (VesselControlState.IsActionable(localPlayer.PlayerId) &&
 					__instance.currentTarget.TryCast<MonoBehaviour>() is { } obj)
 				{
 					VesselRole.RpcVesselSetGhostState(controller, localPlayer, obj.transform.position);
@@ -154,7 +154,7 @@ public static class ControlledPlayerInteractionPatches
 				VesselControlState.IsControlling(localPlayer.PlayerId, out _))
 			{
 				isControlling = true;
-				isActionable = VesselControlState.HasControl(localPlayer.PlayerId);
+				isActionable = VesselControlState.IsActionable(localPlayer.PlayerId);
 				controlledPlayer = controlled;
 			}
 		}

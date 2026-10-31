@@ -317,7 +317,7 @@ public static class PoltergeistOverlayPatches
 			return false;
 		}
 
-		if (!VesselControlState.HasControl(PlayerControl.LocalPlayer.PlayerId))
+		if (!VesselControlState.IsActionable(PlayerControl.LocalPlayer.PlayerId))
 		{
 			color = Palette.DisabledGrey;
 			onVal = 0.3f;
